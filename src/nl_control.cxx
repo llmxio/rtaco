@@ -98,7 +98,7 @@ auto Control::async_dump_neighbors()
     co_return result;
 }
 
-auto Control::flush_neighbor(uint16_t ifindex, const Ip6Address& address)
+auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> expected<void, llmx_error_policy> {
     auto future = boost::asio::co_spawn(io_, async_flush_neighbor(ifindex, address),
             boost::asio::use_future);
@@ -106,7 +106,7 @@ auto Control::flush_neighbor(uint16_t ifindex, const Ip6Address& address)
     return future.get();
 }
 
-auto Control::async_flush_neighbor(uint16_t ifindex, const Ip6Address& address)
+auto Control::async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
@@ -118,7 +118,7 @@ auto Control::async_flush_neighbor(uint16_t ifindex, const Ip6Address& address)
     co_return co_await task.async_run();
 }
 
-auto Control::probe_neighbor(uint16_t ifindex, const Ip6Address& address)
+auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> expected<void, llmx_error_policy> {
     auto future = boost::asio::co_spawn(io_, async_probe_neighbor(ifindex, address),
             boost::asio::use_future);
@@ -126,7 +126,7 @@ auto Control::probe_neighbor(uint16_t ifindex, const Ip6Address& address)
     return future.get();
 }
 
-auto Control::async_probe_neighbor(uint16_t ifindex, const Ip6Address& address)
+auto Control::async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
@@ -138,7 +138,7 @@ auto Control::async_probe_neighbor(uint16_t ifindex, const Ip6Address& address)
     co_return co_await task.async_run();
 }
 
-auto Control::get_neighbor(uint16_t ifindex, const Ip6Address& address)
+auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> expected<NeighborEvent, llmx_error_policy> {
     auto future = boost::asio::co_spawn(io_, async_get_neighbor(ifindex, address),
             boost::asio::use_future);
@@ -146,7 +146,7 @@ auto Control::get_neighbor(uint16_t ifindex, const Ip6Address& address)
     return future.get();
 }
 
-auto Control::async_get_neighbor(uint16_t ifindex, const Ip6Address& address)
+auto Control::async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> boost::asio::awaitable<expected<NeighborEvent, llmx_error_policy>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());

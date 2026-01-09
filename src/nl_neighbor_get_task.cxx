@@ -10,10 +10,13 @@
 namespace llmx {
 namespace nl {
 
-NeighborGetTask::NeighborGetTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
-        const Ip6Address& address)
-    : NeighborTask{socket, uint16_t, sequence}
-    , address_{address} {}
+NeighborGetTask::NeighborGetTask(Socket& socket, uint16_t ifindex, uint32_t sequence,
+        std::span<uint8_t, 16> address)
+    : NeighborTask{socket, ifindex, sequence} {
+    for (std::size_t i = 0; i < 16; ++i) {
+        address_[i] = address[i];
+    }
+}
 
 void NeighborGetTask::prepare_request() {
     build_request(RTM_GETNEIGH, NLM_F_REQUEST, 0, 0, address_);
@@ -38,8 +41,8 @@ auto NeighborGetTask::handle_done() -> expected<NeighborEvent> {
 }
 
 auto NeighborGetTask::handle_error(const nlmsghdr& header) -> expected<NeighborEvent> {
-    const auto* err       = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-    const auto code       = err != nullptr ? -err->error : EPROTO;
+    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto code = err != nullptr ? -err->error : EPROTO;
     const auto error_code = from_errno(code);
 
     if (!error_code) {

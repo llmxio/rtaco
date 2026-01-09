@@ -12,7 +12,6 @@
 
 #include "llmx/core/error.h"
 #include "llmx/core/expected_ext.h"
-#include "llmx/net/ip6.h"
 #include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
@@ -37,13 +36,13 @@ public:
     auto dump_addresses() -> expected<AddressEventList, llmx_error_policy>;
     auto dump_neighbors() -> expected<NeighborEventList, llmx_error_policy>;
 
-    auto probe_neighbor(uint16_t ifindex, const Ip6Address& address)
+    auto probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
             -> expected<void, llmx_error_policy>;
 
-    auto flush_neighbor(uint16_t ifindex, const Ip6Address& address)
+    auto flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
             -> expected<void, llmx_error_policy>;
 
-    auto get_neighbor(uint16_t ifindex, const Ip6Address& address)
+    auto get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
             -> expected<NeighborEvent, llmx_error_policy>;
 
     auto async_dump_routes()
@@ -55,13 +54,13 @@ public:
     auto async_dump_neighbors()
             -> boost::asio::awaitable<expected<NeighborEventList, llmx_error_policy>>;
 
-    auto async_probe_neighbor(uint16_t ifindex, const Ip6Address& address)
+    auto async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<expected<void, llmx_error_policy>>;
 
-    auto async_flush_neighbor(uint16_t ifindex, const Ip6Address& address)
+    auto async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<expected<void, llmx_error_policy>>;
 
-    auto async_get_neighbor(uint16_t ifindex, const Ip6Address& address)
+    auto async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<expected<NeighborEvent, llmx_error_policy>>;
 
     void stop();

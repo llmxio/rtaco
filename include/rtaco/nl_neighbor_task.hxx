@@ -7,7 +7,6 @@
 
 #include <linux/rtnetlink.h>
 
-#include "llmx/net/ip6.h"
 #include "rtaco/nl_request_task.hxx"
 
 namespace llmx {
@@ -34,7 +33,7 @@ public:
 
 protected:
     void build_request(uint16_t msg_type, uint16_t msg_flags, uint16_t ndm_state,
-            uint8_t ndm_flags, const Ip6Address& address) {
+            uint8_t ndm_flags, std::span<uint8_t, 16> address) {
         request_.header.nlmsg_len = NLMSG_LENGTH(sizeof(ndmsg));
         request_.header.nlmsg_type = msg_type;
         request_.header.nlmsg_flags = msg_flags;
