@@ -6,11 +6,11 @@ namespace llmx {
 namespace nl {
 
 class NeighborFlushTask : public NeighborTask<NeighborFlushTask, void> {
-    Ip6Address address_;
+    std::array<uint8_t, 16> address_;
 
 public:
-    NeighborFlushTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
-            const Ip6Address& address);
+    NeighborFlushTask(Socket& socket, uint16_t ifindex, uint32_t sequence,
+            std::span<uint8_t, 16> address);
 
     void prepare_request();
 

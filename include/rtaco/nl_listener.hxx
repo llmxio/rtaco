@@ -20,7 +20,6 @@
 #include "rtaco/nl_protocol.hxx"
 #include "rtaco/nl_socket.hxx"
 #include "rtaco/nl_signal.hxx"
-#include "llmx/net/ip6.h"
 
 namespace llmx {
 namespace nl {

@@ -14,7 +14,7 @@ NeighborDumpTask::NeighborDumpTask(Socket& socket, std::pmr::memory_resource* pm
 void NeighborDumpTask::prepare_request() {
     std::memset(&request_, 0, sizeof(request_));
 
-    build_request(RTM_GETNEIGH, NLM_F_REQUEST | NLM_F_DUMP, 0, 0, {});
+    build_request(RTM_GETNEIGH, NLM_F_REQUEST | NLM_F_DUMP, 0, 0, nullptr);
 }
 
 auto NeighborDumpTask::process_message(const nlmsghdr& header)
