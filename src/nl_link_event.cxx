@@ -1,4 +1,4 @@
-#include "rtaco/nl_event.hxx"
+#include "rtaco/nl_link_event.hxx"
 
 #include <arpa/inet.h>
 #include <cstring>
@@ -32,10 +32,10 @@ auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
         return event;
     }
 
-    event.index  = info->ifi_index;
-    event.flags  = info->ifi_flags;
+    event.index = info->ifi_index;
+    event.flags = info->ifi_flags;
     event.change = info->ifi_change;
-    event.name   = extract_ifname(header);
+    event.name = extract_ifname(header);
 
     return event;
 }

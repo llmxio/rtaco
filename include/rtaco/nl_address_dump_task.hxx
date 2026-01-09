@@ -23,8 +23,7 @@ class AddressDumpTask : public RequestTask<AddressDumpTask, AddressEventList> {
     AddressEventList learned_;
 
 public:
-    AddressDumpTask(Context& ctx, Socket& socket, IfIndex ifindex,
-            uint32_t sequence) noexcept;
+    AddressDumpTask(Socket& socket, uint16_t uint16_t, uint32_t sequence) noexcept;
 
     auto request_payload() const -> std::span<const std::byte>;
 

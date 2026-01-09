@@ -18,8 +18,7 @@ class NeighborDumpTask : public NeighborTask<NeighborDumpTask, NeighborEventList
     NeighborEventList learned_;
 
 public:
-    NeighborDumpTask(Context& ctx, Socket& socket, IfIndex ifindex,
-            uint32_t sequence) noexcept;
+    NeighborDumpTask(Socket& socket, uint16_t uint16_t, uint32_t sequence) noexcept;
 
     void prepare_request();
 

@@ -8,9 +8,9 @@
 namespace llmx {
 namespace nl {
 
-NeighborDumpTask::NeighborDumpTask(Context& ctx, Socket& socket, IfIndex ifindex,
+NeighborDumpTask::NeighborDumpTask(Socket& socket, uint16_t uint16_t,
         uint32_t sequence) noexcept
-    : NeighborTask{ctx, socket, ifindex, sequence}
+    : NeighborTask{socket, uint16_t, sequence}
     , learned_{HugeMemPool::instance()} {}
 
 void NeighborDumpTask::prepare_request() {
@@ -66,15 +66,7 @@ auto NeighborDumpTask::dispatch_neighbor(const nlmsghdr& header)
         return std::nullopt;
     }
 
-    if (event.index > std::numeric_limits<IfIndex>::max()) {
-        return std::nullopt;
-    }
-
-    const auto iface = static_cast<IfIndex>(event.index);
-
-    auto& ctx = context();
-
-    if (!ctx.port_table.port_id_for_ifindex(iface)) {
+    if (event.index > std::numeric_limits<uint16_t>::max()) {
         return std::nullopt;
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rtaco/nl_route_task.hxx"
-#include "rtaco/nl_event.hxx"
+#include "rtaco/nl_route_event.hxx"
 
 namespace llmx {
 namespace nl {
@@ -10,8 +10,7 @@ class RouteDumpTask : public RouteTask<RouteDumpTask, RouteEventList> {
     RouteEventList learned_;
 
 public:
-    RouteDumpTask(Context& ctx, Socket& socket, IfIndex ifindex,
-            uint32_t sequence) noexcept;
+    RouteDumpTask(Socket& socket, uint16_t uint16_t, uint32_t sequence) noexcept;
 
     void prepare_request();
 

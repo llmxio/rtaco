@@ -18,11 +18,8 @@
 #include <boost/system/error_code.hpp>
 
 #include "llmx/core/asio.h"
-#include "llmx/core/context.h"
 #include "llmx/core/error.h"
 #include "llmx/core/expected_ext.h"
-#include "llmx/core/types.h"
-#include "llmx/core/utils.h"
 #include "rtaco/nl_socket.hxx"
 
 namespace llmx {
@@ -45,15 +42,13 @@ class RequestTask {
     static constexpr size_t MAX_RESPONSE_BYTES = 64U * 1024U;
     std::array<std::byte, MAX_RESPONSE_BYTES> receive_buffer_{};
 
-    Context& ctx_;
     Socket& socket_;
-    IfIndex ifindex_;
+    uint16_t ifindex_;
     uint32_t sequence_;
 
 public:
-    RequestTask(Context& ctx, Socket& socket, IfIndex ifindex, uint32_t sequence) noexcept
-        : ctx_{ctx}
-        , socket_{socket}
+    RequestTask(Socket& socket, uint16_t ifindex, uint32_t sequence) noexcept
+        : socket_{socket}
         , ifindex_{ifindex}
         , sequence_{sequence} {}
 
@@ -74,14 +69,6 @@ public:
     }
 
 protected:
-    auto context() noexcept -> Context& {
-        return ctx_;
-    }
-
-    auto context() const noexcept -> const Context& {
-        return ctx_;
-    }
-
     auto socket() noexcept -> Socket& {
         return socket_;
     }
@@ -94,7 +81,7 @@ protected:
         return sequence_;
     }
 
-    auto ifindex() noexcept -> IfIndex {
+    auto ifindex() noexcept -> uint16_t {
         return ifindex_;
     }
 
@@ -109,7 +96,7 @@ private:
 
     auto send_request() -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
         const auto payload = impl().request_payload();
-        size_t offset      = 0;
+        size_t offset = 0;
 
         while (offset < payload.size()) {
             boost::system::error_code ec{};
@@ -143,8 +130,8 @@ private:
             if (bytes >= receive_buffer_.size()) {
             }
 
-            auto remaining     = static_cast<int>(bytes);
-            auto header_size   = static_cast<int>(sizeof(nlmsghdr));
+            auto remaining = static_cast<int>(bytes);
+            auto header_size = static_cast<int>(sizeof(nlmsghdr));
             const auto* header = reinterpret_cast<const nlmsghdr*>(receive_buffer_
                             .data());
 

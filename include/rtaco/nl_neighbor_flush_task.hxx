@@ -9,7 +9,7 @@ class NeighborFlushTask : public NeighborTask<NeighborFlushTask, void> {
     Ip6Address address_;
 
 public:
-    NeighborFlushTask(Context& ctx, Socket& socket, IfIndex ifindex, uint32_t sequence,
+    NeighborFlushTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
             const Ip6Address& address);
 
     void prepare_request();

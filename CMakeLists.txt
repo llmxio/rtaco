@@ -11,7 +11,7 @@ find_package(Boost 1.83.0 COMPONENTS system REQUIRED)
 set(RTACO_SOURCES
   src/nl_control.cxx
   src/nl_address_dump_task.cxx
-  src/nl_event.cxx
+  src/nl_link_event.cxx
   src/nl_route_event.cxx
   src/nl_address_event.cxx
   src/nl_neighbor_event.cxx

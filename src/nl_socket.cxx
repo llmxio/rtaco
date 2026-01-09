@@ -2,8 +2,6 @@
 
 #include <boost/asio/io_context.hpp>
 
-#include "llmx/core/utils.h"
-
 namespace llmx {
 namespace nl {
 
@@ -43,7 +41,8 @@ auto Socket::open(int proto, uint32_t groups) -> expected<void, llmx_error_polic
     boost::system::error_code ec;
 
     if (socket_.open(Protocol{proto}, ec); ec) {
-        failwith("failed to open netlink {} socket: {}", label_, ec.message());
+        throw std::runtime_error("failed to open netlink " + std::string{label_} +
+                " socket: " + ec.message());
     }
 
     const auto enable_option = [&](const auto& option, const char* description)
@@ -62,7 +61,8 @@ auto Socket::open(int proto, uint32_t groups) -> expected<void, llmx_error_polic
 
     if (socket_.bind(endpoint_type{groups, 0U}, ec); ec) {
         close();
-        failwith("{} bind(AF_NETLINK) failed: {}", label_, ec.message());
+        throw std::runtime_error("failed to bind netlink " + std::string{label_} +
+                " socket: " + ec.message());
     }
 
     return {};

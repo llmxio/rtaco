@@ -10,9 +10,9 @@
 namespace llmx {
 namespace nl {
 
-NeighborGetTask::NeighborGetTask(Context& ctx, Socket& socket, IfIndex ifindex,
-        uint32_t sequence, const Ip6Address& address)
-    : NeighborTask{ctx, socket, ifindex, sequence}
+NeighborGetTask::NeighborGetTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
+        const Ip6Address& address)
+    : NeighborTask{socket, uint16_t, sequence}
     , address_{address} {}
 
 void NeighborGetTask::prepare_request() {
