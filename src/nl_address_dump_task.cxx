@@ -1,9 +1,17 @@
 #include "rtaco/nl_address_dump_task.hxx"
 
+#include <linux/rtnetlink.h>
+#include <sys/socket.h>
 #include <cerrno>
 #include <limits>
 #include <optional>
 #include <utility>
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
 
 namespace llmx {
 namespace nl {

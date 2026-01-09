@@ -1,24 +1,12 @@
 #pragma once
 
-#include <array>
-#include <concepts>
-#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <memory_resource>
-#include <string_view>
-#include <unordered_map>
-#include <utility>
 
-#include "rtaco/nl_route_event.hxx"
-
-#include <net/if.h>
-#include <linux/netlink.h>
-#include <linux/neighbour.h>
 #include <linux/rtnetlink.h>
-#include <linux/socket.h>
-#include "rtaco/nl_common.hxx"
+
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

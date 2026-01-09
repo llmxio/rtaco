@@ -2,23 +2,29 @@
 
 #include <array>
 #include <atomic>
-#include <functional>
+#include <boost/asio/impl/any_io_executor.ipp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/move/utility_core.hpp>
+#include <boost/signals2/connection.hpp>
+#include <boost/system/detail/error_code.hpp>
+#include <cstddef>
+#include <list>
 #include <span>
-#include <string>
-#include <string_view>
 #include <utility>
-#include <variant>
 
-#include <boost/asio/awaitable.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/system/error_code.hpp>
-
-#include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_address_event.hxx"
+#include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
-#include "rtaco/nl_protocol.hxx"
-#include "rtaco/nl_socket.hxx"
+#include "rtaco/nl_route_event.hxx"
 #include "rtaco/nl_signal.hxx"
+#include "rtaco/nl_socket.hxx"
+
+namespace boost {
+namespace asio {
+class io_context;
+}
+} // namespace boost
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

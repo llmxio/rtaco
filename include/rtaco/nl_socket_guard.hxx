@@ -2,10 +2,16 @@
 
 #include <memory>
 #include <string_view>
-
-#include <boost/asio/io_context.hpp>
+#include <expected>
+#include <system_error>
 
 #include "rtaco/nl_socket.hxx"
+
+namespace boost {
+namespace asio {
+class io_context;
+}
+} // namespace boost
 
 namespace llmx {
 namespace nl {

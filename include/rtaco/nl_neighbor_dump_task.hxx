@@ -1,15 +1,20 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
+#include <expected>
+#include <memory_resource>
 #include <optional>
-#include <span>
-
-#include <linux/neighbour.h>
-#include <linux/rtnetlink.h>
+#include <system_error>
 
 #include "rtaco/nl_neighbor_task.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

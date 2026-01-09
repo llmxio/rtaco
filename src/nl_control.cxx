@@ -1,9 +1,13 @@
 #include "rtaco/nl_control.hxx"
 
+#include <coroutine>
 #include <future>
 #include <memory>
+#include <memory_resource>
 #include <utility>
 
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/use_future.hpp>

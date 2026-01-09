@@ -1,7 +1,16 @@
 #include "rtaco/nl_neighbor_flush_task.hxx"
 
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <cstddef>
 #include <cerrno>
 #include <optional>
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
 
 namespace llmx {
 namespace nl {

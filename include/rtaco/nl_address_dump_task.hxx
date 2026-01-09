@@ -1,15 +1,24 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
+#include <expected>
+#include <memory_resource>
 #include <optional>
 #include <span>
-#include <expected>
+#include <system_error>
 
-#include <linux/rtnetlink.h>
+#include <linux/if_addr.h>
+#include <linux/netlink.h>
 
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_request_task.hxx"
+
+#include <cstddef>
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
 
 namespace llmx {
 namespace nl {

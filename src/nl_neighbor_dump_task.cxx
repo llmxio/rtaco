@@ -1,7 +1,20 @@
 #include "rtaco/nl_neighbor_dump_task.hxx"
 
-#include <cerrno>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <sys/socket.h>
+#include <cstring>
+#include <limits>
 #include <optional>
+#include <span>
+#include <utility>
+#include <cerrno>
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
 
 namespace llmx {
 namespace nl {

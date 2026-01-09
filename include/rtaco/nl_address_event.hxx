@@ -1,13 +1,12 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <memory_resource>
 
-#include <linux/netlink.h>
 #include <linux/rtnetlink.h>
+
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

@@ -1,7 +1,6 @@
 #include "rtaco/nl_neighbor_event.hxx"
 
-#include <arpa/inet.h>
-#include <cstring>
+#include <linux/netlink.h>
 
 #include "rtaco/nl_common.hxx"
 
