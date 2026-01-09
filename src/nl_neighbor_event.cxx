@@ -29,10 +29,10 @@ auto NeighborEvent::from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent {
         return event;
     }
 
-    event.family        = info->ndm_family;
-    event.index         = info->ndm_ifindex;
-    event.state         = static_cast<NeighborEvent::State>(info->ndm_state);
-    event.flags         = info->ndm_flags;
+    event.family = info->ndm_family;
+    event.index = info->ndm_ifindex;
+    event.state = static_cast<NeighborEvent::State>(info->ndm_state);
+    event.flags = info->ndm_flags;
     event.neighbor_type = info->ndm_type;
 
     int attr_length = static_cast<int>(header.nlmsg_len) -

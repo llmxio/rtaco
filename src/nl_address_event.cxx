@@ -29,11 +29,11 @@ auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
         return event;
     }
 
-    event.family     = info->ifa_family;
+    event.family = info->ifa_family;
     event.prefix_len = info->ifa_prefixlen;
-    event.scope      = info->ifa_scope;
-    event.flags      = info->ifa_flags;
-    event.index      = static_cast<int>(info->ifa_index);
+    event.scope = info->ifa_scope;
+    event.flags = info->ifa_flags;
+    event.index = static_cast<int>(info->ifa_index);
 
     int attr_length = static_cast<int>(header.nlmsg_len) -
             static_cast<int>(NLMSG_LENGTH(sizeof(ifaddrmsg)));
@@ -57,7 +57,7 @@ auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
 
     event.address = !local_address.empty() ? std::move(local_address) :
                                              std::move(peer_address);
-    event.label   = std::move(label);
+    event.label = std::move(label);
 
     return event;
 }

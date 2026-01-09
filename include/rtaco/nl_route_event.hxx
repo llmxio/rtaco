@@ -12,8 +12,8 @@ namespace nl {
 
 struct RouteEvent {
     enum class Type : uint16_t {
-        UNKNOWN      = 0,
-        NEW_ROUTE    = RTM_NEWROUTE,
+        UNKNOWN = 0,
+        NEW_ROUTE = RTM_NEWROUTE,
         DELETE_ROUTE = RTM_DELROUTE,
     };
 

@@ -25,8 +25,8 @@ namespace nl {
 
 struct LinkEvent {
     enum class Type : uint16_t {
-        UNKNOWN     = 0,
-        NEW_LINK    = RTM_NEWLINK,
+        UNKNOWN = 0,
+        NEW_LINK = RTM_NEWLINK,
         DELETE_LINK = RTM_DELLINK,
     };
 

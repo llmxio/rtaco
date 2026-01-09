@@ -46,8 +46,8 @@ public:
 
     Listener(const Listener&) = delete;
     Listener& operator=(const Listener&) = delete;
-    Listener(Listener&&) noexcept = default;
-    Listener& operator=(Listener&&) noexcept = default;
+    Listener(Listener&&) noexcept = delete;
+    Listener& operator=(Listener&&) noexcept = delete;
 
     void start();
     void stop();

@@ -14,8 +14,8 @@ namespace nl {
 
 struct AddressEvent {
     enum class Type : uint16_t {
-        UNKNOWN        = 0,
-        NEW_ADDRESS    = RTM_NEWADDR,
+        UNKNOWN = 0,
+        NEW_ADDRESS = RTM_NEWADDR,
         DELETE_ADDRESS = RTM_DELADDR,
     };
 

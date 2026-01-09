@@ -38,7 +38,7 @@ inline auto extract_ifname(const nlmsghdr& header) -> std::string {
     }
 
     const auto* info = reinterpret_cast<const ifinfomsg*>(NLMSG_DATA(&header));
-    int attr_length  = static_cast<int>(header.nlmsg_len) -
+    int attr_length = static_cast<int>(header.nlmsg_len) -
             static_cast<int>(NLMSG_LENGTH(sizeof(ifinfomsg)));
 
     if (attr_length <= 0) {
@@ -46,7 +46,7 @@ inline auto extract_ifname(const nlmsghdr& header) -> std::string {
     }
 
     for (auto* attr = IFLA_RTA(info); RTA_OK(attr, attr_length);
-            attr    = RTA_NEXT(attr, attr_length)) {
+            attr = RTA_NEXT(attr, attr_length)) {
         if (attr->rta_type != IFLA_IFNAME) {
             continue;
         }

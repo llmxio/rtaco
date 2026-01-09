@@ -14,7 +14,13 @@ NeighborDumpTask::NeighborDumpTask(Socket& socket, std::pmr::memory_resource* pm
 void NeighborDumpTask::prepare_request() {
     std::memset(&request_, 0, sizeof(request_));
 
-    build_request(RTM_GETNEIGH, NLM_F_REQUEST | NLM_F_DUMP, 0, 0, nullptr);
+    // For a dump request we don't have a destination address; pass an empty
+    // fixed-size span so the `build_request` overload compiles and leaves the
+    // request dst zero-initialized (we already memset above).
+    // Use the request buffer itself (zeroed above) as the source span so
+    // we have a fixed-size span of 16 bytes per the `build_request` API.
+    build_request(RTM_GETNEIGH, NLM_F_REQUEST | NLM_F_DUMP, 0, 0,
+            std::span<uint8_t, 16>{request_.dst});
 }
 
 auto NeighborDumpTask::process_message(const nlmsghdr& header)
