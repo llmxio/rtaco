@@ -19,7 +19,6 @@
 
 #include "llmx/core/asio.h"
 #include "llmx/core/error.h"
-#include "llmx/core/expected_ext.h"
 #include "rtaco/nl_socket.hxx"
 
 namespace llmx {
@@ -77,11 +76,11 @@ protected:
         return socket_;
     }
 
-    auto sequence() noexcept -> uint32_t {
+    auto sequence() const noexcept -> uint32_t {
         return sequence_;
     }
 
-    auto ifindex() noexcept -> uint16_t {
+    auto ifindex() const noexcept -> uint16_t {
         return ifindex_;
     }
 

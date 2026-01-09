@@ -19,21 +19,21 @@ namespace nl {
 
 struct NeighborEvent {
     enum class Type : uint16_t {
-        UNKNOWN         = 0,
-        NEW_NEIGHBOR    = RTM_NEWNEIGH,
+        UNKNOWN = 0,
+        NEW_NEIGHBOR = RTM_NEWNEIGH,
         DELETE_NEIGHBOR = RTM_DELNEIGH,
     };
 
     enum class State : uint16_t {
-        NONE       = NUD_NONE,
+        NONE = NUD_NONE,
         INCOMPLETE = NUD_INCOMPLETE,
-        REACHABLE  = NUD_REACHABLE,
-        STALE      = NUD_STALE,
-        DELAY      = NUD_DELAY,
-        PROBE      = NUD_PROBE,
-        FAILED     = NUD_FAILED,
-        NOARP      = NUD_NOARP,
-        PERMANENT  = NUD_PERMANENT,
+        REACHABLE = NUD_REACHABLE,
+        STALE = NUD_STALE,
+        DELAY = NUD_DELAY,
+        PROBE = NUD_PROBE,
+        FAILED = NUD_FAILED,
+        NOARP = NUD_NOARP,
+        PERMANENT = NUD_PERMANENT,
     };
 
     Type type{Type::UNKNOWN};

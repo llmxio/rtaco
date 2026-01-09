@@ -32,17 +32,17 @@ public:
 
 protected:
     void build_request() {
-        request_.header.nlmsg_len   = NLMSG_LENGTH(sizeof(rtmsg));
-        request_.header.nlmsg_type  = RTM_GETROUTE;
+        request_.header.nlmsg_len = NLMSG_LENGTH(sizeof(rtmsg));
+        request_.header.nlmsg_type = RTM_GETROUTE;
         request_.header.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
-        request_.header.nlmsg_seq   = this->sequence();
-        request_.header.nlmsg_pid   = 0;
+        request_.header.nlmsg_seq = this->sequence();
+        request_.header.nlmsg_pid = 0;
 
-        request_.message.rtm_family   = AF_INET6;
-        request_.message.rtm_table    = RT_TABLE_MAIN;
-        request_.message.rtm_scope    = RT_SCOPE_UNIVERSE;
+        request_.message.rtm_family = AF_INET6;
+        request_.message.rtm_table = RT_TABLE_MAIN;
+        request_.message.rtm_scope = RT_SCOPE_UNIVERSE;
         request_.message.rtm_protocol = RTPROT_UNSPEC;
-        request_.message.rtm_type     = RTN_UNSPEC;
+        request_.message.rtm_type = RTN_UNSPEC;
     }
 };
 

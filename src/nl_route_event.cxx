@@ -32,14 +32,14 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
         return event;
     }
 
-    event.family         = info->rtm_family;
+    event.family = info->rtm_family;
     event.dst_prefix_len = info->rtm_dst_len;
     event.src_prefix_len = info->rtm_src_len;
-    event.scope          = info->rtm_scope;
-    event.protocol       = info->rtm_protocol;
-    event.route_type     = info->rtm_type;
-    event.flags          = info->rtm_flags;
-    event.table          = info->rtm_table;
+    event.scope = info->rtm_scope;
+    event.protocol = info->rtm_protocol;
+    event.route_type = info->rtm_type;
+    event.flags = info->rtm_flags;
+    event.table = info->rtm_table;
 
     int attr_length = static_cast<int>(header.nlmsg_len) -
             static_cast<int>(NLMSG_LENGTH(sizeof(rtmsg)));
