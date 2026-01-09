@@ -1,0 +1,39 @@
+#pragma once
+
+#include <cstddef>
+#include <cstdint>
+#include <optional>
+#include <span>
+
+#include <linux/neighbour.h>
+#include <linux/rtnetlink.h>
+
+#include "llmx/nl/netlink_neighbor_task.h"
+
+namespace llmx {
+namespace nl {
+
+class NeighborDumpTask : public NeighborTask<NeighborDumpTask, NeighborEventList> {
+    NeighborEventList learned_;
+
+public:
+    NeighborDumpTask(Context& ctx, Socket& socket, IfIndex ifindex,
+            uint32_t sequence) noexcept;
+
+    void prepare_request();
+
+    auto process_message(const nlmsghdr& header)
+            -> std::optional<expected<NeighborEventList, llmx_error_policy>>;
+
+private:
+    auto handle_done() -> expected<NeighborEventList, llmx_error_policy>;
+
+    auto handle_error(const nlmsghdr& header)
+            -> expected<NeighborEventList, llmx_error_policy>;
+
+    auto dispatch_neighbor(const nlmsghdr& header)
+            -> std::optional<expected<NeighborEventList, llmx_error_policy>>;
+};
+
+} // namespace nl
+} // namespace llmx
