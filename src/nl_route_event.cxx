@@ -8,26 +8,22 @@ namespace llmx {
 namespace nl {
 
 auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
+    using enum RouteEvent::Type;
+
     RouteEvent event{};
-
     switch (header.nlmsg_type) {
-    case RTM_NEWROUTE: event.type = RouteEvent::Type::NEW_ROUTE; break;
-    case RTM_DELROUTE: event.type = RouteEvent::Type::DELETE_ROUTE; break;
-    default: event.type = RouteEvent::Type::UNKNOWN; break;
+    case RTM_NEWROUTE: event.type = NEW_ROUTE; break;
+    case RTM_DELROUTE: event.type = DELETE_ROUTE; break;
+    default: event.type = UNKNOWN; break;
     }
 
-    if (event.type == RouteEvent::Type::UNKNOWN) {
+    if (event.type == UNKNOWN) {
         return event;
     }
 
-    if (header.nlmsg_len < NLMSG_LENGTH(sizeof(rtmsg))) {
-        event.type = RouteEvent::Type::UNKNOWN;
-        return event;
-    }
-
-    const auto* info = reinterpret_cast<const rtmsg*>(NLMSG_DATA(&header));
+    const auto* info = get_msg_payload<rtmsg>(header);
     if (info == nullptr) {
-        event.type = RouteEvent::Type::UNKNOWN;
+        event.type = UNKNOWN;
         return event;
     }
 
@@ -40,27 +36,19 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
     event.flags = info->rtm_flags;
     event.table = info->rtm_table;
 
-    int attr_length = static_cast<int>(header.nlmsg_len) -
-            static_cast<int>(NLMSG_LENGTH(sizeof(rtmsg)));
-    if (attr_length > 0) {
-        const rtattr* attr = RTM_RTA(info);
-        for (; RTA_OK(attr, attr_length); attr = RTA_NEXT(attr, attr_length)) {
-            switch (attr->rta_type) {
-            case RTA_TABLE: event.table = attribute_uint32(*attr); break;
-            case RTA_DST: event.dst = attribute_address(*attr, event.family); break;
-            case RTA_SRC: event.src = attribute_address(*attr, event.family); break;
-            case RTA_GATEWAY:
-                event.gateway = attribute_address(*attr, event.family);
-                break;
-            case RTA_PREFSRC:
-                event.prefsrc = attribute_address(*attr, event.family);
-                break;
-            case RTA_OIF: event.oif_index = attribute_uint32(*attr); break;
-            case RTA_PRIORITY: event.priority = attribute_uint32(*attr); break;
-            default: break;
-            }
+    for_each_attr(header, info, [&](const rtattr* attr)
+    {
+        switch (attr->rta_type) {
+        case RTA_TABLE: event.table = attribute_uint32(*attr); break;
+        case RTA_DST: event.dst = attribute_address(*attr, event.family); break;
+        case RTA_SRC: event.src = attribute_address(*attr, event.family); break;
+        case RTA_GATEWAY: event.gateway = attribute_address(*attr, event.family); break;
+        case RTA_PREFSRC: event.prefsrc = attribute_address(*attr, event.family); break;
+        case RTA_OIF: event.oif_index = attribute_uint32(*attr); break;
+        case RTA_PRIORITY: event.priority = attribute_uint32(*attr); break;
+        default: break;
         }
-    }
+    });
 
     if (event.oif_index != 0U) {
         event.oif = std::to_string(event.oif_index);
