@@ -1,8 +1,20 @@
 #pragma once
 
+#include <stdint.h>
+#include <array>
 #include <expected>
+#include <optional>
+#include <span>
+#include <system_error>
 
 #include "rtaco/nl_neighbor_task.hxx"
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

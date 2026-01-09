@@ -2,10 +2,11 @@
 
 #include <cstdint>
 #include <string>
-#include <memory_resource>
 #include <vector>
 
 #include <linux/rtnetlink.h>
+
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

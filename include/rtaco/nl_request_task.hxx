@@ -18,7 +18,6 @@
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/system/error_code.hpp>
 
-#include "llmx/core/asio.h"
 #include "rtaco/nl_socket.hxx"
 
 namespace llmx {
@@ -63,8 +62,8 @@ public:
             co_return std::unexpected(send_result.error());
         }
 
-        // co_return co_await read_loop();
-        co_return co_await with_timeout(read_loop(), std::chrono::seconds(3));
+        // TODO: timeout value configurable?
+        co_return co_await read_loop();
     }
 
 protected:

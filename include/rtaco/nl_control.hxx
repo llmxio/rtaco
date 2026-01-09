@@ -1,22 +1,29 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
-#include <functional>
-#include <future>
 #include <atomic>
 #include <memory>
 #include <expected>
+#include <span>
+#include <stop_token>
+#include <system_error>
 
 #include <boost/asio/awaitable.hpp>
-#include <boost/asio/io_context.hpp>
 
-#include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
 #include "rtaco/nl_route_event.hxx"
-#include "rtaco/nl_request_task.hxx"
-#include "rtaco/nl_socket_guard.hxx"
+
+namespace boost {
+namespace asio {
+class io_context;
+}
+} // namespace boost
+namespace llmx {
+namespace nl {
+class SocketGuard;
+}
+} // namespace llmx
 
 namespace llmx {
 namespace nl {

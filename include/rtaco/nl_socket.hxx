@@ -1,12 +1,29 @@
 #pragma once
 
-#include <boost/system/error_code.hpp>
-
+#include <linux/netlink.h>
+#include <stdint.h>
+#include <sys/socket.h>
+#include <boost/asio/detail/impl/reactive_socket_service_base.ipp>
+#include <boost/asio/detail/socket_option.hpp>
 #include <cstddef>
-#include <utility>
 #include <expected>
+#include <string>
+#include <string_view>
+#include <system_error>
+#include <utility>
 
 #include "rtaco/nl_protocol.hxx"
+
+namespace boost {
+namespace asio {
+class io_context;
+}
+} // namespace boost
+namespace boost {
+namespace system {
+class error_code;
+}
+} // namespace boost
 
 namespace llmx {
 namespace nl {

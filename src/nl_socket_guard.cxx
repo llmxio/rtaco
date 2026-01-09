@@ -1,6 +1,9 @@
 #include "rtaco/nl_socket_guard.hxx"
 
-#include <boost/system/error_code.hpp>
+#include <linux/netlink.h>
+#include <boost/system/detail/error_code.hpp>
+#include <stdexcept>
+#include <string>
 
 namespace llmx {
 namespace nl {

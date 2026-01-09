@@ -1,11 +1,17 @@
 #include "rtaco/nl_neighbor_get_task.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
 
+#include <linux/netlink.h>
 #include <cerrno>
 #include <optional>
-#include <arpa/inet.h>
 #include <array>
 #include <string>
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
 
 namespace llmx {
 namespace nl {

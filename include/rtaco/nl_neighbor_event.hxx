@@ -1,18 +1,16 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
-#include <memory_resource>
 
-#include <net/if.h>
-#include <linux/netlink.h>
 #include <linux/neighbour.h>
+#include <linux/rtnetlink.h>
 
-#include "rtaco/nl_common.hxx"
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

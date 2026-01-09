@@ -1,7 +1,8 @@
 #include "rtaco/nl_address_event.hxx"
 
-#include <arpa/inet.h>
-#include <cstring>
+#include <linux/if_addr.h>
+#include <linux/netlink.h>
+#include <utility>
 
 #include "rtaco/nl_common.hxx"
 

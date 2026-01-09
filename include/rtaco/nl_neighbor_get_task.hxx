@@ -1,7 +1,21 @@
 #pragma once
 
+#include <stdint.h>
+#include <array>
+#include <expected>
+#include <optional>
+#include <span>
+#include <system_error>
+
 #include "rtaco/nl_neighbor_task.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {
@@ -19,7 +33,8 @@ public:
 
 private:
     auto handle_done() -> std::expected<NeighborEvent, std::error_code>;
-    auto handle_error(const nlmsghdr& header) -> std::expected<NeighborEvent, std::error_code>;
+    auto handle_error(const nlmsghdr& header)
+            -> std::expected<NeighborEvent, std::error_code>;
     auto handle_neighbor(const nlmsghdr& header)
             -> std::optional<std::expected<NeighborEvent, std::error_code>>;
 };

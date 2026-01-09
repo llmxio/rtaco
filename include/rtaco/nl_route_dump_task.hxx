@@ -1,9 +1,20 @@
 #pragma once
 
+#include <stdint.h>
 #include <expected>
+#include <memory_resource>
+#include <optional>
+#include <system_error>
 
 #include "rtaco/nl_route_task.hxx"
 #include "rtaco/nl_route_event.hxx"
+
+namespace llmx {
+namespace nl {
+class Socket;
+}
+} // namespace llmx
+struct nlmsghdr;
 
 namespace llmx {
 namespace nl {
