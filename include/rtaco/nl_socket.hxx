@@ -6,24 +6,24 @@
 #include <utility>
 
 #include "llmx/core/error.h"
-#include "llmx/nl/netlink_protocol.h"
+#include "rtaco/nl_protocol.hxx"
 
 namespace llmx {
 namespace nl {
 
 class Socket {
 public:
-    using socket_type = Protocol::socket;
+    using socket_type   = Protocol::socket;
     using endpoint_type = Protocol::endpoint;
-    using native_type = typename Protocol::socket::native_handle_type;
+    using native_type   = typename Protocol::socket::native_handle_type;
 
     explicit Socket(boost::asio::io_context& io, std::string_view label) noexcept;
     ~Socket() noexcept;
 
-    Socket(const Socket&) = delete;
+    Socket(const Socket&)            = delete;
     Socket& operator=(const Socket&) = delete;
 
-    Socket(Socket&&) noexcept = default;
+    Socket(Socket&&) noexcept            = default;
     Socket& operator=(Socket&&) noexcept = default;
 
     auto is_open() const noexcept -> bool;

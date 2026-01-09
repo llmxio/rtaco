@@ -1,9 +1,8 @@
-#include "llmx/nl/netlink_event.h"
+#include "rtaco/nl_event.hxx"
 
 #include <arpa/inet.h>
 #include <cstring>
 
-#include "llmx/core/logger.h"
 #include "llmx/net/utils.h"
 
 namespace llmx {
@@ -15,7 +14,7 @@ auto extract_ifname(const nlmsghdr& header) -> std::string {
     }
 
     const auto* info = reinterpret_cast<const ifinfomsg*>(NLMSG_DATA(&header));
-    int attr_length = static_cast<int>(header.nlmsg_len) -
+    int attr_length  = static_cast<int>(header.nlmsg_len) -
             static_cast<int>(NLMSG_LENGTH(sizeof(ifinfomsg)));
 
     if (attr_length <= 0) {
@@ -23,7 +22,7 @@ auto extract_ifname(const nlmsghdr& header) -> std::string {
     }
 
     for (auto* attr = IFLA_RTA(info); RTA_OK(attr, attr_length);
-            attr = RTA_NEXT(attr, attr_length)) {
+            attr    = RTA_NEXT(attr, attr_length)) {
         if (attr->rta_type != IFLA_IFNAME) {
             continue;
         }
@@ -62,14 +61,9 @@ auto attribute_address(const rtattr& attr, uint8_t family) -> std::string {
     int address_family = 0;
 
     switch (family) {
-    case AF_INET:
-        address_family = AF_INET;
-        break;
-    case AF_INET6:
-        address_family = AF_INET6;
-        break;
-    default:
-        return {};
+    case AF_INET: address_family = AF_INET; break;
+    case AF_INET6: address_family = AF_INET6; break;
+    default: return {};
     }
 
     const void* data = RTA_DATA(&attr);
@@ -133,7 +127,6 @@ auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
     }
 
     if (header.nlmsg_len < NLMSG_LENGTH(sizeof(ifinfomsg))) {
-        LOG(WARN) << "Link message too short";
         event.type = LinkEvent::Type::UNKNOWN;
         return event;
     }
@@ -144,10 +137,10 @@ auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
         return event;
     }
 
-    event.index = info->ifi_index;
-    event.flags = info->ifi_flags;
+    event.index  = info->ifi_index;
+    event.flags  = info->ifi_flags;
     event.change = info->ifi_change;
-    event.name = extract_ifname(header);
+    event.name   = extract_ifname(header);
 
     return event;
 }
@@ -163,7 +156,6 @@ auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
     }
 
     if (header.nlmsg_len < NLMSG_LENGTH(sizeof(ifaddrmsg))) {
-        LOG(WARN) << "Address message too short";
         event.type = AddressEvent::Type::UNKNOWN;
         return event;
     }
@@ -174,11 +166,11 @@ auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
         return event;
     }
 
-    event.family = info->ifa_family;
+    event.family     = info->ifa_family;
     event.prefix_len = info->ifa_prefixlen;
-    event.scope = info->ifa_scope;
-    event.flags = info->ifa_flags;
-    event.index = static_cast<int>(info->ifa_index);
+    event.scope      = info->ifa_scope;
+    event.flags      = info->ifa_flags;
+    event.index      = static_cast<int>(info->ifa_index);
 
     int attr_length = static_cast<int>(header.nlmsg_len) -
             static_cast<int>(NLMSG_LENGTH(sizeof(ifaddrmsg)));
@@ -193,23 +185,16 @@ auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
 
     for (; RTA_OK(attr, attr_length); attr = RTA_NEXT(attr, attr_length)) {
         switch (attr->rta_type) {
-        case IFA_LOCAL:
-            local_address = attribute_address(*attr, event.family);
-            break;
-        case IFA_ADDRESS:
-            peer_address = attribute_address(*attr, event.family);
-            break;
-        case IFA_LABEL:
-            label = attribute_string(*attr);
-            break;
-        default:
-            break;
+        case IFA_LOCAL: local_address = attribute_address(*attr, event.family); break;
+        case IFA_ADDRESS: peer_address = attribute_address(*attr, event.family); break;
+        case IFA_LABEL: label = attribute_string(*attr); break;
+        default: break;
         }
     }
 
     event.address = !local_address.empty() ? std::move(local_address) :
                                              std::move(peer_address);
-    event.label = std::move(label);
+    event.label   = std::move(label);
 
     return event;
 }
@@ -225,7 +210,6 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
     }
 
     if (header.nlmsg_len < NLMSG_LENGTH(sizeof(rtmsg))) {
-        LOG(WARN) << "Route message too short";
         event.type = RouteEvent::Type::UNKNOWN;
         return event;
     }
@@ -236,14 +220,14 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
         return event;
     }
 
-    event.family = info->rtm_family;
+    event.family         = info->rtm_family;
     event.dst_prefix_len = info->rtm_dst_len;
     event.src_prefix_len = info->rtm_src_len;
-    event.scope = info->rtm_scope;
-    event.protocol = info->rtm_protocol;
-    event.route_type = info->rtm_type;
-    event.flags = info->rtm_flags;
-    event.table = info->rtm_table;
+    event.scope          = info->rtm_scope;
+    event.protocol       = info->rtm_protocol;
+    event.route_type     = info->rtm_type;
+    event.flags          = info->rtm_flags;
+    event.table          = info->rtm_table;
 
     int attr_length = static_cast<int>(header.nlmsg_len) -
             static_cast<int>(NLMSG_LENGTH(sizeof(rtmsg)));
@@ -251,29 +235,18 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
         const rtattr* attr = RTM_RTA(info);
         for (; RTA_OK(attr, attr_length); attr = RTA_NEXT(attr, attr_length)) {
             switch (attr->rta_type) {
-            case RTA_TABLE:
-                event.table = attribute_uint32(*attr);
-                break;
-            case RTA_DST:
-                event.dst = attribute_address(*attr, event.family);
-                break;
-            case RTA_SRC:
-                event.src = attribute_address(*attr, event.family);
-                break;
+            case RTA_TABLE: event.table = attribute_uint32(*attr); break;
+            case RTA_DST: event.dst = attribute_address(*attr, event.family); break;
+            case RTA_SRC: event.src = attribute_address(*attr, event.family); break;
             case RTA_GATEWAY:
                 event.gateway = attribute_address(*attr, event.family);
                 break;
             case RTA_PREFSRC:
                 event.prefsrc = attribute_address(*attr, event.family);
                 break;
-            case RTA_OIF:
-                event.oif_index = attribute_uint32(*attr);
-                break;
-            case RTA_PRIORITY:
-                event.priority = attribute_uint32(*attr);
-                break;
-            default:
-                break;
+            case RTA_OIF: event.oif_index = attribute_uint32(*attr); break;
+            case RTA_PRIORITY: event.priority = attribute_uint32(*attr); break;
+            default: break;
             }
         }
     }
@@ -296,7 +269,6 @@ auto NeighborEvent::from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent {
     }
 
     if (header.nlmsg_len < NLMSG_LENGTH(sizeof(ndmsg))) {
-        LOG(WARN) << "Neighbor message too short";
         event.type = NeighborEvent::Type::UNKNOWN;
         return event;
     }
@@ -307,10 +279,10 @@ auto NeighborEvent::from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent {
         return event;
     }
 
-    event.family = info->ndm_family;
-    event.index = info->ndm_ifindex;
-    event.state = static_cast<NeighborEvent::State>(info->ndm_state);
-    event.flags = info->ndm_flags;
+    event.family        = info->ndm_family;
+    event.index         = info->ndm_ifindex;
+    event.state         = static_cast<NeighborEvent::State>(info->ndm_state);
+    event.flags         = info->ndm_flags;
     event.neighbor_type = info->ndm_type;
 
     int attr_length = static_cast<int>(header.nlmsg_len) -
@@ -323,14 +295,9 @@ auto NeighborEvent::from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent {
             reinterpret_cast<std::uintptr_t>(info) + NLMSG_ALIGN(sizeof(ndmsg)));
     for (; RTA_OK(attr, attr_length); attr = RTA_NEXT(attr, attr_length)) {
         switch (attr->rta_type) {
-        case NDA_DST:
-            event.address = attribute_address(*attr, event.family);
-            break;
-        case NDA_LLADDR:
-            event.lladdr = attribute_hwaddr(*attr);
-            break;
-        default:
-            break;
+        case NDA_DST: event.address = attribute_address(*attr, event.family); break;
+        case NDA_LLADDR: event.lladdr = attribute_hwaddr(*attr); break;
+        default: break;
         }
     }
 

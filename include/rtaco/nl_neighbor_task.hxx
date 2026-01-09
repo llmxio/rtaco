@@ -8,7 +8,7 @@
 #include <linux/rtnetlink.h>
 
 #include "llmx/net/ip6.h"
-#include "llmx/nl/netlink_request_task.h"
+#include "rtaco/nl_request_task.hxx"
 #include "llmx/core/types.h"
 
 namespace llmx {
@@ -36,17 +36,17 @@ public:
 protected:
     void build_request(uint16_t msg_type, uint16_t msg_flags, uint16_t ndm_state,
             uint8_t ndm_flags, const Ip6Address& address) {
-        request_.header.nlmsg_len = NLMSG_LENGTH(sizeof(ndmsg));
-        request_.header.nlmsg_type = msg_type;
+        request_.header.nlmsg_len   = NLMSG_LENGTH(sizeof(ndmsg));
+        request_.header.nlmsg_type  = msg_type;
         request_.header.nlmsg_flags = msg_flags;
-        request_.header.nlmsg_seq = this->sequence();
-        request_.header.nlmsg_pid = 0;
+        request_.header.nlmsg_seq   = this->sequence();
+        request_.header.nlmsg_pid   = 0;
 
-        request_.message.ndm_family = AF_INET6;
+        request_.message.ndm_family  = AF_INET6;
         request_.message.ndm_ifindex = static_cast<int>(this->ifindex());
-        request_.message.ndm_state = ndm_state;
-        request_.message.ndm_flags = ndm_flags;
-        request_.message.ndm_type = RTN_UNSPEC;
+        request_.message.ndm_state   = ndm_state;
+        request_.message.ndm_flags   = ndm_flags;
+        request_.message.ndm_type    = RTN_UNSPEC;
 
         if (!this->ifindex()) { // TODO: make prettier
             return;

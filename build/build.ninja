@@ -49,89 +49,89 @@ cmake_ninja_workdir = /home/rs/Work/LLMX/rtaco/build/
 
 build cmake_object_order_depends_target_llmx_rtaco: phony || .
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_control.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_control.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_control.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_control.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_control.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_control.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_address_dump_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_address_dump_task.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_address_dump_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_address_dump_task.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_address_dump_task.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_address_dump_task.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_event.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_event.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_event.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_event.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_event.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_event.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_listener.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_listener.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_listener.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_listener.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_listener.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_listener.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_dump_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_neighbor_dump_task.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_dump_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_neighbor_dump_task.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_dump_task.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_dump_task.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_flush_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_neighbor_flush_task.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_flush_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_neighbor_flush_task.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_flush_task.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_flush_task.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_get_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_neighbor_get_task.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_get_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_neighbor_get_task.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_get_task.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_get_task.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_probe_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_neighbor_probe_task.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_probe_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_neighbor_probe_task.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_probe_task.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_probe_task.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_route_dump_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_route_dump_task.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_route_dump_task.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_route_dump_task.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_route_dump_task.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_route_dump_task.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_socket_guard.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_socket_guard.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_socket_guard.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_socket_guard.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_socket_guard.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_socket_guard.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   OBJECT_FILE_DIR = CMakeFiles/llmx_rtaco.dir/src
 
-build CMakeFiles/llmx_rtaco.dir/src/netlink_socket.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/netlink_socket.cxx || cmake_object_order_depends_target_llmx_rtaco
+build CMakeFiles/llmx_rtaco.dir/src/nl_socket.cxx.o: CXX_COMPILER__llmx_rtaco_unscanned_RELEASE /home/rs/Work/LLMX/rtaco/src/nl_socket.cxx || cmake_object_order_depends_target_llmx_rtaco
   DEFINES = -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB
-  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/netlink_socket.cxx.o.d
+  DEP_FILE = CMakeFiles/llmx_rtaco.dir/src/nl_socket.cxx.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++23 -fPIC
   INCLUDES = -I/home/rs/Work/LLMX/rtaco/include
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
@@ -145,7 +145,7 @@ build CMakeFiles/llmx_rtaco.dir/src/netlink_socket.cxx.o: CXX_COMPILER__llmx_rta
 #############################################
 # Link the static library libllmx_rtaco.a
 
-build libllmx_rtaco.a: CXX_STATIC_LIBRARY_LINKER__llmx_rtaco_RELEASE CMakeFiles/llmx_rtaco.dir/src/netlink_control.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_address_dump_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_event.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_listener.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_dump_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_flush_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_get_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_neighbor_probe_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_route_dump_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_socket_guard.cxx.o CMakeFiles/llmx_rtaco.dir/src/netlink_socket.cxx.o
+build libllmx_rtaco.a: CXX_STATIC_LIBRARY_LINKER__llmx_rtaco_RELEASE CMakeFiles/llmx_rtaco.dir/src/nl_control.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_address_dump_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_event.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_listener.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_dump_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_flush_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_get_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_neighbor_probe_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_route_dump_task.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_socket_guard.cxx.o CMakeFiles/llmx_rtaco.dir/src/nl_socket.cxx.o
   LANGUAGE_COMPILE_FLAGS = -O3 -DNDEBUG
   OBJECT_DIR = CMakeFiles/llmx_rtaco.dir
   POST_BUILD = :

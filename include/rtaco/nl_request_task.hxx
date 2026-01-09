@@ -21,8 +21,7 @@
 #include "llmx/core/context.h"
 #include "llmx/core/error.h"
 #include "llmx/core/utils.h"
-#include "llmx/core/logger.h"
-#include "llmx/nl/netlink_socket.h"
+#include "rtaco/nl_socket.hxx"
 
 namespace llmx {
 namespace nl {
@@ -54,13 +53,9 @@ public:
         : ctx_{ctx}
         , socket_{socket}
         , ifindex_{ifindex}
-        , sequence_{sequence} {
-        LOG(DEBUG) << "RequestTask created with sequence " << sequence_;
-    }
+        , sequence_{sequence} {}
 
-    virtual ~RequestTask() {
-        LOG(DEBUG) << "RequestTask with sequence " << sequence_ << " destroyed";
-    }
+    virtual ~RequestTask() {}
 
     auto async_run() -> boost::asio::awaitable<expected<Result, llmx_error_policy>> {
         // static_assert(request_behavior<Derived, Result>,
@@ -112,7 +107,7 @@ private:
 
     auto send_request() -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
         const auto payload = impl().request_payload();
-        size_t offset = 0;
+        size_t offset      = 0;
 
         while (offset < payload.size()) {
             boost::system::error_code ec{};
@@ -121,7 +116,6 @@ private:
                     boost::asio::redirect_error(boost::asio::use_awaitable, ec));
 
             if (ec) {
-                LOG(ERROR) << "Netlink send failed: " << ec.message();
                 co_return std::unexpected(
                         std::error_code{ec.value(), std::generic_category()});
             }
@@ -140,17 +134,15 @@ private:
                     boost::asio::redirect_error(boost::asio::use_awaitable, ec));
 
             if (ec) {
-                LOG(ERROR) << "Netlink read failed: " << ec.message();
                 co_return std::unexpected(
                         std::error_code{ec.value(), std::generic_category()});
             }
 
             if (bytes >= receive_buffer_.size()) {
-                LOG(WARN) << "Netlink response truncated at " << bytes << " bytes";
             }
 
-            auto remaining = static_cast<int>(bytes);
-            auto header_size = static_cast<int>(sizeof(nlmsghdr));
+            auto remaining     = static_cast<int>(bytes);
+            auto header_size   = static_cast<int>(sizeof(nlmsghdr));
             const auto* header = reinterpret_cast<const nlmsghdr*>(receive_buffer_
                             .data());
 

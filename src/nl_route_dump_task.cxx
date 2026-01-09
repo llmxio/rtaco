@@ -1,10 +1,9 @@
-#include "llmx/nl/netlink_route_dump_task.h"
+#include "rtaco/nl_route_dump_task.hxx"
 
 #include <cerrno>
 #include <optional>
 #include <utility>
 
-#include "llmx/core/logger.h"
 #include "llmx/core/huge_mem_pool.h"
 
 namespace llmx {
@@ -22,43 +21,31 @@ void RouteDumpTask::prepare_request() {
 auto RouteDumpTask::process_message(const nlmsghdr& header)
         -> std::optional<expected<RouteEventList, llmx_error_policy>> {
     if (header.nlmsg_seq != sequence()) {
-        LOG(WARN) << "Sequence mismatch: " << header.nlmsg_seq << " != " << sequence();
         return std::nullopt;
     }
 
     switch (header.nlmsg_type) {
-    case NLMSG_DONE:
-        return handle_done();
-    case NLMSG_ERROR:
-        return handle_error(header);
-    case RTM_NEWROUTE:
-        return dispatch_route(header);
-    default:
-        return std::nullopt;
+    case NLMSG_DONE: return handle_done();
+    case NLMSG_ERROR: return handle_error(header);
+    case RTM_NEWROUTE: return dispatch_route(header);
+    default: return std::nullopt;
     }
 }
 
 auto RouteDumpTask::handle_done() -> expected<RouteEventList, llmx_error_policy> {
-    LOG(INFO) << "Handling done: Route dump completed, learned " << learned_.size()
-              << " routes";
-
     return std::move(learned_);
 }
 
 auto RouteDumpTask::handle_error(const nlmsghdr& header)
         -> expected<RouteEventList, llmx_error_policy> {
-    LOG(INFO) << "Handling route dump error message";
-
-    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-    const auto code = err != nullptr ? -err->error : EPROTO;
+    const auto* err       = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto code       = err != nullptr ? -err->error : EPROTO;
     const auto error_code = from_errno(code);
 
     if (!error_code) {
-        LOG(DEBUG) << "Route dump ack received";
         return std::move(learned_);
     }
 
-    LOG(ERROR) << "Route dump returned error: " << error_code.message();
     return std::unexpected{error_code};
 }
 

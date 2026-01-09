@@ -9,17 +9,17 @@ find_package(Threads REQUIRED)
 find_package(Boost 1.83.0 COMPONENTS system REQUIRED)
 
 set(RTACO_SOURCES
-  src/netlink_control.cxx
-  src/netlink_address_dump_task.cxx
-  src/netlink_event.cxx
-  src/netlink_listener.cxx
-  src/netlink_neighbor_dump_task.cxx
-  src/netlink_neighbor_flush_task.cxx
-  src/netlink_neighbor_get_task.cxx
-  src/netlink_neighbor_probe_task.cxx
-  src/netlink_route_dump_task.cxx
-  src/netlink_socket_guard.cxx
-  src/netlink_socket.cxx
+  src/nl_control.cxx
+  src/nl_address_dump_task.cxx
+  src/nl_event.cxx
+  src/nl_listener.cxx
+  src/nl_neighbor_dump_task.cxx
+  src/nl_neighbor_flush_task.cxx
+  src/nl_neighbor_get_task.cxx
+  src/nl_neighbor_probe_task.cxx
+  src/nl_route_dump_task.cxx
+  src/nl_socket_guard.cxx
+  src/nl_socket.cxx
 )
 
 add_library(llmx_rtaco ${RTACO_SOURCES})

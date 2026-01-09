@@ -1,9 +1,7 @@
-#include "llmx/nl/netlink_neighbor_probe_task.h"
+#include "rtaco/nl_neighbor_probe_task.hxx"
 
 #include <cerrno>
 #include <optional>
-
-#include "llmx/core/logger.h"
 
 namespace llmx {
 namespace nl {
@@ -32,16 +30,14 @@ auto NeighborProbeTask::process_message(const nlmsghdr& header)
 }
 
 auto NeighborProbeTask::handle_error(const nlmsghdr& header) -> expected<void> {
-    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-    const auto code = err != nullptr ? -err->error : EPROTO;
+    const auto* err       = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto code       = err != nullptr ? -err->error : EPROTO;
     const auto error_code = from_errno(code);
 
     if (!error_code) {
-        LOG(DEBUG) << "Neighbor probe ack received";
         return {};
     }
 
-    LOG(ERROR) << "Neighbor probe returned error: " << error_code.message();
     return std::unexpected{error_code};
 }
 

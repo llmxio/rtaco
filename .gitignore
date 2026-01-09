@@ -1,42 +1,128 @@
-# Prerequisites
-*.d
+# Build directories
+build*/
+cmake-build-*/
+.cmake/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+Makefile
+!CMakeLists.txt
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+# Binary outputs
 *.exe
 *.out
 *.app
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
 
-# debug information files
-*.dwo
+# Object files
+*.o
+*.obj
+*.lo
+
+# Dependency files
+*.d
+
+# Compiled Dynamic libraries
+*.so.*
+*.dylib
+
+# Executables
+doca-project
+doca-project-*
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+core
+core.*
+
+# IDE and editor files
+.idea/
+*.swp
+*.swo
+*~
+.#*
+\#*#
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.logs
+
+# Package management
+conan/
+vcpkg/
+_deps/
+
+# Testing
+Testing/
+CTestTestfile.cmake
+CTestConfiguration.ini
+
+# Documentation
+# docs/html/
+# docs/latex/
+# docs/xml/
+Doxyfile.bak
+
+# DOCA specific
+*.dpdk
+*.pci
+*.mlnx
+
+# Logs and runtime files
+*.log
+*.out
+*.err
+/tmp/
+logs/*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Core dumps
+core
+core.*
+
+# Performance profiling
+*.prof
+*.perf
+perf.data*
+
+# Static analysis
+*.sarif
+cppcheck_*.xml
+Dockerfile.*
 ipch
+.specstory
+!**/*/core
+.github/**/*.md
+.venv
+__pycache__/
+*.pyc
+*_pb2_grpc.py
+*_pb2.py

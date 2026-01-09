@@ -5,7 +5,7 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 ## Quick project summary
 
 - RTACO is a coroutine-first, RTNL-only control-plane library for Linux (C++23). See `README.md`.
-- Primary API surface: header files under `include/rtaco/` (e.g. `netlink_control.hxx`, `netlink_listener.hxx`).
+- Primary API surface: header files under `include/rtaco/` (e.g. `nl_control.hxx`, `nl_listener.hxx`).
 - Implementation lives in `src/` (task implementations, socket guards, etc.).
 - Key external deps (build-time/runtime): Boost.Asio (awaitables/co_spawn), Linux `netlink` headers, and llmx libraries (`llmx/core`, `llmx/net`, `llmx/nl`).
 
@@ -21,7 +21,7 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 ## Conventions and patterns to follow
 
 - Naming: `async_*` for awaitable asynchronous APIs; synchronous wrappers exist and should mirror async names without the prefix (e.g., `async_get_neighbor` / `get_neighbor`).
-- Tasks: derive from `RequestTask/RouteTask/...`, accept `(Context&, Socket&, IfIndex, sequence)` in constructors, and implement `process_message()` / `handle_*` helpers (see `src/netlink_route_dump_task.cxx`).
+- Tasks: derive from `RequestTask/RouteTask/...`, accept `(Context&, Socket&, IfIndex, sequence)` in constructors, and implement `process_message()` / `handle_*` helpers (see `src/nl_route_dump_task.cxx`).
 - Logging: use `LOG(LEVEL) << ...` from `llmx/core/logger` for instrumentation and debugging messages.
 - Resource semantics: prefer deleted copy constructors, defaulted/move where appropriate, and `noexcept` for basic operations (existing code follows this idiom).
 - Error conversion: convert kernel errors via helpers like `from_errno()` and return `std::unexpected{error}` where appropriate (see `handle_error()` in dump tasks).
@@ -40,16 +40,16 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 
 - Adding a new control operation:
   1. Add a new Task class (header in `include/rtaco/` and implementation in `src/`) that follows the existing task pattern: constructor `(Context&, Socket&, IfIndex, uint32_t sequence)`, `prepare_request()`, `process_message()`.
-  2. Add `async_*` method in `include/rtaco/netlink_control.hxx` that constructs the task and `co_await`'s `async_run()`; add a synchronous wrapper using `co_spawn(..., use_future)` if needed.
+  2. Add `async_*` method in `include/rtaco/nl_control.hxx` that constructs the task and `co_await`'s `async_run()`; add a synchronous wrapper using `co_spawn(..., use_future)` if needed.
   3. Use `expected<T, llmx_error_policy>` for results and `std::unexpected` for failures.
   4. Add logging (INFO/WARN/ERROR) where helpful.
 
 ## Files to consult for examples
 
-- `include/rtaco/netlink_control.hxx` + `src/netlink_control.cxx` (async vs sync wrapper pattern)
-- `include/rtaco/netlink_listener.hxx` + `src/netlink_listener.cxx` (event handling + signals)
-- `src/netlink_route_dump_task.cxx` (task message processing and filtering)
-- `include/rtaco/netlink_socket_guard.hxx` + `src/netlink_socket_guard.cxx` (socket lifecycle management)
+- `include/rtaco/nl_control.hxx` + `src/nl_control.cxx` (async vs sync wrapper pattern)
+- `include/rtaco/nl_listener.hxx` + `src/nl_listener.cxx` (event handling + signals)
+- `src/nl_route_dump_task.cxx` (task message processing and filtering)
+- `include/rtaco/nl_socket_guard.hxx` + `src/nl_socket_guard.cxx` (socket lifecycle management)
 
 ## Do NOT do
 
