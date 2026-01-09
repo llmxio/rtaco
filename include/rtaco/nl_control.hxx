@@ -15,9 +15,10 @@
 #include "llmx/core/context.h"
 #include "llmx/core/error.h"
 #include "llmx/core/expected_ext.h"
-#include "llmx/net/ether.h"
 #include "llmx/net/ip6.h"
-#include "llmx/nl/netlink_socket_guard.h"
+#include "llmx/core/types.h"
+#include "rtaco/nl_event.hxx"
+#include "rtaco/nl_request_task.hxx"
 
 namespace llmx {
 namespace nl {
@@ -27,10 +28,10 @@ public:
     Control(Context& ctx) noexcept;
     ~Control();
 
-    Control(const Control&) = delete;
+    Control(const Control&)            = delete;
     Control& operator=(const Control&) = delete;
-    Control(Control&&) = delete;
-    Control& operator=(Control&&) = delete;
+    Control(Control&&)                 = delete;
+    Control& operator=(Control&&)      = delete;
 
     auto dump_routes() -> expected<RouteEventList, llmx_error_policy>;
     auto dump_addresses() -> expected<AddressEventList, llmx_error_policy>;
@@ -43,7 +44,7 @@ public:
             -> expected<void, llmx_error_policy>;
 
     auto get_neighbor(IfIndex ifindex, const Ip6Address& address)
-            -> expected<EtherAddr, llmx_error_policy>;
+            -> expected<NeighborEvent, llmx_error_policy>;
 
     auto async_dump_routes()
             -> boost::asio::awaitable<expected<RouteEventList, llmx_error_policy>>;
@@ -61,7 +62,7 @@ public:
             -> boost::asio::awaitable<expected<void, llmx_error_policy>>;
 
     auto async_get_neighbor(IfIndex ifindex, const Ip6Address& address)
-            -> boost::asio::awaitable<expected<EtherAddr, llmx_error_policy>>;
+            -> boost::asio::awaitable<expected<NeighborEvent, llmx_error_policy>>;
 
     void stop();
 

@@ -1,4 +1,4 @@
-#include "llmx/nl/netlink_socket.h"
+#include "rtaco/nl_socket.hxx"
 
 #include <boost/asio/io_context.hpp>
 
@@ -51,7 +51,7 @@ auto Socket::open(int proto, uint32_t groups) -> expected<void, llmx_error_polic
         boost::system::error_code option_ec;
 
         if (socket_.set_option(option, option_ec); option_ec) {
-            LOG(WARN) << label_ << ": " << description << ": " << option_ec.message();
+            (void)option_ec;
         }
     };
 

@@ -8,7 +8,8 @@
 #include <linux/neighbour.h>
 #include <linux/rtnetlink.h>
 
-#include "llmx/nl/netlink_neighbor_task.h"
+#include "rtaco/nl_neighbor_task.hxx"
+#include "rtaco/nl_event.hxx"
 
 namespace llmx {
 namespace nl {

@@ -1,8 +1,7 @@
-#include "llmx/nl/netlink_socket_guard.h"
+#include "rtaco/nl_socket_guard.hxx"
 
 #include <boost/system/error_code.hpp>
 
-#include "llmx/core/logger.h"
 #include "llmx/core/utils.h"
 
 namespace llmx {
@@ -40,13 +39,11 @@ void SocketGuard::stop() {
     }
 
     if (auto result = socket_.cancel(); !result) {
-        LOG(WARN) << "Failed to cancel netlink nl-control socket: "
-                  << result.error().message();
+        (void)result;
     }
 
     if (auto result = socket_.close(); !result) {
-        LOG(WARN) << "Failed to close netlink nl-control socket: "
-                  << result.error().message();
+        (void)result;
     }
 }
 

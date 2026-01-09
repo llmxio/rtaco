@@ -6,7 +6,7 @@
 #include <boost/asio/io_context.hpp>
 
 #include "llmx/core/error.h"
-#include "llmx/nl/netlink_socket.h"
+#include "rtaco/nl_socket.hxx"
 
 namespace llmx {
 namespace nl {
@@ -16,10 +16,10 @@ public:
     SocketGuard(boost::asio::io_context& io, std::string_view label) noexcept;
     virtual ~SocketGuard() = default;
 
-    SocketGuard(const SocketGuard&) = delete;
+    SocketGuard(const SocketGuard&)            = delete;
     SocketGuard& operator=(const SocketGuard&) = delete;
-    SocketGuard(SocketGuard&&) = delete;
-    SocketGuard& operator=(SocketGuard&&) = delete;
+    SocketGuard(SocketGuard&&)                 = delete;
+    SocketGuard& operator=(SocketGuard&&)      = delete;
 
     virtual auto socket() -> Socket&;
     virtual auto ensure_open() -> expected<void, llmx_error_policy>;

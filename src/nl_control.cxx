@@ -1,4 +1,4 @@
-#include "llmx/nl/netlink_control.h"
+#include "rtaco/nl_control.hxx"
 
 #include <future>
 #include <memory>
@@ -9,14 +9,13 @@
 #include <boost/asio/use_future.hpp>
 
 #include "llmx/core/io_pool.h"
-#include "llmx/core/logger.h"
-#include "llmx/nl/netlink_address_dump_task.h"
-#include "llmx/nl/netlink_neighbor_dump_task.h"
-#include "llmx/nl/netlink_neighbor_flush_task.h"
-#include "llmx/nl/netlink_neighbor_get_task.h"
-#include "llmx/nl/netlink_neighbor_probe_task.h"
-#include "llmx/nl/netlink_route_dump_task.h"
-#include "llmx/nl/netlink_socket_guard.h"
+#include "rtaco/nl_address_dump_task.hxx"
+#include "rtaco/nl_neighbor_dump_task.hxx"
+#include "rtaco/nl_neighbor_flush_task.hxx"
+#include "rtaco/nl_neighbor_get_task.hxx"
+#include "rtaco/nl_neighbor_probe_task.hxx"
+#include "rtaco/nl_route_dump_task.hxx"
+#include "rtaco/nl_socket_guard.hxx"
 
 namespace llmx {
 namespace nl {
@@ -139,7 +138,7 @@ auto Control::async_probe_neighbor(IfIndex ifindex, const Ip6Address& address)
 }
 
 auto Control::get_neighbor(IfIndex ifindex, const Ip6Address& address)
-        -> expected<EtherAddr, llmx_error_policy> {
+        -> expected<NeighborEvent, llmx_error_policy> {
     auto future = boost::asio::co_spawn(io_, async_get_neighbor(ifindex, address),
             boost::asio::use_future);
 
@@ -147,7 +146,7 @@ auto Control::get_neighbor(IfIndex ifindex, const Ip6Address& address)
 }
 
 auto Control::async_get_neighbor(IfIndex ifindex, const Ip6Address& address)
-        -> boost::asio::awaitable<expected<EtherAddr, llmx_error_policy>> {
+        -> boost::asio::awaitable<expected<NeighborEvent, llmx_error_policy>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }

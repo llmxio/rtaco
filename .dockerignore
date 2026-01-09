@@ -1,0 +1,124 @@
+# Build directories
+build/
+**/build/
+*.build/
+out/
+**/out/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+compile_commands.json
+
+# Object files and libraries
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.dll
+*.lib
+*.exe
+
+# Version control
+.git/
+.gitignore
+.gitmodules
+.gitattributes
+
+# IDE and editor files
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-*
+
+# Development container files
+.devcontainer/
+Dockerfile*
+docker-compose*.yml
+*.dockerignore
+
+# Documentation and README files
+README.md
+*.md
+docs/
+documentation/
+
+# Test artifacts
+test_results/
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# Package managers
+node_modules/
+.npm/
+.yarn/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+*.pid
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Archive files
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+
+# Development scripts
+scripts/dev/
+tools/dev/
+*.sh
+*.bat
+*.ps1
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+Jenkinsfile
+
+# License and legal files
+LICENSE*
+COPYING*
+NOTICE*
+AUTHORS*
+CONTRIBUTORS*
+CHANGELOG*
+HISTORY*
+
+# Configuration files for development
+.clang-format
+.clang-tidy
+.editorconfig
+.pre-commit-config.yaml

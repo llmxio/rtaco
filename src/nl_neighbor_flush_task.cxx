@@ -1,9 +1,7 @@
-#include "llmx/nl/netlink_neighbor_flush_task.h"
+#include "rtaco/nl_neighbor_flush_task.hxx"
 
 #include <cerrno>
 #include <optional>
-
-#include "llmx/core/logger.h"
 
 namespace llmx {
 namespace nl {
@@ -32,15 +30,14 @@ auto NeighborFlushTask::process_message(const nlmsghdr& header)
 
 auto NeighborFlushTask::handle_error(const nlmsghdr& header)
         -> expected<void, llmx_error_policy> {
-    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-    const auto code = err != nullptr ? -err->error : EPROTO;
+    const auto* err       = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto code       = err != nullptr ? -err->error : EPROTO;
     const auto error_code = from_errno(code);
 
     if (!error_code) {
         return {};
     }
 
-    LOG(ERROR) << "Neighbor flush returned error: " << error_code.message();
     return std::unexpected{error_code};
 }
 
