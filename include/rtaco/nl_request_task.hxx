@@ -20,6 +20,8 @@
 #include "llmx/core/asio.h"
 #include "llmx/core/context.h"
 #include "llmx/core/error.h"
+#include "llmx/core/expected_ext.h"
+#include "llmx/core/types.h"
 #include "llmx/core/utils.h"
 #include "rtaco/nl_socket.hxx"
 

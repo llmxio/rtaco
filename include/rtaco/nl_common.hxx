@@ -1,150 +1,144 @@
 #pragma once
 
 #include <array>
-#include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
-#include <vector>
 #include <string_view>
-#include <unordered_map>
+#include <type_traits>
 #include <utility>
+#include <unordered_map>
 
+#include <arpa/inet.h>
 #include <net/if.h>
 #include <linux/netlink.h>
 #include <linux/neighbour.h>
 #include <linux/rtnetlink.h>
-#include <linux/socket.h>
 
 namespace llmx {
 namespace nl {
 
-struct LinkEvent {
-    enum class Type : uint16_t {
-        UNKNOWN = 0,
-        NEW_LINK = RTM_NEWLINK,
-        DELETE_LINK = RTM_DELLINK,
-    };
+// Remove trailing NUL characters from a string view and return an owning string.
+inline constexpr auto trim_string(std::string_view sv) -> std::string {
+    while (!sv.empty() && sv.back() == '\0') {
+        sv.remove_suffix(1);
+    }
+    return std::string(sv);
+}
 
-    Type type{Type::UNKNOWN};
-    int index{0};
-    uint32_t flags{0};
-    uint32_t change{0};
-    std::string name{};
+template<size_t N>
+inline constexpr auto trim_string(const std::array<char, N>& arr) -> std::string {
+    return trim_string(std::string_view{arr.data(), arr.size()});
+}
 
-    static auto from_nlmsghdr(const nlmsghdr& header) -> LinkEvent;
-};
-
-struct AddressEvent {
-    enum class Type : uint16_t {
-        UNKNOWN = 0,
-        NEW_ADDRESS = RTM_NEWADDR,
-        DELETE_ADDRESS = RTM_DELADDR,
-    };
-
-    Type type{Type::UNKNOWN};
-    int index{0};
-    uint8_t prefix_len{0U};
-    uint8_t scope{0U};
-    uint32_t flags{0U};
-    uint8_t family{0U};
-    std::string address{};
-    std::string label{};
-
-    static auto from_nlmsghdr(const nlmsghdr& header) -> AddressEvent;
-};
-
-struct RouteEvent {
-    enum class Type : uint16_t {
-        UNKNOWN = 0,
-        NEW_ROUTE = RTM_NEWROUTE,
-        DELETE_ROUTE = RTM_DELROUTE,
-    };
-
-    Type type{Type::UNKNOWN};
-    uint8_t family{0U};
-    uint8_t dst_prefix_len{0U};
-    uint8_t src_prefix_len{0U};
-    uint8_t scope{0U};
-    uint8_t protocol{0U};
-    uint8_t route_type{0U};
-    uint32_t flags{0U};
-    uint32_t table{0U};
-    uint32_t priority{0U};
-    uint32_t oif_index{0U};
-    std::string dst{};
-    std::string src{};
-    std::string gateway{};
-    std::string prefsrc{};
-    std::string oif{};
-
-    static auto from_nlmsghdr(const nlmsghdr& header) -> RouteEvent;
-};
-
-struct NeighborEvent {
-    enum class Type : uint16_t {
-        UNKNOWN = 0,
-        NEW_NEIGHBOR = RTM_NEWNEIGH,
-        DELETE_NEIGHBOR = RTM_DELNEIGH,
-    };
-
-    enum class State : uint16_t {
-        NONE = NUD_NONE,
-        INCOMPLETE = NUD_INCOMPLETE,
-        REACHABLE = NUD_REACHABLE,
-        STALE = NUD_STALE,
-        DELAY = NUD_DELAY,
-        PROBE = NUD_PROBE,
-        FAILED = NUD_FAILED,
-        NOARP = NUD_NOARP,
-        PERMANENT = NUD_PERMANENT,
-    };
-
-    Type type{Type::UNKNOWN};
-    int index{0};
-    uint8_t family{0U};
-    State state{State::NONE};
-    uint8_t flags{0U};
-    uint8_t neighbor_type{0U};
-    std::string address{};
-    std::string lladdr{};
-
-    auto state_to_string() const -> std::string {
-        if (std::to_underlying(state) == NUD_NONE) {
-            return "NUD_NONE";
-        }
-
-        struct StateName {
-            uint16_t mask;
-            std::string_view name;
-        };
-
-        static constexpr std::array<StateName, 8> state_names{{
-                {NUD_INCOMPLETE, "NUD_INCOMPLETE"},
-                {NUD_REACHABLE, "NUD_REACHABLE"},
-                {NUD_STALE, "NUD_STALE"},
-                {NUD_DELAY, "NUD_DELAY"},
-                {NUD_PROBE, "NUD_PROBE"},
-                {NUD_FAILED, "NUD_FAILED"},
-                {NUD_NOARP, "NUD_NOARP"},
-                {NUD_PERMANENT, "NUD_PERMANENT"},
-        }};
-
-        std::string result{};
-        for (const auto& entry : state_names) {
-            if ((std::to_underlying(state) & entry.mask) != 0U) {
-                if (!result.empty()) {
-                    result += '|';
-                }
-                result.append(entry.name);
-            }
-        }
-
-        return result.empty() ? "UNKNOWN" : result;
+inline auto extract_ifname(const nlmsghdr& header) -> std::string {
+    if (header.nlmsg_len < NLMSG_LENGTH(sizeof(ifinfomsg))) {
+        return {};
     }
 
-    static auto from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent;
-};
+    const auto* info = reinterpret_cast<const ifinfomsg*>(NLMSG_DATA(&header));
+    int attr_length  = static_cast<int>(header.nlmsg_len) -
+            static_cast<int>(NLMSG_LENGTH(sizeof(ifinfomsg)));
+
+    if (attr_length <= 0) {
+        return {};
+    }
+
+    for (auto* attr = IFLA_RTA(info); RTA_OK(attr, attr_length);
+            attr    = RTA_NEXT(attr, attr_length)) {
+        if (attr->rta_type != IFLA_IFNAME) {
+            continue;
+        }
+
+        const auto payload = static_cast<size_t>(RTA_PAYLOAD(attr));
+        if (payload == 0U) {
+            continue;
+        }
+
+        const auto* buffer = reinterpret_cast<const char*>(RTA_DATA(attr));
+        if (buffer == nullptr) {
+            continue;
+        }
+
+        return trim_string(buffer);
+    }
+
+    return {};
+}
+
+inline auto attribute_string(const rtattr& attr) -> std::string {
+    const auto payload = static_cast<size_t>(RTA_PAYLOAD(&attr));
+    if (payload == 0U) {
+        return {};
+    }
+
+    const auto* buffer = reinterpret_cast<const char*>(RTA_DATA(&attr));
+    if (buffer == nullptr) {
+        return {};
+    }
+
+    return trim_string(buffer);
+}
+
+inline auto attribute_address(const rtattr& attr, uint8_t family) -> std::string {
+    int address_family = 0;
+
+    switch (family) {
+    case AF_INET: address_family = AF_INET; break;
+    case AF_INET6: address_family = AF_INET6; break;
+    default: return {};
+    }
+
+    const void* data = RTA_DATA(&attr);
+    if (data == nullptr) {
+        return {};
+    }
+
+    std::array<char, INET6_ADDRSTRLEN> buffer{};
+    if (::inet_ntop(address_family, data, buffer.data(), buffer.size()) == nullptr) {
+        return {};
+    }
+
+    return trim_string(buffer);
+}
+
+inline auto attribute_uint32(const rtattr& attr) -> uint32_t {
+    if (RTA_PAYLOAD(&attr) < sizeof(uint32_t)) {
+        return 0U;
+    }
+
+    uint32_t value{};
+    std::memcpy(&value, RTA_DATA(&attr), sizeof(value));
+    return value;
+}
+
+inline auto attribute_hwaddr(const rtattr& attr) -> std::string {
+    const auto payload = static_cast<size_t>(RTA_PAYLOAD(&attr));
+    if (payload == 0U) {
+        return {};
+    }
+
+    const auto* data = reinterpret_cast<const uint8_t*>(RTA_DATA(&attr));
+    if (data == nullptr) {
+        return {};
+    }
+
+    std::string value;
+    value.reserve(payload * 3U);
+
+    constexpr char kHex[] = "0123456789abcdef";
+    for (size_t i = 0; i < payload; ++i) {
+        if (i != 0U) {
+            value.push_back(':');
+        }
+        const auto byte = data[i];
+        value.push_back(kHex[(byte >> 4U) & 0x0FU]);
+        value.push_back(kHex[byte & 0x0FU]);
+    }
+
+    return value;
+}
 
 template<typename T>
 concept IsEnumeration = std::is_enum_v<std::remove_cvref_t<T>> ||
@@ -153,8 +147,7 @@ concept IsEnumeration = std::is_enum_v<std::remove_cvref_t<T>> ||
 template<typename T>
 concept IsNetlinkEvent = IsEnumeration<T> || std::integral<std::remove_cvref_t<T>>;
 
-static constexpr auto type_to_string(IsNetlinkEvent auto&& type) noexcept
-        -> std::string_view {
+inline auto type_to_string(IsNetlinkEvent auto&& type) noexcept -> std::string_view {
     uint16_t type_value{};
 
     if constexpr (IsEnumeration<decltype(type)>) {
@@ -189,7 +182,7 @@ static constexpr auto type_to_string(IsNetlinkEvent auto&& type) noexcept
     return "UNKNOWN";
 }
 
-static constexpr auto family_to_string(uint8_t family) noexcept -> std::string_view {
+inline auto family_to_string(uint8_t family) noexcept -> std::string_view {
     static const std::unordered_map<uint8_t, std::string_view> family_names{
             {AF_UNSPEC, "AF_UNSPEC"},
             {AF_UNIX, "AF_UNIX"},
@@ -213,7 +206,7 @@ static constexpr auto family_to_string(uint8_t family) noexcept -> std::string_v
     return "UNKNOWN";
 }
 
-static constexpr auto protocol_to_string(uint8_t protocol) noexcept -> std::string_view {
+inline auto protocol_to_string(uint8_t protocol) noexcept -> std::string_view {
     static const std::unordered_map<uint8_t, std::string_view> protocol_names{
             {RTPROT_UNSPEC, "RTPROT_UNSPEC"},
             {RTPROT_REDIRECT, "RTPROT_REDIRECT"},
@@ -242,8 +235,7 @@ static constexpr auto protocol_to_string(uint8_t protocol) noexcept -> std::stri
     return "UNKNOWN";
 }
 
-static constexpr auto route_type_to_string(uint8_t route_type) noexcept
-        -> std::string_view {
+inline auto route_type_to_string(uint8_t route_type) noexcept -> std::string_view {
     static const std::unordered_map<uint8_t, std::string_view> route_type_names{
             {RTN_UNSPEC, "RTN_UNSPEC"},
             {RTN_UNICAST, "RTN_UNICAST"},
@@ -265,11 +257,6 @@ static constexpr auto route_type_to_string(uint8_t route_type) noexcept
 
     return "UNKNOWN";
 }
-
-using NeighborEventList = std::pmr::vector<NeighborEvent>;
-using RouteEventList = std::pmr::vector<RouteEvent>;
-using LinkEventList = std::pmr::vector<LinkEvent>;
-using AddressEventList = std::pmr::vector<AddressEvent>;
 
 } // namespace nl
 } // namespace llmx

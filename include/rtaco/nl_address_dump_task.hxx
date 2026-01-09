@@ -7,7 +7,8 @@
 
 #include <linux/rtnetlink.h>
 
-#include "rtaco/nl_event.hxx"
+#include "rtaco/nl_address_event.hxx"
+#include "rtaco/nl_request_task.hxx"
 
 namespace llmx {
 namespace nl {

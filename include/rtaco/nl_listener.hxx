@@ -18,6 +18,8 @@
 #include "llmx/core/signal.h"
 #include "llmx/core/utils.h"
 #include "rtaco/nl_event.hxx"
+#include "rtaco/nl_address_event.hxx"
+#include "rtaco/nl_neighbor_event.hxx"
 #include "rtaco/nl_protocol.hxx"
 #include "rtaco/nl_socket.hxx"
 #include "llmx/net/ip6.h"
