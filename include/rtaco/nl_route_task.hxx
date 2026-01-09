@@ -7,7 +7,6 @@
 
 #include <linux/rtnetlink.h>
 
-#include "llmx/core/error.h"
 #include "rtaco/nl_request_task.hxx"
 
 namespace llmx {

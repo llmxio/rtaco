@@ -17,7 +17,7 @@ void RouteDumpTask::prepare_request() {
 }
 
 auto RouteDumpTask::process_message(const nlmsghdr& header)
-        -> std::optional<expected<RouteEventList, llmx_error_policy>> {
+        -> std::optional<std::expected<RouteEventList, std::error_code>> {
     if (header.nlmsg_seq != sequence()) {
         return std::nullopt;
     }
@@ -30,15 +30,15 @@ auto RouteDumpTask::process_message(const nlmsghdr& header)
     }
 }
 
-auto RouteDumpTask::handle_done() -> expected<RouteEventList, llmx_error_policy> {
+auto RouteDumpTask::handle_done() -> std::expected<RouteEventList, std::error_code> {
     return std::move(learned_);
 }
 
 auto RouteDumpTask::handle_error(const nlmsghdr& header)
-        -> expected<RouteEventList, llmx_error_policy> {
+        -> std::expected<RouteEventList, std::error_code> {
     const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
     const auto code = err != nullptr ? -err->error : EPROTO;
-    const auto error_code = from_errno(code);
+    const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 
     if (!error_code) {
         return std::move(learned_);
@@ -48,7 +48,7 @@ auto RouteDumpTask::handle_error(const nlmsghdr& header)
 }
 
 auto RouteDumpTask::dispatch_route(const nlmsghdr& header)
-        -> std::optional<expected<RouteEventList, llmx_error_policy>> {
+        -> std::optional<std::expected<RouteEventList, std::error_code>> {
     const auto event = RouteEvent::from_nlmsghdr(header);
 
     if (event.type != RouteEvent::Type::NEW_ROUTE) {

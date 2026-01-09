@@ -13,7 +13,6 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/system/error_code.hpp>
 
-#include "llmx/core/error.h"
 #include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"

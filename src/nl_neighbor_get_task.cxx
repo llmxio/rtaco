@@ -23,7 +23,7 @@ void NeighborGetTask::prepare_request() {
 }
 
 auto NeighborGetTask::process_message(const nlmsghdr& header)
-        -> std::optional<expected<NeighborEvent>> {
+        -> std::optional<std::expected<NeighborEvent, std::error_code>> {
     if (header.nlmsg_seq != this->sequence()) {
         return std::nullopt;
     }
@@ -36,24 +36,25 @@ auto NeighborGetTask::process_message(const nlmsghdr& header)
     }
 }
 
-auto NeighborGetTask::handle_done() -> expected<NeighborEvent> {
-    return std::unexpected{from_errno(ENOENT)};
+auto NeighborGetTask::handle_done() -> std::expected<NeighborEvent, std::error_code> {
+    return std::unexpected{std::make_error_code(static_cast<std::errc>(ENOENT))};
 }
 
-auto NeighborGetTask::handle_error(const nlmsghdr& header) -> expected<NeighborEvent> {
+auto NeighborGetTask::handle_error(const nlmsghdr& header)
+        -> std::expected<NeighborEvent, std::error_code> {
     const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
     const auto code = err != nullptr ? -err->error : EPROTO;
-    const auto error_code = from_errno(code);
+    const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 
     if (!error_code) {
-        return std::unexpected{from_errno(ENOENT)};
+        return std::unexpected{std::make_error_code(static_cast<std::errc>(ENOENT))};
     }
 
     return std::unexpected{error_code};
 }
 
 auto NeighborGetTask::handle_neighbor(const nlmsghdr& header)
-        -> std::optional<expected<NeighborEvent>> {
+        -> std::optional<std::expected<NeighborEvent, std::error_code>> {
     const auto event = NeighborEvent::from_nlmsghdr(header);
 
     if (event.type == NeighborEvent::Type::UNKNOWN) {

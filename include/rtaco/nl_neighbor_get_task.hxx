@@ -15,13 +15,13 @@ public:
 
     void prepare_request();
     auto process_message(const nlmsghdr& header)
-            -> std::optional<expected<NeighborEvent>>;
+            -> std::optional<std::expected<NeighborEvent, std::error_code>>;
 
 private:
-    auto handle_done() -> expected<NeighborEvent>;
-    auto handle_error(const nlmsghdr& header) -> expected<NeighborEvent>;
+    auto handle_done() -> std::expected<NeighborEvent, std::error_code>;
+    auto handle_error(const nlmsghdr& header) -> std::expected<NeighborEvent, std::error_code>;
     auto handle_neighbor(const nlmsghdr& header)
-            -> std::optional<expected<NeighborEvent>>;
+            -> std::optional<std::expected<NeighborEvent, std::error_code>>;
 };
 
 } // namespace nl

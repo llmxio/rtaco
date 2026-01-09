@@ -4,8 +4,8 @@
 
 #include <cstddef>
 #include <utility>
+#include <expected>
 
-#include "llmx/core/error.h"
 #include "rtaco/nl_protocol.hxx"
 
 namespace llmx {
@@ -28,10 +28,10 @@ public:
 
     auto is_open() const noexcept -> bool;
 
-    auto close() -> expected<void, llmx_error_policy>;
-    auto cancel() -> expected<void, llmx_error_policy>;
+    auto close() -> std::expected<void, std::error_code>;
+    auto cancel() -> std::expected<void, std::error_code>;
 
-    auto open(int proto, uint32_t groups) -> expected<void, llmx_error_policy>;
+    auto open(int proto, uint32_t groups) -> std::expected<void, std::error_code>;
 
     template<typename Option>
     void set_option(const Option& option, boost::system::error_code& ec) {

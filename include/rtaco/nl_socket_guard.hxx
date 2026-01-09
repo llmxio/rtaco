@@ -5,7 +5,6 @@
 
 #include <boost/asio/io_context.hpp>
 
-#include "llmx/core/error.h"
 #include "rtaco/nl_socket.hxx"
 
 namespace llmx {
@@ -22,7 +21,7 @@ public:
     SocketGuard& operator=(SocketGuard&&) = delete;
 
     virtual auto socket() -> Socket&;
-    virtual auto ensure_open() -> expected<void, llmx_error_policy>;
+    virtual auto ensure_open() -> std::expected<void, std::error_code>;
     virtual void stop();
 
 protected:

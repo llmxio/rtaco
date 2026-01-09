@@ -1,5 +1,7 @@
 #pragma once
 
+#include <expected>
+
 #include "rtaco/nl_route_task.hxx"
 #include "rtaco/nl_route_event.hxx"
 
@@ -16,16 +18,16 @@ public:
     void prepare_request();
 
     auto process_message(const nlmsghdr& header)
-            -> std::optional<expected<RouteEventList, llmx_error_policy>>;
+            -> std::optional<std::expected<RouteEventList, std::error_code>>;
 
 private:
-    auto handle_done() -> expected<RouteEventList, llmx_error_policy>;
+    auto handle_done() -> std::expected<RouteEventList, std::error_code>;
 
     auto handle_error(const nlmsghdr& header)
-            -> expected<RouteEventList, llmx_error_policy>;
+            -> std::expected<RouteEventList, std::error_code>;
 
     auto dispatch_route(const nlmsghdr& header)
-            -> std::optional<expected<RouteEventList, llmx_error_policy>>;
+            -> std::optional<std::expected<RouteEventList, std::error_code>>;
 };
 
 } // namespace nl
