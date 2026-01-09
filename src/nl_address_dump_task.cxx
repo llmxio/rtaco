@@ -5,16 +5,14 @@
 #include <optional>
 #include <utility>
 
-#include "llmx/core/huge_mem_pool.h"
-
 namespace llmx {
 namespace nl {
 
-AddressDumpTask::AddressDumpTask(Socket& socket, uint16_t uint16_t,
-        uint32_t sequence) noexcept
-    : RequestTask{socket, uint16_t, sequence}
+AddressDumpTask::AddressDumpTask(Socket& socket, std::pmr::memory_resource* pmr,
+        uint16_t ifindex, uint32_t sequence) noexcept
+    : RequestTask{socket, ifindex, sequence}
     , request_{}
-    , learned_{HugeMemPool::instance()} {}
+    , learned_{pmr} {}
 
 auto AddressDumpTask::request_payload() const -> std::span<const std::byte> {
     return {reinterpret_cast<const std::byte*>(&request_), request_.header.nlmsg_len};
@@ -39,17 +37,17 @@ auto AddressDumpTask::process_message(const nlmsghdr& header)
 }
 
 void AddressDumpTask::build_request() {
-    request_.header.nlmsg_len   = NLMSG_LENGTH(sizeof(ifaddrmsg));
-    request_.header.nlmsg_type  = RTM_GETADDR;
+    request_.header.nlmsg_len = NLMSG_LENGTH(sizeof(ifaddrmsg));
+    request_.header.nlmsg_type = RTM_GETADDR;
     request_.header.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
-    request_.header.nlmsg_seq   = sequence();
-    request_.header.nlmsg_pid   = 0;
+    request_.header.nlmsg_seq = sequence();
+    request_.header.nlmsg_pid = 0;
 
-    request_.message.ifa_family    = AF_INET6;
+    request_.message.ifa_family = AF_INET6;
     request_.message.ifa_prefixlen = 0;
-    request_.message.ifa_flags     = 0;
-    request_.message.ifa_scope     = RT_SCOPE_UNIVERSE;
-    request_.message.ifa_index     = static_cast<int>(uint16_t());
+    request_.message.ifa_flags = 0;
+    request_.message.ifa_scope = RT_SCOPE_UNIVERSE;
+    request_.message.ifa_index = static_cast<int>(uint16_t());
 }
 
 auto AddressDumpTask::handle_done() -> expected<AddressEventList, llmx_error_policy> {
@@ -58,8 +56,8 @@ auto AddressDumpTask::handle_done() -> expected<AddressEventList, llmx_error_pol
 
 auto AddressDumpTask::handle_error(const nlmsghdr& header)
         -> expected<AddressEventList, llmx_error_policy> {
-    const auto* err       = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-    const auto code       = err != nullptr ? -err->error : EPROTO;
+    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto code = err != nullptr ? -err->error : EPROTO;
     const auto error_code = from_errno(code);
 
     if (!error_code) {

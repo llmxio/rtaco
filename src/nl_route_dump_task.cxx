@@ -4,15 +4,13 @@
 #include <optional>
 #include <utility>
 
-#include "llmx/core/huge_mem_pool.h"
-
 namespace llmx {
 namespace nl {
 
-RouteDumpTask::RouteDumpTask(Socket& socket, uint16_t uint16_t,
-        uint32_t sequence) noexcept
-    : RouteTask{socket, uint16_t, sequence}
-    , learned_{HugeMemPool::instance()} {}
+RouteDumpTask::RouteDumpTask(Socket& socket, std::pmr::memory_resource* pmr,
+        uint16_t ifindex, uint32_t sequence) noexcept
+    : RouteTask{socket, ifindex, sequence}
+    , learned_{pmr} {}
 
 void RouteDumpTask::prepare_request() {
     build_request();
@@ -38,8 +36,8 @@ auto RouteDumpTask::handle_done() -> expected<RouteEventList, llmx_error_policy>
 
 auto RouteDumpTask::handle_error(const nlmsghdr& header)
         -> expected<RouteEventList, llmx_error_policy> {
-    const auto* err       = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-    const auto code       = err != nullptr ? -err->error : EPROTO;
+    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto code = err != nullptr ? -err->error : EPROTO;
     const auto error_code = from_errno(code);
 
     if (!error_code) {

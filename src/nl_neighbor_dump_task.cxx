@@ -3,15 +3,13 @@
 #include <cerrno>
 #include <optional>
 
-#include "llmx/core/huge_mem_pool.h"
-
 namespace llmx {
 namespace nl {
 
-NeighborDumpTask::NeighborDumpTask(Socket& socket, uint16_t uint16_t,
-        uint32_t sequence) noexcept
-    : NeighborTask{socket, uint16_t, sequence}
-    , learned_{HugeMemPool::instance()} {}
+NeighborDumpTask::NeighborDumpTask(Socket& socket, std::pmr::memory_resource* pmr,
+        uint16_t ifindex, uint32_t sequence) noexcept
+    : NeighborTask{socket, ifindex, sequence}
+    , learned_{pmr} {}
 
 void NeighborDumpTask::prepare_request() {
     std::memset(&request_, 0, sizeof(request_));
@@ -39,8 +37,8 @@ auto NeighborDumpTask::handle_done() -> expected<NeighborEventList, llmx_error_p
 
 auto NeighborDumpTask::handle_error(const nlmsghdr& header)
         -> expected<NeighborEventList, llmx_error_policy> {
-    const auto* err       = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-    const auto code       = err != nullptr ? -err->error : EPROTO;
+    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto code = err != nullptr ? -err->error : EPROTO;
     const auto error_code = from_errno(code);
 
     if (!error_code) {

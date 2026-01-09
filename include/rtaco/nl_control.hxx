@@ -10,8 +10,6 @@
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/io_context.hpp>
 
-#include <linux/netlink.h>
-
 #include "llmx/core/error.h"
 #include "llmx/core/expected_ext.h"
 #include "llmx/net/ip6.h"
@@ -27,13 +25,13 @@ namespace nl {
 
 class Control {
 public:
-    Control() noexcept;
+    Control(boost::asio::io_context& io) noexcept;
     ~Control();
 
-    Control(const Control&)            = delete;
+    Control(const Control&) = delete;
     Control& operator=(const Control&) = delete;
-    Control(Control&&)                 = delete;
-    Control& operator=(Control&&)      = delete;
+    Control(Control&&) = delete;
+    Control& operator=(Control&&) = delete;
 
     auto dump_routes() -> expected<RouteEventList, llmx_error_policy>;
     auto dump_addresses() -> expected<AddressEventList, llmx_error_policy>;
