@@ -13,35 +13,41 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/system/error_code.hpp>
 
-#include "llmx/core/context.h"
 #include "llmx/core/error.h"
-#include "llmx/core/signal.h"
-#include "llmx/core/utils.h"
-#include "rtaco/nl_event.hxx"
+#include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
 #include "rtaco/nl_protocol.hxx"
 #include "rtaco/nl_socket.hxx"
+#include "rtaco/nl_signal.hxx"
 #include "llmx/net/ip6.h"
 
 namespace llmx {
 namespace nl {
 
+template<typename... Lambdas>
+struct Visitor : Lambdas... {
+    using Lambdas::operator()...;
+};
+
+template<typename... Lambdas>
+Visitor(Lambdas...) -> Visitor<Lambdas...>;
+
 class Listener {
     static constexpr auto BUFFER_SIZE = 32U * 1024U;
 
 public:
-    using LinkSignal     = Signal<void(const LinkEvent&)>;
-    using AddressSignal  = Signal<void(const AddressEvent&)>;
-    using RouteSignal    = Signal<void(const RouteEvent&)>;
+    using LinkSignal = Signal<void(const LinkEvent&)>;
+    using AddressSignal = Signal<void(const AddressEvent&)>;
+    using RouteSignal = Signal<void(const RouteEvent&)>;
     using NeighborSignal = Signal<void(const NeighborEvent&)>;
 
-    Listener(Context& ctx) noexcept;
+    Listener() noexcept;
     ~Listener();
 
-    Listener(const Listener&)                = delete;
-    Listener& operator=(const Listener&)     = delete;
-    Listener(Listener&&) noexcept            = default;
+    Listener(const Listener&) = delete;
+    Listener& operator=(const Listener&) = delete;
+    Listener(Listener&&) noexcept = default;
     Listener& operator=(Listener&&) noexcept = default;
 
     void start();
@@ -66,8 +72,6 @@ public:
     }
 
 private:
-    Context& ctx_;
-
     boost::asio::io_context& io_;
     nl::Socket socket_;
     std::atomic_uint32_t sequence_{1U};
@@ -87,15 +91,11 @@ private:
 
     void handle_message(const nlmsghdr& header);
     void handle_error_message(const nlmsghdr& header);
+
     void handle_link_message(const nlmsghdr& header);
     void handle_address_message(const nlmsghdr& header);
     void handle_route_message(const nlmsghdr& header);
     void handle_neighbor_message(const nlmsghdr& header);
-
-    auto send_neighbor_request(uint16_t type, IfIndex ifindex, uint16_t state,
-            uint8_t flags, std::span<const uint8_t> dst) -> expected<void>;
-
-    void process_route_dump(const nlmsghdr& header, size_t& learned);
 };
 
 } // namespace nl

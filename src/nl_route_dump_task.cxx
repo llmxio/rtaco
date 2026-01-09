@@ -9,9 +9,9 @@
 namespace llmx {
 namespace nl {
 
-RouteDumpTask::RouteDumpTask(Context& ctx, Socket& socket, IfIndex ifindex,
+RouteDumpTask::RouteDumpTask(Socket& socket, uint16_t uint16_t,
         uint32_t sequence) noexcept
-    : RouteTask{ctx, socket, ifindex, sequence}
+    : RouteTask{socket, uint16_t, sequence}
     , learned_{HugeMemPool::instance()} {}
 
 void RouteDumpTask::prepare_request() {
@@ -69,15 +69,7 @@ auto RouteDumpTask::dispatch_route(const nlmsghdr& header)
         return std::nullopt;
     }
 
-    if (event.oif_index > std::numeric_limits<IfIndex>::max()) {
-        return std::nullopt;
-    }
-
-    const auto iface = static_cast<IfIndex>(event.oif_index);
-
-    auto& ctx = context();
-
-    if (!ctx.port_table.port_id_for_ifindex(iface)) {
+    if (event.oif_index > std::numeric_limits<uint16_t>::max()) {
         return std::nullopt;
     }
 

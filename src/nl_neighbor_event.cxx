@@ -3,7 +3,6 @@
 #include <arpa/inet.h>
 #include <cstring>
 
-#include "llmx/net/utils.h"
 #include "rtaco/nl_common.hxx"
 
 namespace llmx {

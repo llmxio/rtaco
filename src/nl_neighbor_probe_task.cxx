@@ -6,9 +6,9 @@
 namespace llmx {
 namespace nl {
 
-NeighborProbeTask::NeighborProbeTask(Context& ctx, Socket& socket, IfIndex ifindex,
-        uint32_t sequence, const Ip6Address& address)
-    : NeighborTask{ctx, socket, ifindex, sequence}
+NeighborProbeTask::NeighborProbeTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
+        const Ip6Address& address)
+    : NeighborTask{socket, uint16_t, sequence}
     , address_{address} {}
 
 void NeighborProbeTask::prepare_request() {

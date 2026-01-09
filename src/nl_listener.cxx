@@ -15,7 +15,6 @@
 #include <boost/asio/error.hpp>
 
 #include "llmx/core/io_pool.h"
-#include "llmx/core/utils.h"
 
 namespace llmx {
 namespace {
@@ -23,16 +22,14 @@ namespace {
 constexpr unsigned NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
         RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
 
-constexpr size_t NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) +
-        RTA_SPACE(Ip6Addr::BYTES_SIZE);
+constexpr size_t NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(16);
 
 } // namespace
 
 namespace nl {
 
-Listener::Listener(Context& ctx) noexcept
-    : ctx_{ctx}
-    , io_{IoPool::query()}
+Listener::Listener() noexcept
+    : io_{IoPool::query()}
     , socket_{io_, "nl-listener"}
     , on_link_event_{IoPool::executor()}
     , on_address_event_{IoPool::executor()}
@@ -105,7 +102,7 @@ void Listener::handle_read(const boost::system::error_code& ec, size_t bytes) {
 }
 
 void Listener::process_messages(std::span<const std::byte> data) {
-    int remaining      = static_cast<int>(data.size());
+    int remaining = static_cast<int>(data.size());
     const auto* header = reinterpret_cast<const nlmsghdr*>(data.data());
 
     while (remaining >= static_cast<int>(sizeof(nlmsghdr)) &&
@@ -175,7 +172,7 @@ void Listener::handle_address_message(const nlmsghdr& header) {
     on_address_event_(event);
 
     const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    const auto address   = event.address.empty() ? std::string{"unknown"} : event.address;
+    const auto address = event.address.empty() ? std::string{"unknown"} : event.address;
 
     (void)type_name;
     (void)address;
@@ -192,8 +189,8 @@ void Listener::handle_route_message(const nlmsghdr& header) {
     on_route_event_(event);
 
     const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    const auto dst       = event.dst.empty() ? std::string{"default"} : event.dst;
-    const auto gateway   = event.gateway.empty() ? std::string{"direct"} : event.gateway;
+    const auto dst = event.dst.empty() ? std::string{"default"} : event.dst;
+    const auto gateway = event.gateway.empty() ? std::string{"direct"} : event.gateway;
 
     std::string oif = event.oif;
     if (oif.empty()) {
@@ -221,8 +218,8 @@ void Listener::handle_neighbor_message(const nlmsghdr& header) {
     on_neighbor_event_(event);
 
     const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    const auto address   = event.address.empty() ? std::string{"unknown"} : event.address;
-    const auto lladdr    = event.lladdr.empty() ? std::string{"unknown"} : event.lladdr;
+    const auto address = event.address.empty() ? std::string{"unknown"} : event.address;
+    const auto lladdr = event.lladdr.empty() ? std::string{"unknown"} : event.lladdr;
 
     (void)type_name;
     (void)address;

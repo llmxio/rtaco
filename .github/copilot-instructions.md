@@ -21,7 +21,7 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 ## Conventions and patterns to follow
 
 - Naming: `async_*` for awaitable asynchronous APIs; synchronous wrappers exist and should mirror async names without the prefix (e.g., `async_get_neighbor` / `get_neighbor`).
-- Tasks: derive from `RequestTask/RouteTask/...`, accept `(Context&, Socket&, IfIndex, sequence)` in constructors, and implement `process_message()` / `handle_*` helpers (see `src/nl_route_dump_task.cxx`).
+- Tasks: derive from `RequestTask/RouteTask/...`, accept `(Context&, Socket&, uint16_t, sequence)` in constructors, and implement `process_message()` / `handle_*` helpers (see `src/nl_route_dump_task.cxx`).
 - Logging: use `LOG(LEVEL) << ...` from `llmx/core/logger` for instrumentation and debugging messages.
 - Resource semantics: prefer deleted copy constructors, defaulted/move where appropriate, and `noexcept` for basic operations (existing code follows this idiom).
 - Error conversion: convert kernel errors via helpers like `from_errno()` and return `std::unexpected{error}` where appropriate (see `handle_error()` in dump tasks).
@@ -39,7 +39,7 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 ## What to change and how to add features
 
 - Adding a new control operation:
-  1. Add a new Task class (header in `include/rtaco/` and implementation in `src/`) that follows the existing task pattern: constructor `(Context&, Socket&, IfIndex, uint32_t sequence)`, `prepare_request()`, `process_message()`.
+  1. Add a new Task class (header in `include/rtaco/` and implementation in `src/`) that follows the existing task pattern: constructor `(Context&, Socket&, uint16_t, uint32_t sequence)`, `prepare_request()`, `process_message()`.
   2. Add `async_*` method in `include/rtaco/nl_control.hxx` that constructs the task and `co_await`'s `async_run()`; add a synchronous wrapper using `co_spawn(..., use_future)` if needed.
   3. Use `expected<T, llmx_error_policy>` for results and `std::unexpected` for failures.
   4. Add logging (INFO/WARN/ERROR) where helpful.

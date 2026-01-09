@@ -9,7 +9,6 @@
 
 #include "llmx/net/ip6.h"
 #include "rtaco/nl_request_task.hxx"
-#include "llmx/core/types.h"
 
 namespace llmx {
 namespace nl {
@@ -18,7 +17,7 @@ struct NeighborRequest {
     nlmsghdr header;
     ndmsg message;
     rtattr dst_attr;
-    std::array<uint8_t, Ip6Addr::BYTES_SIZE> dst;
+    std::array<uint8_t, 16> dst;
 };
 
 template<typename Derived, typename Result>
@@ -36,17 +35,17 @@ public:
 protected:
     void build_request(uint16_t msg_type, uint16_t msg_flags, uint16_t ndm_state,
             uint8_t ndm_flags, const Ip6Address& address) {
-        request_.header.nlmsg_len   = NLMSG_LENGTH(sizeof(ndmsg));
-        request_.header.nlmsg_type  = msg_type;
+        request_.header.nlmsg_len = NLMSG_LENGTH(sizeof(ndmsg));
+        request_.header.nlmsg_type = msg_type;
         request_.header.nlmsg_flags = msg_flags;
-        request_.header.nlmsg_seq   = this->sequence();
-        request_.header.nlmsg_pid   = 0;
+        request_.header.nlmsg_seq = this->sequence();
+        request_.header.nlmsg_pid = 0;
 
-        request_.message.ndm_family  = AF_INET6;
+        request_.message.ndm_family = AF_INET6;
         request_.message.ndm_ifindex = static_cast<int>(this->ifindex());
-        request_.message.ndm_state   = ndm_state;
-        request_.message.ndm_flags   = ndm_flags;
-        request_.message.ndm_type    = RTN_UNSPEC;
+        request_.message.ndm_state = ndm_state;
+        request_.message.ndm_flags = ndm_flags;
+        request_.message.ndm_type = RTN_UNSPEC;
 
         if (!this->ifindex()) { // TODO: make prettier
             return;
@@ -56,8 +55,7 @@ protected:
         request_.dst_attr
                 .rta_len = static_cast<uint16_t>(RTA_LENGTH(request_.dst.size()));
 
-        const auto address_bytes = address.to_bytes();
-        std::memcpy(request_.dst.data(), address_bytes.data(), address_bytes.size());
+        std::memcpy(request_.dst.data(), address.data(), address.size());
 
         const auto aligned_payload = NLMSG_ALIGN(request_.header.nlmsg_len);
         request_.header

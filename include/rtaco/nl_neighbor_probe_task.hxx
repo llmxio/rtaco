@@ -9,7 +9,7 @@ class NeighborProbeTask : public NeighborTask<NeighborProbeTask, void> {
     Ip6Address address_;
 
 public:
-    NeighborProbeTask(Context& ctx, Socket& socket, IfIndex ifindex, uint32_t sequence,
+    NeighborProbeTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
             const Ip6Address& address);
 
     void prepare_request();

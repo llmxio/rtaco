@@ -2,8 +2,6 @@
 
 #include <boost/system/error_code.hpp>
 
-#include "llmx/core/utils.h"
-
 namespace llmx {
 namespace nl {
 
@@ -27,7 +25,8 @@ auto SocketGuard::ensure_open() -> expected<void, llmx_error_policy> {
     socket_.connect(nl::Protocol::endpoint{0U, 0U}, ec);
     if (ec) {
         socket_.close();
-        failwith("nl-control connect(AF_NETLINK) failed: {}", ec.message());
+        throw std::runtime_error(
+                "nl-control connect(AF_NETLINK) failed: " + ec.message());
     }
 
     return {};

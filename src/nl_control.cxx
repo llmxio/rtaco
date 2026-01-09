@@ -20,9 +20,8 @@
 namespace llmx {
 namespace nl {
 
-Control::Control(Context& ctx) noexcept
-    : ctx_{ctx}
-    , io_{IoPool::query()}
+Control::Control() noexcept
+    : io_{IoPool::query()}
     , socket_guard_{std::make_unique<SocketGuard>(io_, "nl-control")} {}
 
 Control::~Control() = default;
@@ -52,7 +51,7 @@ auto Control::async_dump_routes()
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    RouteDumpTask task{ctx_, socket_guard_->socket(), 0, sequence};
+    RouteDumpTask task{socket_guard_->socket(), 0, sequence};
 
     auto result = co_await task.async_run();
     if (!result) {
@@ -69,7 +68,7 @@ auto Control::async_dump_addresses()
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    AddressDumpTask task{ctx_, socket_guard_->socket(), 0, sequence};
+    AddressDumpTask task{socket_guard_->socket(), 0, sequence};
 
     auto result = co_await task.async_run();
     if (!result) {
@@ -86,7 +85,7 @@ auto Control::async_dump_neighbors()
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborDumpTask task{ctx_, socket_guard_->socket(), 0, sequence};
+    NeighborDumpTask task{socket_guard_->socket(), 0, sequence};
 
     auto result = co_await task.async_run();
 
@@ -97,7 +96,7 @@ auto Control::async_dump_neighbors()
     co_return result;
 }
 
-auto Control::flush_neighbor(IfIndex ifindex, const Ip6Address& address)
+auto Control::flush_neighbor(uint16_t ifindex, const Ip6Address& address)
         -> expected<void, llmx_error_policy> {
     auto future = boost::asio::co_spawn(io_, async_flush_neighbor(ifindex, address),
             boost::asio::use_future);
@@ -105,19 +104,19 @@ auto Control::flush_neighbor(IfIndex ifindex, const Ip6Address& address)
     return future.get();
 }
 
-auto Control::async_flush_neighbor(IfIndex ifindex, const Ip6Address& address)
+auto Control::async_flush_neighbor(uint16_t ifindex, const Ip6Address& address)
         -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborFlushTask task{ctx_, socket_guard_->socket(), ifindex, sequence, address};
+    NeighborFlushTask task{socket_guard_->socket(), ifindex, sequence, address};
 
     co_return co_await task.async_run();
 }
 
-auto Control::probe_neighbor(IfIndex ifindex, const Ip6Address& address)
+auto Control::probe_neighbor(uint16_t ifindex, const Ip6Address& address)
         -> expected<void, llmx_error_policy> {
     auto future = boost::asio::co_spawn(io_, async_probe_neighbor(ifindex, address),
             boost::asio::use_future);
@@ -125,19 +124,19 @@ auto Control::probe_neighbor(IfIndex ifindex, const Ip6Address& address)
     return future.get();
 }
 
-auto Control::async_probe_neighbor(IfIndex ifindex, const Ip6Address& address)
+auto Control::async_probe_neighbor(uint16_t ifindex, const Ip6Address& address)
         -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborProbeTask task{ctx_, socket_guard_->socket(), ifindex, sequence, address};
+    NeighborProbeTask task{socket_guard_->socket(), ifindex, sequence, address};
 
     co_return co_await task.async_run();
 }
 
-auto Control::get_neighbor(IfIndex ifindex, const Ip6Address& address)
+auto Control::get_neighbor(uint16_t ifindex, const Ip6Address& address)
         -> expected<NeighborEvent, llmx_error_policy> {
     auto future = boost::asio::co_spawn(io_, async_get_neighbor(ifindex, address),
             boost::asio::use_future);
@@ -145,14 +144,14 @@ auto Control::get_neighbor(IfIndex ifindex, const Ip6Address& address)
     return future.get();
 }
 
-auto Control::async_get_neighbor(IfIndex ifindex, const Ip6Address& address)
+auto Control::async_get_neighbor(uint16_t ifindex, const Ip6Address& address)
         -> boost::asio::awaitable<expected<NeighborEvent, llmx_error_policy>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborGetTask task{ctx_, socket_guard_->socket(), ifindex, sequence, address};
+    NeighborGetTask task{socket_guard_->socket(), ifindex, sequence, address};
 
     co_return co_await task.async_run();
 }

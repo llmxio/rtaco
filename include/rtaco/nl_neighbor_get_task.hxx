@@ -10,7 +10,7 @@ class NeighborGetTask : public NeighborTask<NeighborGetTask, NeighborEvent> {
     Ip6Address address_;
 
 public:
-    NeighborGetTask(Context& ctx, Socket& socket, IfIndex ifindex, uint32_t sequence,
+    NeighborGetTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
             const Ip6Address& address);
 
     void prepare_request();
