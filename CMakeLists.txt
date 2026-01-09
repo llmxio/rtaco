@@ -12,6 +12,9 @@ set(RTACO_SOURCES
   src/nl_control.cxx
   src/nl_address_dump_task.cxx
   src/nl_event.cxx
+  src/nl_route_event.cxx
+  src/nl_address_event.cxx
+  src/nl_neighbor_event.cxx
   src/nl_listener.cxx
   src/nl_neighbor_dump_task.cxx
   src/nl_neighbor_flush_task.cxx

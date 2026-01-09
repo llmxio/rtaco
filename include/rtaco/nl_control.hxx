@@ -17,8 +17,11 @@
 #include "llmx/core/expected_ext.h"
 #include "llmx/net/ip6.h"
 #include "llmx/core/types.h"
-#include "rtaco/nl_event.hxx"
+#include "rtaco/nl_link_event.hxx"
+#include "rtaco/nl_address_event.hxx"
+#include "rtaco/nl_neighbor_event.hxx"
 #include "rtaco/nl_request_task.hxx"
+#include "rtaco/nl_socket_guard.hxx"
 
 namespace llmx {
 namespace nl {

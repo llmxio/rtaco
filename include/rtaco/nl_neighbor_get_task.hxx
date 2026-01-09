@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rtaco/nl_neighbor_task.hxx"
-#include "rtaco/nl_event.hxx"
+#include "rtaco/nl_neighbor_event.hxx"
 
 namespace llmx {
 namespace nl {

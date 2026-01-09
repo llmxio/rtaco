@@ -1,4 +1,5 @@
 #include "rtaco/nl_listener.hxx"
+#include "rtaco/nl_address_event.hxx"
 
 #include <cstring>
 #include <memory>
