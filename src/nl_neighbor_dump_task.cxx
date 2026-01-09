@@ -24,7 +24,7 @@ void NeighborDumpTask::prepare_request() {
 }
 
 auto NeighborDumpTask::process_message(const nlmsghdr& header)
-        -> std::optional<expected<NeighborEventList, llmx_error_policy>> {
+        -> std::optional<std::expected<NeighborEventList, std::error_code>> {
     if (header.nlmsg_seq != sequence()) {
         return std::nullopt;
     }
@@ -37,15 +37,16 @@ auto NeighborDumpTask::process_message(const nlmsghdr& header)
     }
 }
 
-auto NeighborDumpTask::handle_done() -> expected<NeighborEventList, llmx_error_policy> {
+auto NeighborDumpTask::handle_done()
+        -> std::expected<NeighborEventList, std::error_code> {
     return std::move(learned_);
 }
 
 auto NeighborDumpTask::handle_error(const nlmsghdr& header)
-        -> expected<NeighborEventList, llmx_error_policy> {
+        -> std::expected<NeighborEventList, std::error_code> {
     const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
     const auto code = err != nullptr ? -err->error : EPROTO;
-    const auto error_code = from_errno(code);
+    const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 
     if (!error_code) {
         return std::move(learned_);
@@ -55,7 +56,7 @@ auto NeighborDumpTask::handle_error(const nlmsghdr& header)
 }
 
 auto NeighborDumpTask::dispatch_neighbor(const nlmsghdr& header)
-        -> std::optional<expected<NeighborEventList, llmx_error_policy>> {
+        -> std::optional<std::expected<NeighborEventList, std::error_code>> {
     const auto event = NeighborEvent::from_nlmsghdr(header);
 
     if (event.type != NeighborEvent::Type::NEW_NEIGHBOR) {

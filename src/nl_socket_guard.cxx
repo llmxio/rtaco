@@ -12,7 +12,7 @@ auto SocketGuard::socket() -> Socket& {
     return socket_;
 }
 
-auto SocketGuard::ensure_open() -> expected<void, llmx_error_policy> {
+auto SocketGuard::ensure_open() -> std::expected<void, std::error_code> {
     if (socket_.is_open()) {
         return {};
     }

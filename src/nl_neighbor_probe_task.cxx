@@ -20,7 +20,7 @@ void NeighborProbeTask::prepare_request() {
 }
 
 auto NeighborProbeTask::process_message(const nlmsghdr& header)
-        -> std::optional<expected<void>> {
+        -> std::optional<std::expected<void, std::error_code>> {
     if (header.nlmsg_seq != this->sequence()) {
         return std::nullopt;
     }
@@ -32,10 +32,11 @@ auto NeighborProbeTask::process_message(const nlmsghdr& header)
     return std::nullopt;
 }
 
-auto NeighborProbeTask::handle_error(const nlmsghdr& header) -> expected<void> {
+auto NeighborProbeTask::handle_error(const nlmsghdr& header)
+        -> std::expected<void, std::error_code> {
     const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
     const auto code = err != nullptr ? -err->error : EPROTO;
-    const auto error_code = from_errno(code);
+    const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 
     if (!error_code) {
         return {};

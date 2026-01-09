@@ -25,26 +25,26 @@ Control::Control(boost::asio::io_context& io) noexcept
 
 Control::~Control() = default;
 
-auto Control::dump_routes() -> expected<RouteEventList, llmx_error_policy> {
+auto Control::dump_routes() -> std::expected<RouteEventList, std::error_code> {
     auto future = boost::asio::co_spawn(io_, async_dump_routes(),
             boost::asio::use_future);
     return future.get();
 }
 
-auto Control::dump_addresses() -> expected<AddressEventList, llmx_error_policy> {
+auto Control::dump_addresses() -> std::expected<AddressEventList, std::error_code> {
     auto future = boost::asio::co_spawn(io_, async_dump_addresses(),
             boost::asio::use_future);
     return future.get();
 }
 
-auto Control::dump_neighbors() -> expected<NeighborEventList, llmx_error_policy> {
+auto Control::dump_neighbors() -> std::expected<NeighborEventList, std::error_code> {
     auto future = boost::asio::co_spawn(io_, async_dump_neighbors(),
             boost::asio::use_future);
     return future.get();
 }
 
 auto Control::async_dump_routes()
-        -> boost::asio::awaitable<expected<RouteEventList, llmx_error_policy>> {
+        -> boost::asio::awaitable<std::expected<RouteEventList, std::error_code>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
@@ -62,7 +62,7 @@ auto Control::async_dump_routes()
 }
 
 auto Control::async_dump_addresses()
-        -> boost::asio::awaitable<expected<AddressEventList, llmx_error_policy>> {
+        -> boost::asio::awaitable<std::expected<AddressEventList, std::error_code>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
@@ -80,7 +80,7 @@ auto Control::async_dump_addresses()
 }
 
 auto Control::async_dump_neighbors()
-        -> boost::asio::awaitable<expected<NeighborEventList, llmx_error_policy>> {
+        -> boost::asio::awaitable<std::expected<NeighborEventList, std::error_code>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
@@ -99,7 +99,7 @@ auto Control::async_dump_neighbors()
 }
 
 auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> expected<void, llmx_error_policy> {
+        -> std::expected<void, std::error_code> {
     auto future = boost::asio::co_spawn(io_, async_flush_neighbor(ifindex, address),
             boost::asio::use_future);
 
@@ -107,7 +107,7 @@ auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
 }
 
 auto Control::async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
+        -> boost::asio::awaitable<std::expected<void, std::error_code>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
@@ -119,7 +119,7 @@ auto Control::async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> addr
 }
 
 auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> expected<void, llmx_error_policy> {
+        -> std::expected<void, std::error_code> {
     auto future = boost::asio::co_spawn(io_, async_probe_neighbor(ifindex, address),
             boost::asio::use_future);
 
@@ -127,7 +127,7 @@ auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
 }
 
 auto Control::async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
+        -> boost::asio::awaitable<std::expected<void, std::error_code>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
@@ -139,7 +139,7 @@ auto Control::async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> addr
 }
 
 auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> expected<NeighborEvent, llmx_error_policy> {
+        -> std::expected<NeighborEvent, std::error_code> {
     auto future = boost::asio::co_spawn(io_, async_get_neighbor(ifindex, address),
             boost::asio::use_future);
 
@@ -147,7 +147,7 @@ auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
 }
 
 auto Control::async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> boost::asio::awaitable<expected<NeighborEvent, llmx_error_policy>> {
+        -> boost::asio::awaitable<std::expected<NeighborEvent, std::error_code>> {
     if (auto result = socket_guard_->ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }

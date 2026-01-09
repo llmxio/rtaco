@@ -19,7 +19,7 @@ void NeighborFlushTask::prepare_request() {
 }
 
 auto NeighborFlushTask::process_message(const nlmsghdr& header)
-        -> std::optional<expected<void, llmx_error_policy>> {
+        -> std::optional<std::expected<void, std::error_code>> {
     if (header.nlmsg_seq != this->sequence()) {
         return std::nullopt;
     }
@@ -32,10 +32,10 @@ auto NeighborFlushTask::process_message(const nlmsghdr& header)
 }
 
 auto NeighborFlushTask::handle_error(const nlmsghdr& header)
-        -> expected<void, llmx_error_policy> {
+        -> std::expected<void, std::error_code> {
     const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
     const auto code = err != nullptr ? -err->error : EPROTO;
-    const auto error_code = from_errno(code);
+    const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 
     if (!error_code) {
         return {};

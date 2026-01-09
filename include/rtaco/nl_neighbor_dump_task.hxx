@@ -24,16 +24,16 @@ public:
     void prepare_request();
 
     auto process_message(const nlmsghdr& header)
-            -> std::optional<expected<NeighborEventList, llmx_error_policy>>;
+            -> std::optional<std::expected<NeighborEventList, std::error_code>>;
 
 private:
-    auto handle_done() -> expected<NeighborEventList, llmx_error_policy>;
+    auto handle_done() -> std::expected<NeighborEventList, std::error_code>;
 
     auto handle_error(const nlmsghdr& header)
-            -> expected<NeighborEventList, llmx_error_policy>;
+            -> std::expected<NeighborEventList, std::error_code>;
 
     auto dispatch_neighbor(const nlmsghdr& header)
-            -> std::optional<expected<NeighborEventList, llmx_error_policy>>;
+            -> std::optional<std::expected<NeighborEventList, std::error_code>>;
 };
 
 } // namespace nl

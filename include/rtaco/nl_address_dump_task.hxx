@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <optional>
 #include <span>
+#include <expected>
 
 #include <linux/rtnetlink.h>
 
@@ -31,18 +32,18 @@ public:
     void prepare_request();
 
     auto process_message(const nlmsghdr& header)
-            -> std::optional<expected<AddressEventList, llmx_error_policy>>;
+            -> std::optional<std::expected<AddressEventList, std::error_code>>;
 
 private:
     void build_request();
 
-    auto handle_done() -> expected<AddressEventList, llmx_error_policy>;
+    auto handle_done() -> std::expected<AddressEventList, std::error_code>;
 
     auto handle_error(const nlmsghdr& header)
-            -> expected<AddressEventList, llmx_error_policy>;
+            -> std::expected<AddressEventList, std::error_code>;
 
     auto dispatch_address(const nlmsghdr& header)
-            -> std::optional<expected<AddressEventList, llmx_error_policy>>;
+            -> std::optional<std::expected<AddressEventList, std::error_code>>;
 };
 
 } // namespace nl

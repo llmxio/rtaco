@@ -23,7 +23,7 @@ void AddressDumpTask::prepare_request() {
 }
 
 auto AddressDumpTask::process_message(const nlmsghdr& header)
-        -> std::optional<expected<AddressEventList, llmx_error_policy>> {
+        -> std::optional<std::expected<AddressEventList, std::error_code>> {
     if (header.nlmsg_seq != sequence()) {
         return std::nullopt;
     }
@@ -50,15 +50,15 @@ void AddressDumpTask::build_request() {
     request_.message.ifa_index = static_cast<int>(uint16_t());
 }
 
-auto AddressDumpTask::handle_done() -> expected<AddressEventList, llmx_error_policy> {
+auto AddressDumpTask::handle_done() -> std::expected<AddressEventList, std::error_code> {
     return std::move(learned_);
 }
 
 auto AddressDumpTask::handle_error(const nlmsghdr& header)
-        -> expected<AddressEventList, llmx_error_policy> {
+        -> std::expected<AddressEventList, std::error_code> {
     const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
     const auto code = err != nullptr ? -err->error : EPROTO;
-    const auto error_code = from_errno(code);
+    const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 
     if (!error_code) {
         return std::move(learned_);
@@ -68,7 +68,7 @@ auto AddressDumpTask::handle_error(const nlmsghdr& header)
 }
 
 auto AddressDumpTask::dispatch_address(const nlmsghdr& header)
-        -> std::optional<expected<AddressEventList, llmx_error_policy>> {
+        -> std::optional<std::expected<AddressEventList, std::error_code>> {
     const auto event = AddressEvent::from_nlmsghdr(header);
 
     if (event.type != AddressEvent::Type::NEW_ADDRESS) {

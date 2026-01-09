@@ -1,5 +1,7 @@
 #pragma once
 
+#include <expected>
+
 #include "rtaco/nl_neighbor_task.hxx"
 
 namespace llmx {
@@ -15,10 +17,10 @@ public:
     void prepare_request();
 
     auto process_message(const nlmsghdr& header)
-            -> std::optional<expected<void, llmx_error_policy>>;
+            -> std::optional<std::expected<void, std::error_code>>;
 
 private:
-    auto handle_error(const nlmsghdr& header) -> expected<void, llmx_error_policy>;
+    auto handle_error(const nlmsghdr& header) -> std::expected<void, std::error_code>;
 };
 
 } // namespace nl

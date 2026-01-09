@@ -6,6 +6,7 @@
 #include <optional>
 #include <span>
 #include <system_error>
+#include <expected>
 #include <vector>
 
 #include <linux/netlink.h>
@@ -18,7 +19,6 @@
 #include <boost/system/error_code.hpp>
 
 #include "llmx/core/asio.h"
-#include "llmx/core/error.h"
 #include "rtaco/nl_socket.hxx"
 
 namespace llmx {
@@ -33,7 +33,7 @@ concept request_behavior =
             } -> std::same_as<std::span<const std::byte>>;
             {
                 derived.process_message(header)
-            } -> std::same_as<std::optional<expected<Result, llmx_error_policy>>>;
+            } -> std::same_as<std::optional<std::expected<Result, std::error_code>>>;
         };
 
 template<typename Derived, typename Result>
@@ -53,7 +53,7 @@ public:
 
     virtual ~RequestTask() {}
 
-    auto async_run() -> boost::asio::awaitable<expected<Result, llmx_error_policy>> {
+    auto async_run() -> boost::asio::awaitable<std::expected<Result, std::error_code>> {
         // static_assert(request_behavior<Derived, Result>,
         //         "Derived must implement the netlink request behavior interface");
 
@@ -93,7 +93,7 @@ private:
         return static_cast<const Derived&>(*this);
     }
 
-    auto send_request() -> boost::asio::awaitable<expected<void, llmx_error_policy>> {
+    auto send_request() -> boost::asio::awaitable<std::expected<void, std::error_code>> {
         const auto payload = impl().request_payload();
         size_t offset = 0;
 
@@ -111,10 +111,10 @@ private:
             offset += sent;
         }
 
-        co_return expected<void>{};
+        co_return std::expected<void, std::error_code>{};
     }
 
-    auto read_loop() -> boost::asio::awaitable<expected<Result, llmx_error_policy>> {
+    auto read_loop() -> boost::asio::awaitable<std::expected<Result, std::error_code>> {
         while (true) {
             boost::system::error_code ec{};
             const auto bytes = co_await socket_.async_receive(

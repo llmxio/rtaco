@@ -17,7 +17,7 @@ auto Socket::is_open() const noexcept -> bool {
     return socket_.is_open();
 }
 
-auto Socket::close() -> expected<void, llmx_error_policy> {
+auto Socket::close() -> std::expected<void, std::error_code> {
     boost::system::error_code ec;
 
     if (socket_.close(ec); ec) {
@@ -27,7 +27,7 @@ auto Socket::close() -> expected<void, llmx_error_policy> {
     return {};
 }
 
-auto Socket::cancel() -> expected<void, llmx_error_policy> {
+auto Socket::cancel() -> std::expected<void, std::error_code> {
     boost::system::error_code ec;
 
     if (socket_.cancel(ec); ec) {
@@ -37,7 +37,7 @@ auto Socket::cancel() -> expected<void, llmx_error_policy> {
     return {};
 }
 
-auto Socket::open(int proto, uint32_t groups) -> expected<void, llmx_error_policy> {
+auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_code> {
     boost::system::error_code ec;
 
     if (socket_.open(Protocol{proto}, ec); ec) {

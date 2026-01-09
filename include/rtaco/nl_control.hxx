@@ -6,12 +6,11 @@
 #include <future>
 #include <atomic>
 #include <memory>
+#include <expected>
 
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/io_context.hpp>
 
-#include "llmx/core/error.h"
-#include "llmx/core/expected_ext.h"
 #include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
@@ -32,36 +31,36 @@ public:
     Control(Control&&) = delete;
     Control& operator=(Control&&) = delete;
 
-    auto dump_routes() -> expected<RouteEventList, llmx_error_policy>;
-    auto dump_addresses() -> expected<AddressEventList, llmx_error_policy>;
-    auto dump_neighbors() -> expected<NeighborEventList, llmx_error_policy>;
+    auto dump_routes() -> std::expected<RouteEventList, std::error_code>;
+    auto dump_addresses() -> std::expected<AddressEventList, std::error_code>;
+    auto dump_neighbors() -> std::expected<NeighborEventList, std::error_code>;
 
     auto probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-            -> expected<void, llmx_error_policy>;
+            -> std::expected<void, std::error_code>;
 
     auto flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-            -> expected<void, llmx_error_policy>;
+            -> std::expected<void, std::error_code>;
 
     auto get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-            -> expected<NeighborEvent, llmx_error_policy>;
+            -> std::expected<NeighborEvent, std::error_code>;
 
     auto async_dump_routes()
-            -> boost::asio::awaitable<expected<RouteEventList, llmx_error_policy>>;
+            -> boost::asio::awaitable<std::expected<RouteEventList, std::error_code>>;
 
     auto async_dump_addresses()
-            -> boost::asio::awaitable<expected<AddressEventList, llmx_error_policy>>;
+            -> boost::asio::awaitable<std::expected<AddressEventList, std::error_code>>;
 
     auto async_dump_neighbors()
-            -> boost::asio::awaitable<expected<NeighborEventList, llmx_error_policy>>;
+            -> boost::asio::awaitable<std::expected<NeighborEventList, std::error_code>>;
 
     auto async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-            -> boost::asio::awaitable<expected<void, llmx_error_policy>>;
+            -> boost::asio::awaitable<std::expected<void, std::error_code>>;
 
     auto async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-            -> boost::asio::awaitable<expected<void, llmx_error_policy>>;
+            -> boost::asio::awaitable<std::expected<void, std::error_code>>;
 
     auto async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
-            -> boost::asio::awaitable<expected<NeighborEvent, llmx_error_policy>>;
+            -> boost::asio::awaitable<std::expected<NeighborEvent, std::error_code>>;
 
     void stop();
 

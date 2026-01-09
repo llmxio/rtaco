@@ -11,9 +11,9 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 
 ## Design & architecture notes (what an agent must know)
 
-- Coroutine-first design: prefer `async_*` methods that return `boost::asio::awaitable<expected<T, llmx_error_policy>>`.
+- Coroutine-first design: prefer `async_*` methods that return `boost::asio::awaitable<expected<T, std::error_code>>`.
   - Example: `Control::async_dump_routes()` is the awaitable implementation; `Control::dump_routes()` wraps it with `co_spawn(..., use_future)` and `.get()` for a synchronous API.
-- Error handling uses `expected<T, llmx_error_policy>` and `std::unexpected` for failure returns; avoid throwing exceptions for control-plane errors.
+- Error handling uses `expected<T, std::error_code>` and `std::unexpected` for failure returns; avoid throwing exceptions for control-plane errors.
 - IPC model: NETLINK_ROUTE socket per `Socket`/`SocketGuard`, tasks build requests and implement `async_run()` which co_awaits netlink replies and returns an `expected` result.
 - Event delivery: `Listener` exposes typed signals (Link/Address/Route/Neighbor) using `Signal`/`boost::signals2`; register handlers with `connect_to_event()` and an `ExecPolicy`.
 - Platform constraints: Linux-only (NETLINK/AF_INET6 specific), many code paths assume `RT_TABLE_MAIN`, IPv6 family filtering, and kernel capabilities (requires appropriate privileges to send some requests).
@@ -41,7 +41,7 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 - Adding a new control operation:
   1. Add a new Task class (header in `include/rtaco/` and implementation in `src/`) that follows the existing task pattern: constructor `(Context&, Socket&, uint16_t, uint32_t sequence)`, `prepare_request()`, `process_message()`.
   2. Add `async_*` method in `include/rtaco/nl_control.hxx` that constructs the task and `co_await`'s `async_run()`; add a synchronous wrapper using `co_spawn(..., use_future)` if needed.
-  3. Use `expected<T, llmx_error_policy>` for results and `std::unexpected` for failures.
+  3. Use `expected<T, std::error_code>` for results and `std::unexpected` for failures.
   4. Add logging (INFO/WARN/ERROR) where helpful.
 
 ## Files to consult for examples
