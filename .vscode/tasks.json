@@ -1,0 +1,94 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Ccache: Wipe",
+      "type": "shell",
+      "command": "ccache",
+      "args": [
+        "-C"
+      ],
+      "problemMatcher": [],
+      "group": "none",
+      "hide": true
+    },
+    {
+      "label": "Cmake: Wipe",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "command": "rm",
+      "args": [
+        "-rf",
+        "build",
+        "&&",
+        "mkdir",
+        "-p",
+        "build"
+      ],
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "CMake: Clean",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build",
+        "--target",
+        "clean"
+      ],
+      "group": "build"
+    },
+    {
+      "label": "CMake: Configure",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-G",
+        "Ninja",
+        "-B",
+        "build",
+        "-S",
+        ".",
+        "-DCMAKE_BUILD_TYPE=RELEASE",
+        "-DBUILD_TESTING=ON",
+        "-DBUILD_DOCS=ON"
+      ],
+      "group": "build"
+    },
+    {
+      "label": "CMake: Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": "CMake: Configure",
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "CMake: Install",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--install",
+        "build"
+      ],
+      "dependsOn": "CMake: Build",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "none"
+    },
+  ],
+}
