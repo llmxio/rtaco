@@ -10,7 +10,8 @@ class RouteDumpTask : public RouteTask<RouteDumpTask, RouteEventList> {
     RouteEventList learned_;
 
 public:
-    RouteDumpTask(Socket& socket, uint16_t uint16_t, uint32_t sequence) noexcept;
+    RouteDumpTask(Socket& socket, std::pmr::memory_resource* pmr, uint16_t ifindex,
+            uint32_t sequence) noexcept;
 
     void prepare_request();
 

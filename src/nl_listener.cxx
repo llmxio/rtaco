@@ -14,8 +14,6 @@
 #include <boost/asio/detail/socket_option.hpp>
 #include <boost/asio/error.hpp>
 
-#include "llmx/core/io_pool.h"
-
 namespace llmx {
 namespace {
 
@@ -28,13 +26,13 @@ constexpr size_t NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE
 
 namespace nl {
 
-Listener::Listener() noexcept
-    : io_{IoPool::query()}
+Listener::Listener(boost::asio::io_context& io) noexcept
+    : io_{io}
     , socket_{io_, "nl-listener"}
-    , on_link_event_{IoPool::executor()}
-    , on_address_event_{IoPool::executor()}
-    , on_route_event_{IoPool::executor()}
-    , on_neighbor_event_{IoPool::executor()} {}
+    , on_link_event_{io_.get_executor()}
+    , on_address_event_{io_.get_executor()}
+    , on_route_event_{io_.get_executor()}
+    , on_neighbor_event_{io_.get_executor()} {}
 
 Listener::~Listener() {
     stop();

@@ -8,7 +8,6 @@
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/use_future.hpp>
 
-#include "llmx/core/io_pool.h"
 #include "rtaco/nl_address_dump_task.hxx"
 #include "rtaco/nl_neighbor_dump_task.hxx"
 #include "rtaco/nl_neighbor_flush_task.hxx"
@@ -20,8 +19,8 @@
 namespace llmx {
 namespace nl {
 
-Control::Control() noexcept
-    : io_{IoPool::query()}
+Control::Control(boost::asio::io_context& io) noexcept
+    : io_{io}
     , socket_guard_{std::make_unique<SocketGuard>(io_, "nl-control")} {}
 
 Control::~Control() = default;
@@ -51,7 +50,8 @@ auto Control::async_dump_routes()
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    RouteDumpTask task{socket_guard_->socket(), 0, sequence};
+    RouteDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
+            sequence};
 
     auto result = co_await task.async_run();
     if (!result) {
@@ -68,7 +68,8 @@ auto Control::async_dump_addresses()
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    AddressDumpTask task{socket_guard_->socket(), 0, sequence};
+    AddressDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
+            sequence};
 
     auto result = co_await task.async_run();
     if (!result) {
@@ -85,7 +86,8 @@ auto Control::async_dump_neighbors()
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborDumpTask task{socket_guard_->socket(), 0, sequence};
+    NeighborDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
+            sequence};
 
     auto result = co_await task.async_run();
 

@@ -42,7 +42,7 @@ public:
     using RouteSignal = Signal<void(const RouteEvent&)>;
     using NeighborSignal = Signal<void(const NeighborEvent&)>;
 
-    Listener() noexcept;
+    Listener(boost::asio::io_context& io) noexcept;
     ~Listener();
 
     Listener(const Listener&) = delete;
