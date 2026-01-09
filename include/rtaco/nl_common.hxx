@@ -140,6 +140,33 @@ inline auto attribute_hwaddr(const rtattr& attr) -> std::string {
     return value;
 }
 
+template<typename MsgT>
+inline const MsgT* get_msg_payload(const nlmsghdr& header) {
+    if (header.nlmsg_len < NLMSG_LENGTH(sizeof(MsgT))) {
+        return nullptr;
+    }
+    return reinterpret_cast<const MsgT*>(NLMSG_DATA(&header));
+}
+
+template<typename MsgT, typename Fn>
+inline void for_each_attr(const nlmsghdr& header, const MsgT* info, Fn&& fn) {
+    if (info == nullptr) {
+        return;
+    }
+
+    int attr_length = static_cast<int>(header.nlmsg_len) -
+            static_cast<int>(NLMSG_LENGTH(sizeof(MsgT)));
+    if (attr_length <= 0) {
+        return;
+    }
+
+    const rtattr* attr = reinterpret_cast<const rtattr*>(
+            reinterpret_cast<std::uintptr_t>(info) + NLMSG_ALIGN(sizeof(MsgT)));
+    for (; RTA_OK(attr, attr_length); attr = RTA_NEXT(attr, attr_length)) {
+        fn(attr);
+    }
+}
+
 template<typename T>
 concept IsEnumeration = std::is_enum_v<std::remove_cvref_t<T>> ||
         std::is_scoped_enum_v<std::remove_cvref_t<T>>;

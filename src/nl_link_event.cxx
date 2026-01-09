@@ -8,26 +8,22 @@ namespace llmx {
 namespace nl {
 
 auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
+    using enum LinkEvent::Type;
+
     LinkEvent event{};
-
     switch (header.nlmsg_type) {
-    case RTM_NEWLINK: event.type = LinkEvent::Type::NEW_LINK; break;
-    case RTM_DELLINK: event.type = LinkEvent::Type::DELETE_LINK; break;
-    default: event.type = LinkEvent::Type::UNKNOWN; break;
+    case RTM_NEWLINK: event.type = NEW_LINK; break;
+    case RTM_DELLINK: event.type = DELETE_LINK; break;
+    default: event.type = UNKNOWN; break;
     }
 
-    if (event.type == LinkEvent::Type::UNKNOWN) {
+    if (event.type == UNKNOWN) {
         return event;
     }
 
-    if (header.nlmsg_len < NLMSG_LENGTH(sizeof(ifinfomsg))) {
-        event.type = LinkEvent::Type::UNKNOWN;
-        return event;
-    }
-
-    const auto* info = reinterpret_cast<const ifinfomsg*>(NLMSG_DATA(&header));
+    const auto* info = get_msg_payload<ifinfomsg>(header);
     if (info == nullptr) {
-        event.type = LinkEvent::Type::UNKNOWN;
+        event.type = UNKNOWN;
         return event;
     }
 
