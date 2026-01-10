@@ -9,21 +9,16 @@
 #include <system_error>
 
 #include <boost/asio/awaitable.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/strand.hpp>
 
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
 #include "rtaco/nl_route_event.hxx"
-
-namespace boost {
-namespace asio {
-class io_context;
-}
-} // namespace boost
+#include "rtaco/nl_socket_guard.hxx"
 
 namespace llmx {
 namespace nl {
-
-class SocketGuard;
 
 class Control {
 public:
@@ -71,6 +66,7 @@ public:
 private:
     boost::asio::io_context& io_;
     std::unique_ptr<SocketGuard> socket_guard_;
+    boost::asio::strand<boost::asio::io_context::executor_type> strand_;
     std::atomic_uint32_t sequence_{1U};
     std::stop_source stop_source_;
 };

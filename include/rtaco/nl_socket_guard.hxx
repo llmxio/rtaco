@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
-#include <string_view>
 #include <expected>
+#include <memory>
+#include <mutex>
+#include <string_view>
 #include <system_error>
 
 #include "rtaco/nl_socket.hxx"
@@ -18,20 +19,39 @@ namespace nl {
 
 class SocketGuard {
 public:
+    using lock_type = std::unique_lock<std::mutex>;
+
+    struct LockedSocket {
+        Socket& socket;
+        lock_type lock;
+
+        LockedSocket(Socket& socket, lock_type&& lock) noexcept;
+
+        LockedSocket(const LockedSocket&) = delete;
+        LockedSocket& operator=(const LockedSocket&) = delete;
+        LockedSocket(LockedSocket&&) noexcept = default;
+        LockedSocket& operator=(LockedSocket&&) noexcept = default;
+    };
+
     SocketGuard(boost::asio::io_context& io, std::string_view label) noexcept;
-    virtual ~SocketGuard() = default;
+    ~SocketGuard() = default;
 
     SocketGuard(const SocketGuard&) = delete;
     SocketGuard& operator=(const SocketGuard&) = delete;
     SocketGuard(SocketGuard&&) = delete;
     SocketGuard& operator=(SocketGuard&&) = delete;
 
-    virtual auto socket() -> Socket&;
-    virtual auto ensure_open() -> std::expected<void, std::error_code>;
-    virtual void stop();
+    auto acquire() -> std::expected<LockedSocket, std::error_code>;
+    auto socket() -> Socket&;
+    auto ensure_open() -> std::expected<void, std::error_code>;
+    void stop();
 
 protected:
     Socket socket_;
+    std::mutex mutex_;
+
+private:
+    auto ensure_open_locked() -> std::expected<void, std::error_code>;
 };
 
 } // namespace nl

@@ -9,6 +9,7 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/use_future.hpp>
 
@@ -18,31 +19,32 @@
 #include "rtaco/nl_neighbor_get_task.hxx"
 #include "rtaco/nl_neighbor_probe_task.hxx"
 #include "rtaco/nl_route_dump_task.hxx"
-#include "rtaco/nl_socket_guard.hxx"
+
 
 namespace llmx {
 namespace nl {
 
 Control::Control(boost::asio::io_context& io) noexcept
     : io_{io}
-    , socket_guard_{std::make_unique<SocketGuard>(io_, "nl-control")} {}
+    , socket_guard_{std::make_unique<SocketGuard>(io_, "nl-control")}
+    , strand_{boost::asio::make_strand(io_)} {}
 
 Control::~Control() = default;
 
 auto Control::dump_routes() -> std::expected<RouteEventList, std::error_code> {
-    auto future = boost::asio::co_spawn(io_, async_dump_routes(),
+    auto future = boost::asio::co_spawn(strand_, async_dump_routes(),
             boost::asio::use_future);
     return future.get();
 }
 
 auto Control::dump_addresses() -> std::expected<AddressEventList, std::error_code> {
-    auto future = boost::asio::co_spawn(io_, async_dump_addresses(),
+    auto future = boost::asio::co_spawn(strand_, async_dump_addresses(),
             boost::asio::use_future);
     return future.get();
 }
 
 auto Control::dump_neighbors() -> std::expected<NeighborEventList, std::error_code> {
-    auto future = boost::asio::co_spawn(io_, async_dump_neighbors(),
+    auto future = boost::asio::co_spawn(strand_, async_dump_neighbors(),
             boost::asio::use_future);
     return future.get();
 }
@@ -85,26 +87,40 @@ auto Control::async_dump_addresses()
 
 auto Control::async_dump_neighbors()
         -> boost::asio::awaitable<std::expected<NeighborEventList, std::error_code>> {
-    if (auto result = socket_guard_->ensure_open(); !result) {
-        co_return std::unexpected(result.error());
+    constexpr int kMaxAttempts = 3;
+    constexpr auto kRetryDelay = std::chrono::milliseconds{100};
+
+    for (int attempt = 1; attempt <= kMaxAttempts; ++attempt) {
+        if (auto result = socket_guard_->ensure_open(); !result) {
+            co_return std::unexpected(result.error());
+        }
+
+        auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
+        NeighborDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(),
+                0, sequence};
+
+        auto result = co_await task.async_run();
+
+        if (result) {
+            co_return result;
+        }
+
+        if (result.error() != std::errc::device_or_resource_busy ||
+                attempt == kMaxAttempts) {
+            co_return std::unexpected(result.error());
+        }
+
+        boost::asio::steady_timer timer{co_await boost::asio::this_coro::executor,
+                kRetryDelay};
+        co_await timer.async_wait(boost::asio::use_awaitable);
     }
 
-    auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
-            sequence};
-
-    auto result = co_await task.async_run();
-
-    if (!result) {
-        co_return std::unexpected(result.error());
-    }
-
-    co_return result;
+    co_return std::unexpected(std::make_error_code(std::errc::device_or_resource_busy));
 }
 
 auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> std::expected<void, std::error_code> {
-    auto future = boost::asio::co_spawn(io_, async_flush_neighbor(ifindex, address),
+    auto future = boost::asio::co_spawn(strand_, async_flush_neighbor(ifindex, address),
             boost::asio::use_future);
 
     return future.get();
@@ -124,7 +140,7 @@ auto Control::async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> addr
 
 auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> std::expected<void, std::error_code> {
-    auto future = boost::asio::co_spawn(io_, async_probe_neighbor(ifindex, address),
+    auto future = boost::asio::co_spawn(strand_, async_probe_neighbor(ifindex, address),
             boost::asio::use_future);
 
     return future.get();
@@ -144,7 +160,7 @@ auto Control::async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> addr
 
 auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> std::expected<NeighborEvent, std::error_code> {
-    auto future = boost::asio::co_spawn(io_, async_get_neighbor(ifindex, address),
+    auto future = boost::asio::co_spawn(strand_, async_get_neighbor(ifindex, address),
             boost::asio::use_future);
 
     return future.get();
