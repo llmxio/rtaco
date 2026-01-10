@@ -63,10 +63,12 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
         }
     };
 
-    enable_option(recv_buf_option{2048}, "SO_RCVBUF not available");
+    // Neighbor dumps can easily exceed the default 212 KiB netlink buffer; use a
+    // larger receive window to avoid losing multipart replies (which would leave
+    // dump tasks waiting forever for NLMSG_DONE).
+    enable_option(recv_buf_option{1 << 20}, "SO_RCVBUF not available");
     enable_option(no_enobufs_option{1}, "NETLINK_NO_ENOBUFS not available");
     enable_option(ext_ack_option{1}, "NETLINK_EXT_ACK not available");
-    enable_option(strict_chk_option{1}, "NETLINK_GET_STRICT_CHK not available");
 
     if (socket_.bind(endpoint_t{groups, 0U}, ec); ec) {
         close();

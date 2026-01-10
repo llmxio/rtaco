@@ -54,8 +54,9 @@
         "-S",
         ".",
         "-DCMAKE_BUILD_TYPE=RELEASE",
-        "-DBUILD_TESTING=ON",
-        "-DBUILD_DOCS=ON"
+        "-DRTACO_BUILD_TESTS=ON",
+        "-DRTACO_BUILD_DOCS=ON",
+        "-DRTACO_BUILD_EXAMPLES=ON"
       ],
       "group": "build"
     },
