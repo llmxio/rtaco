@@ -1,11 +1,18 @@
 #include "rtaco/nl_neighbor_get_task.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
+#include "rtaco/nl_neighbor_task.hxx"
 
-#include <linux/netlink.h>
 #include <cerrno>
+#include <cstddef>
+#include <expected>
 #include <optional>
 #include <array>
+#include <span>
 #include <string>
+#include <system_error>
+
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
 
 namespace llmx {
 namespace nl {

@@ -2,15 +2,19 @@
 
 #include <array>
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <list>
+#include <span>
+#include <utility>
+
 #include <boost/asio/io_context.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/move/utility_core.hpp>
 #include <boost/signals2/connection.hpp>
-#include <boost/system/detail/error_code.hpp>
-#include <cstddef>
-#include <list>
-#include <span>
-#include <utility>
+#include <boost/system/error_code.hpp>
+
+#include <linux/netlink.h>
 
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_link_event.hxx"
@@ -18,8 +22,6 @@
 #include "rtaco/nl_route_event.hxx"
 #include "rtaco/nl_signal.hxx"
 #include "rtaco/nl_socket_guard.hxx"
-
-struct nlmsghdr;
 
 namespace llmx {
 namespace nl {

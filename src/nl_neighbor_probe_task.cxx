@@ -5,7 +5,11 @@
 #include <linux/rtnetlink.h>
 #include <cstddef>
 #include <cerrno>
+#include <expected>
 #include <optional>
+#include <span>
+#include "rtaco/nl_neighbor_task.hxx"
+#include <system_error>
 
 namespace llmx {
 namespace nl {

@@ -6,7 +6,6 @@
 #include <optional>
 #include <span>
 #include <system_error>
-#include <cstddef>
 
 #include <linux/if_addr.h>
 #include <linux/netlink.h>

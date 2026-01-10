@@ -1,6 +1,8 @@
 #include "rtaco/nl_route_event.hxx"
 
 #include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <string>
 
 #include "rtaco/nl_common.hxx"
 

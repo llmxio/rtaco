@@ -1,38 +1,32 @@
 #include "rtaco/nl_listener.hxx"
 
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
 #include <expected>
-#include <string>
-#include <utility>
 #include <iostream>
+#include <span>
+#include <system_error>
+
+#include <boost/asio/error.hpp>
+#include <boost/system/error_code.hpp>
+#include <boost/asio/any_io_executor.hpp>
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/io_context.hpp>
 
 #include <linux/neighbour.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 
-#include <boost/asio/any_io_executor.hpp>
-#include <boost/asio/async_result.hpp>
-#include <boost/asio/buffer.hpp>
-#include <boost/asio/detail/handler_cont_helpers.hpp>
-#include <boost/asio/detail/handler_invoke_helpers.hpp>
-#include <boost/asio/detail/impl/scheduler.ipp>
-#include <boost/asio/execution/context_as.hpp>
-#include <boost/asio/execution/prefer_only.hpp>
-#include <boost/asio/impl/handler_alloc_hook.ipp>
-#include <boost/asio/impl/io_context.hpp>
-#include <boost/asio/io_context.hpp>
-
 #include "rtaco/nl_address_event.hxx"
-#include "rtaco/nl_common.hxx"
+#include "rtaco/nl_link_event.hxx"
+#include "rtaco/nl_route_event.hxx"
+#include "rtaco/nl_neighbor_event.hxx"
 
 namespace llmx {
 namespace nl {
 
 namespace asio = boost::asio;
-
-constexpr uint32_t NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
-        RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
-
-constexpr uint32_t NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(16);
 
 Listener::Listener(asio::io_context& io) noexcept
     : io_{io}
@@ -107,11 +101,11 @@ void Listener::handle_read(const boost::system::error_code& ec, size_t bytes) {
 }
 
 void Listener::process_messages(std::span<const uint8_t> data) {
-    int remaining = static_cast<int>(data.size());
+    auto remaining = static_cast<unsigned int>(data.size());
+    const auto header_size = static_cast<unsigned int>(sizeof(nlmsghdr));
     const auto* header = reinterpret_cast<const nlmsghdr*>(data.data());
 
-    while (remaining >= static_cast<int>(sizeof(nlmsghdr)) &&
-            NLMSG_OK(header, remaining)) {
+    while (remaining >= header_size && NLMSG_OK(header, remaining)) {
         handle_message(*header);
         header = NLMSG_NEXT(header, remaining);
     }

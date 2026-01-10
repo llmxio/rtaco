@@ -2,6 +2,8 @@
 
 #include <linux/if_addr.h>
 #include <linux/netlink.h>
+#include <string>
+#include <linux/rtnetlink.h>
 #include <utility>
 
 #include "rtaco/nl_common.hxx"
