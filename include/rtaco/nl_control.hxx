@@ -1,11 +1,9 @@
 #pragma once
 
-#include <cstdint>
 #include <atomic>
-#include <memory>
+#include <cstdint>
 #include <expected>
 #include <span>
-#include <stop_token>
 #include <system_error>
 
 #include <boost/asio/awaitable.hpp>

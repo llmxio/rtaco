@@ -119,8 +119,8 @@ private:
             if (bytes >= receive_buffer_.size()) {
             }
 
-            auto remaining = static_cast<int>(bytes);
-            auto header_size = static_cast<int>(sizeof(nlmsghdr));
+            auto remaining = static_cast<unsigned int>(bytes);
+            const auto header_size = static_cast<unsigned int>(sizeof(nlmsghdr));
             const auto* header = reinterpret_cast<const nlmsghdr*>(receive_buffer_
                             .data());
 

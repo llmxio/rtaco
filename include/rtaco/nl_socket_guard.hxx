@@ -1,7 +1,6 @@
 #pragma once
 
 #include <expected>
-#include <memory>
 #include <mutex>
 #include <string_view>
 #include <system_error>

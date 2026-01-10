@@ -1,13 +1,17 @@
 #include "rtaco/nl_socket_guard.hxx"
 
+#include <expected>
+#include <iostream>
 #include <stdexcept>
 #include <string>
-#include <utility>
-#include <iostream>
+#include <string_view>
+#include <system_error>
 
+#include <boost/system/error_code.hpp>
 #include <linux/netlink.h>
+
 #include <linux/rtnetlink.h>
-#include <boost/system/detail/error_code.hpp>
+#include "rtaco/nl_protocol.hxx"
 
 namespace llmx {
 namespace nl {
@@ -33,22 +37,16 @@ auto SocketGuard::ensure_open_locked() -> std::expected<void, std::error_code> {
         return {};
     }
 
-    std::cout << "Opening netlink socket\n";
-
     if (auto result = socket_.open(NETLINK_ROUTE, NETLINK_GROUPS); !result) {
         return std::unexpected{result.error()};
     }
 
-    std::cout << "Netlink socket opened\n";
-
     boost::system::error_code ec;
-    socket_.connect(Protocol::endpoint{NETLINK_GROUPS, 0U}, ec);
+    socket_.connect(Protocol::endpoint{NETLINK_GROUPS, 0}, ec);
     if (ec) {
         socket_.close();
         throw std::runtime_error(" connect failed: " + ec.message());
     }
-
-    std::cout << "Netlink socket connected\n";
 
     return {};
 }

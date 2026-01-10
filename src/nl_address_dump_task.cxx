@@ -1,11 +1,19 @@
 #include "rtaco/nl_address_dump_task.hxx"
 
+#include <linux/if_addr.h>
+#include <linux/netlink.h>
 #include <linux/rtnetlink.h>
-#include <sys/socket.h>
 #include <cerrno>
+#include <cstdint>
+#include <expected>
 #include <limits>
+#include <memory_resource>
 #include <optional>
+#include <span>
+#include <system_error>
 #include <utility>
+#include "rtaco/nl_request_task.hxx"
+#include "rtaco/nl_address_event.hxx"
 
 namespace llmx {
 namespace nl {
