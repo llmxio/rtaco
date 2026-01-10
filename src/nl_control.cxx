@@ -20,7 +20,6 @@
 #include "rtaco/nl_neighbor_probe_task.hxx"
 #include "rtaco/nl_route_dump_task.hxx"
 
-
 namespace llmx {
 namespace nl {
 
@@ -60,10 +59,6 @@ auto Control::async_dump_routes()
             sequence};
 
     auto result = co_await task.async_run();
-    if (!result) {
-        co_return std::unexpected(result.error());
-    }
-
     co_return result;
 }
 
@@ -78,44 +73,21 @@ auto Control::async_dump_addresses()
             sequence};
 
     auto result = co_await task.async_run();
-    if (!result) {
-        co_return std::unexpected(result.error());
-    }
-
     co_return result;
 }
 
 auto Control::async_dump_neighbors()
         -> boost::asio::awaitable<std::expected<NeighborEventList, std::error_code>> {
-    constexpr int kMaxAttempts = 3;
-    constexpr auto kRetryDelay = std::chrono::milliseconds{100};
-
-    for (int attempt = 1; attempt <= kMaxAttempts; ++attempt) {
-        if (auto result = socket_guard_->ensure_open(); !result) {
-            co_return std::unexpected(result.error());
-        }
-
-        auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-        NeighborDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(),
-                0, sequence};
-
-        auto result = co_await task.async_run();
-
-        if (result) {
-            co_return result;
-        }
-
-        if (result.error() != std::errc::device_or_resource_busy ||
-                attempt == kMaxAttempts) {
-            co_return std::unexpected(result.error());
-        }
-
-        boost::asio::steady_timer timer{co_await boost::asio::this_coro::executor,
-                kRetryDelay};
-        co_await timer.async_wait(boost::asio::use_awaitable);
+    if (auto result = socket_guard_->ensure_open(); !result) {
+        co_return std::unexpected(result.error());
     }
 
-    co_return std::unexpected(std::make_error_code(std::errc::device_or_resource_busy));
+    auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
+    NeighborDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
+            sequence};
+
+    auto result = co_await task.async_run();
+    co_return result;
 }
 
 auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
@@ -135,7 +107,8 @@ auto Control::async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> addr
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
     NeighborFlushTask task{socket_guard_->socket(), ifindex, sequence, address};
 
-    co_return co_await task.async_run();
+    auto result = co_await task.async_run();
+    co_return result;
 }
 
 auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
@@ -155,7 +128,8 @@ auto Control::async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> addr
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
     NeighborProbeTask task{socket_guard_->socket(), ifindex, sequence, address};
 
-    co_return co_await task.async_run();
+    auto result = co_await task.async_run();
+    co_return result;
 }
 
 auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
@@ -175,7 +149,8 @@ auto Control::async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> addres
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
     NeighborGetTask task{socket_guard_->socket(), ifindex, sequence, address};
 
-    co_return co_await task.async_run();
+    auto result = co_await task.async_run();
+    co_return result;
 }
 
 void Control::stop() {

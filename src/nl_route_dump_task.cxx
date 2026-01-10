@@ -59,15 +59,11 @@ auto RouteDumpTask::dispatch_route(const nlmsghdr& header)
         return std::nullopt;
     }
 
-    if (event.family != AF_INET6) {
-        return std::nullopt;
-    }
-
     if (event.table != RT_TABLE_MAIN) {
         return std::nullopt;
     }
 
-    if (event.oif_index == 0U) {
+    if (event.oif_index <= 0) {
         return std::nullopt;
     }
 

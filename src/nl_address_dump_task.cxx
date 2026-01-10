@@ -45,11 +45,11 @@ void AddressDumpTask::build_request() {
     request_.header.nlmsg_seq = sequence();
     request_.header.nlmsg_pid = 0;
 
-    request_.message.ifa_family = AF_INET6;
+    request_.message.ifa_family = RTN_UNSPEC;
     request_.message.ifa_prefixlen = 0;
     request_.message.ifa_flags = 0;
     request_.message.ifa_scope = RT_SCOPE_UNIVERSE;
-    request_.message.ifa_index = static_cast<int>(uint16_t());
+    request_.message.ifa_index = ifindex();
 }
 
 auto AddressDumpTask::handle_done() -> std::expected<AddressEventList, std::error_code> {
@@ -74,10 +74,6 @@ auto AddressDumpTask::dispatch_address(const nlmsghdr& header)
     const auto event = AddressEvent::from_nlmsghdr(header);
 
     if (event.type != AddressEvent::Type::NEW_ADDRESS) {
-        return std::nullopt;
-    }
-
-    if (event.family != AF_INET6) {
         return std::nullopt;
     }
 
