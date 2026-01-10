@@ -6,6 +6,7 @@
 #include <optional>
 #include <span>
 #include <system_error>
+#include <cstddef>
 
 #include <linux/if_addr.h>
 #include <linux/netlink.h>
@@ -13,15 +14,10 @@
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_request_task.hxx"
 
-#include <cstddef>
 namespace llmx {
 namespace nl {
-class Socket;
-}
-} // namespace llmx
 
-namespace llmx {
-namespace nl {
+class Socket;
 
 struct AddressRequest {
     nlmsghdr header;

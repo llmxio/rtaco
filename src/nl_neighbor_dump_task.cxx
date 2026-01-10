@@ -12,12 +12,6 @@
 
 namespace llmx {
 namespace nl {
-class Socket;
-}
-} // namespace llmx
-
-namespace llmx {
-namespace nl {
 
 NeighborDumpTask::NeighborDumpTask(Socket& socket, std::pmr::memory_resource* pmr,
         uint16_t ifindex, uint32_t sequence) noexcept

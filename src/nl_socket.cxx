@@ -68,7 +68,7 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
     enable_option(ext_ack_option{1}, "NETLINK_EXT_ACK not available");
     enable_option(strict_chk_option{1}, "NETLINK_GET_STRICT_CHK not available");
 
-    if (socket_.bind(endpoint_type{groups, 0U}, ec); ec) {
+    if (socket_.bind(endpoint_t{groups, 0U}, ec); ec) {
         close();
         throw std::runtime_error("failed to bind netlink " + std::string{label_} +
                 " socket: " + ec.message());
@@ -77,7 +77,7 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
     return {};
 }
 
-auto Socket::native_handle() -> native_type {
+auto Socket::native_handle() -> native_t {
     return socket_.native_handle();
 }
 

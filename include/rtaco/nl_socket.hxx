@@ -30,9 +30,9 @@ namespace nl {
 
 class Socket {
 public:
-    using socket_type = Protocol::socket;
-    using endpoint_type = Protocol::endpoint;
-    using native_type = typename Protocol::socket::native_handle_type;
+    using socket_t = Protocol::socket;
+    using endpoint_t = Protocol::endpoint;
+    using native_t = typename Protocol::socket::native_handle_type;
 
     explicit Socket(boost::asio::io_context& io, std::string_view label) noexcept;
     ~Socket() noexcept;
@@ -44,7 +44,6 @@ public:
     Socket& operator=(Socket&&) noexcept = default;
 
     auto is_open() const noexcept -> bool;
-
     auto close() -> std::expected<void, std::error_code>;
     auto cancel() -> std::expected<void, std::error_code>;
 
@@ -67,7 +66,7 @@ public:
 
     template<typename MutableBufferSequence, typename CompletionToken>
     auto async_receive(const MutableBufferSequence& buffers, CompletionToken&& token)
-            -> decltype(std::declval<socket_type>().async_receive(buffers,
+            -> decltype(std::declval<socket_t>().async_receive(buffers,
                     std::forward<CompletionToken>(token))) {
         return socket_.async_receive(buffers, std::forward<CompletionToken>(token));
     }
@@ -80,7 +79,7 @@ public:
 
     template<typename ConstBufferSequence, typename CompletionToken>
     auto async_send(const ConstBufferSequence& buffers, CompletionToken&& token)
-            -> decltype(std::declval<socket_type>()
+            -> decltype(std::declval<socket_t>()
                             .async_send(buffers, std::forward<CompletionToken>(token))) {
         return socket_.async_send(buffers, std::forward<CompletionToken>(token));
     }
@@ -91,7 +90,7 @@ public:
         return socket_.send(buffers, 0, ec);
     }
 
-    auto native_handle() -> native_type;
+    auto native_handle() -> native_t;
 
 private:
     using ext_ack_option =
@@ -103,7 +102,7 @@ private:
     using no_enobufs_option =
             boost::asio::detail::socket_option::integer<SOL_NETLINK, NETLINK_NO_ENOBUFS>;
 
-    Protocol::socket socket_;
+    socket_t socket_;
     std::string label_{};
 };
 

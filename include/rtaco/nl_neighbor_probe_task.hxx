@@ -9,15 +9,12 @@
 
 #include "rtaco/nl_neighbor_task.hxx"
 
-namespace llmx {
-namespace nl {
-class Socket;
-}
-} // namespace llmx
 struct nlmsghdr;
 
 namespace llmx {
 namespace nl {
+
+class Socket;
 
 class NeighborProbeTask : public NeighborTask<NeighborProbeTask, void> {
     std::array<uint8_t, 16> address_;

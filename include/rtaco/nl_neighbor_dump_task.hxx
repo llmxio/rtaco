@@ -9,15 +9,12 @@
 #include "rtaco/nl_neighbor_task.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
 
-namespace llmx {
-namespace nl {
-class Socket;
-}
-} // namespace llmx
 struct nlmsghdr;
 
 namespace llmx {
 namespace nl {
+
+class Socket;
 
 class NeighborDumpTask : public NeighborTask<NeighborDumpTask, NeighborEventList> {
     NeighborEventList learned_;
