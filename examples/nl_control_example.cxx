@@ -73,8 +73,8 @@ int main() {
         co_return;
     };
 
-    // Spawn all dumps concurrently; Control now serializes dump operations on a strand
-    // so replies won't be lost when multiple dumps are started simultaneously.
+    // Spawn in parallel; Control’s strand + gate serialize socket access so requests
+    // remain safe.
     boost::asio::co_spawn(io, dump_addresses(), boost::asio::detached);
     boost::asio::co_spawn(io, dump_routes(), boost::asio::detached);
     boost::asio::co_spawn(io, dump_neighbors(), boost::asio::detached);

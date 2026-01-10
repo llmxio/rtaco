@@ -11,6 +11,7 @@
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/strand.hpp>
+#include <boost/asio/steady_timer.hpp>
 
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
@@ -64,9 +65,31 @@ public:
     void stop();
 
 private:
+    using route_result = std::expected<RouteEventList, std::error_code>;
+    using address_result = std::expected<AddressEventList, std::error_code>;
+    using neighbor_result = std::expected<NeighborEvent, std::error_code>;
+    using neighbor_list_result = std::expected<NeighborEventList, std::error_code>;
+    using void_result = std::expected<void, std::error_code>;
+
+    auto acquire_socket_token() -> boost::asio::awaitable<void>;
+
+    auto async_dump_routes_impl() -> boost::asio::awaitable<route_result>;
+    auto async_dump_addresses_impl() -> boost::asio::awaitable<address_result>;
+    auto async_dump_neighbors_impl() -> boost::asio::awaitable<neighbor_list_result>;
+
+    auto async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+            -> boost::asio::awaitable<void_result>;
+
+    auto async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+            -> boost::asio::awaitable<void_result>;
+
+    auto async_get_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+            -> boost::asio::awaitable<neighbor_result>;
+
     boost::asio::io_context& io_;
     SocketGuard socket_guard_;
     boost::asio::strand<boost::asio::io_context::executor_type> strand_;
+    boost::asio::steady_timer gate_;
     std::atomic_uint32_t sequence_{1U};
     std::stop_source stop_source_;
     std::mutex mutex_;
