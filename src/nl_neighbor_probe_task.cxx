@@ -10,9 +10,9 @@
 namespace llmx {
 namespace nl {
 
-NeighborProbeTask::NeighborProbeTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
-        std::span<uint8_t, 16> address)
-    : NeighborTask{socket, uint16_t, sequence} {
+NeighborProbeTask::NeighborProbeTask(SocketGuard& socket_guard, uint16_t uint16_t,
+        uint32_t sequence, std::span<uint8_t, 16> address)
+    : NeighborTask{socket_guard, uint16_t, sequence} {
     for (std::size_t i = 0; i < 16; ++i) {
         address_[i] = address[i];
     }

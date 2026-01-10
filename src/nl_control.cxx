@@ -25,7 +25,7 @@ namespace nl {
 
 Control::Control(boost::asio::io_context& io) noexcept
     : io_{io}
-    , socket_guard_{std::make_unique<SocketGuard>(io_, "nl-control")}
+    , socket_guard_{io_, "nl-control"}
     , strand_{boost::asio::make_strand(io_)} {}
 
 Control::~Control() = default;
@@ -50,13 +50,12 @@ auto Control::dump_neighbors() -> std::expected<NeighborEventList, std::error_co
 
 auto Control::async_dump_routes()
         -> boost::asio::awaitable<std::expected<RouteEventList, std::error_code>> {
-    if (auto result = socket_guard_->ensure_open(); !result) {
+    if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    RouteDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
-            sequence};
+    RouteDumpTask task{socket_guard_, std::pmr::get_default_resource(), 0, sequence};
 
     auto result = co_await task.async_run();
     co_return result;
@@ -64,13 +63,12 @@ auto Control::async_dump_routes()
 
 auto Control::async_dump_addresses()
         -> boost::asio::awaitable<std::expected<AddressEventList, std::error_code>> {
-    if (auto result = socket_guard_->ensure_open(); !result) {
+    if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    AddressDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
-            sequence};
+    AddressDumpTask task{socket_guard_, std::pmr::get_default_resource(), 0, sequence};
 
     auto result = co_await task.async_run();
     co_return result;
@@ -78,13 +76,12 @@ auto Control::async_dump_addresses()
 
 auto Control::async_dump_neighbors()
         -> boost::asio::awaitable<std::expected<NeighborEventList, std::error_code>> {
-    if (auto result = socket_guard_->ensure_open(); !result) {
+    if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborDumpTask task{socket_guard_->socket(), std::pmr::get_default_resource(), 0,
-            sequence};
+    NeighborDumpTask task{socket_guard_, std::pmr::get_default_resource(), 0, sequence};
 
     auto result = co_await task.async_run();
     co_return result;
@@ -100,12 +97,12 @@ auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
 
 auto Control::async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> boost::asio::awaitable<std::expected<void, std::error_code>> {
-    if (auto result = socket_guard_->ensure_open(); !result) {
+    if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborFlushTask task{socket_guard_->socket(), ifindex, sequence, address};
+    NeighborFlushTask task{socket_guard_, ifindex, sequence, address};
 
     auto result = co_await task.async_run();
     co_return result;
@@ -121,12 +118,12 @@ auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
 
 auto Control::async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> boost::asio::awaitable<std::expected<void, std::error_code>> {
-    if (auto result = socket_guard_->ensure_open(); !result) {
+    if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborProbeTask task{socket_guard_->socket(), ifindex, sequence, address};
+    NeighborProbeTask task{socket_guard_, ifindex, sequence, address};
 
     auto result = co_await task.async_run();
     co_return result;
@@ -142,19 +139,19 @@ auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
 
 auto Control::async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> boost::asio::awaitable<std::expected<NeighborEvent, std::error_code>> {
-    if (auto result = socket_guard_->ensure_open(); !result) {
+    if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
     }
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
-    NeighborGetTask task{socket_guard_->socket(), ifindex, sequence, address};
+    NeighborGetTask task{socket_guard_, ifindex, sequence, address};
 
     auto result = co_await task.async_run();
     co_return result;
 }
 
 void Control::stop() {
-    socket_guard_->stop();
+    socket_guard_.stop();
 }
 
 } // namespace nl

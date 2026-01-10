@@ -11,9 +11,9 @@
 namespace llmx {
 namespace nl {
 
-RouteDumpTask::RouteDumpTask(Socket& socket, std::pmr::memory_resource* pmr,
+RouteDumpTask::RouteDumpTask(SocketGuard& socket_guard, std::pmr::memory_resource* pmr,
         uint16_t ifindex, uint32_t sequence) noexcept
-    : RouteTask{socket, ifindex, sequence}
+    : RouteTask{socket_guard, ifindex, sequence}
     , learned_{pmr} {}
 
 void RouteDumpTask::prepare_request() {

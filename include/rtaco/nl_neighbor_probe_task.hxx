@@ -14,13 +14,13 @@ struct nlmsghdr;
 namespace llmx {
 namespace nl {
 
-class Socket;
+class SocketGuard;
 
 class NeighborProbeTask : public NeighborTask<NeighborProbeTask, void> {
     std::array<uint8_t, 16> address_;
 
 public:
-    NeighborProbeTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
+    NeighborProbeTask(SocketGuard& socket_guard, uint16_t uint16_t, uint32_t sequence,
             std::span<uint8_t, 16> address);
 
     void prepare_request();

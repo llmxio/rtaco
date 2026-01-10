@@ -14,14 +14,14 @@ struct nlmsghdr;
 namespace llmx {
 namespace nl {
 
-class Socket;
+class SocketGuard;
 
 class NeighborDumpTask : public NeighborTask<NeighborDumpTask, NeighborEventList> {
     NeighborEventList learned_;
 
 public:
-    NeighborDumpTask(Socket& socket, std::pmr::memory_resource* pmr, uint16_t ifindex,
-            uint32_t sequence) noexcept;
+    NeighborDumpTask(SocketGuard& socket_guard, std::pmr::memory_resource* pmr,
+            uint16_t ifindex, uint32_t sequence) noexcept;
 
     void prepare_request();
 

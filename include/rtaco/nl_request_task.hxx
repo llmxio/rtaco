@@ -18,7 +18,7 @@
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/system/error_code.hpp>
 
-#include "rtaco/nl_socket.hxx"
+#include "rtaco/nl_socket_guard.hxx"
 
 namespace llmx {
 namespace nl {
@@ -40,13 +40,13 @@ class RequestTask {
     static constexpr size_t MAX_RESPONSE_BYTES = 64U * 1024U;
     std::array<std::byte, MAX_RESPONSE_BYTES> receive_buffer_{};
 
-    Socket& socket_;
+    SocketGuard& socket_guard_;
     uint16_t ifindex_;
     uint32_t sequence_;
 
 public:
-    RequestTask(Socket& socket, uint16_t ifindex, uint32_t sequence) noexcept
-        : socket_{socket}
+    RequestTask(SocketGuard& socket_guard, uint16_t ifindex, uint32_t sequence) noexcept
+        : socket_guard_{socket_guard}
         , ifindex_{ifindex}
         , sequence_{sequence} {}
 
@@ -68,12 +68,12 @@ public:
 
 protected:
     auto socket() noexcept -> Socket& {
-        return socket_;
+        return socket_guard_.socket();
     }
 
-    auto socket() const noexcept -> const Socket& {
-        return socket_;
-    }
+    // auto socket() const noexcept -> const Socket& {
+    //     return socket_;
+    // }
 
     auto sequence() const noexcept -> uint32_t {
         return sequence_;
@@ -98,7 +98,7 @@ private:
 
         while (offset < payload.size()) {
             boost::system::error_code ec{};
-            const auto sent = co_await socket_.async_send(
+            const auto sent = co_await socket().async_send(
                     boost::asio::buffer(payload.data() + offset, payload.size() - offset),
                     boost::asio::redirect_error(boost::asio::use_awaitable, ec));
 
@@ -116,7 +116,7 @@ private:
     auto read_loop() -> boost::asio::awaitable<std::expected<Result, std::error_code>> {
         while (true) {
             boost::system::error_code ec{};
-            const auto bytes = co_await socket_.async_receive(
+            const auto bytes = co_await socket().async_receive(
                     boost::asio::buffer(receive_buffer_),
                     boost::asio::redirect_error(boost::asio::use_awaitable, ec));
 

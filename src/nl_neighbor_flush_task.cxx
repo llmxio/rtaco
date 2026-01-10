@@ -9,9 +9,9 @@
 namespace llmx {
 namespace nl {
 
-NeighborFlushTask::NeighborFlushTask(Socket& socket, uint16_t ifindex, uint32_t sequence,
-        std::span<uint8_t, 16> address)
-    : NeighborTask{socket, ifindex, sequence} {
+NeighborFlushTask::NeighborFlushTask(SocketGuard& socket_guard, uint16_t ifindex,
+        uint32_t sequence, std::span<uint8_t, 16> address)
+    : NeighborTask{socket_guard, ifindex, sequence} {
     for (std::size_t i = 0; i < 16; ++i) {
         address_[i] = address[i];
     }

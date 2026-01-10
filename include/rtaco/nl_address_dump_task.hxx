@@ -17,7 +17,7 @@
 namespace llmx {
 namespace nl {
 
-class Socket;
+class SocketGuard;
 
 struct AddressRequest {
     nlmsghdr header;
@@ -29,8 +29,8 @@ class AddressDumpTask : public RequestTask<AddressDumpTask, AddressEventList> {
     AddressEventList learned_;
 
 public:
-    AddressDumpTask(Socket& socket, std::pmr::memory_resource* pmr, uint16_t ifindex,
-            uint32_t sequence) noexcept;
+    AddressDumpTask(SocketGuard& socket_guard, std::pmr::memory_resource* pmr,
+            uint16_t ifindex, uint32_t sequence) noexcept;
 
     auto request_payload() const -> std::span<const std::byte>;
 

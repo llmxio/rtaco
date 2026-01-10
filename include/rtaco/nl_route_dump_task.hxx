@@ -14,14 +14,14 @@ struct nlmsghdr;
 namespace llmx {
 namespace nl {
 
-class Socket;
+class SocketGuard;
 
 class RouteDumpTask : public RouteTask<RouteDumpTask, RouteEventList> {
     RouteEventList learned_;
 
 public:
-    RouteDumpTask(Socket& socket, std::pmr::memory_resource* pmr, uint16_t ifindex,
-            uint32_t sequence) noexcept;
+    RouteDumpTask(SocketGuard& socket_guard, std::pmr::memory_resource* pmr,
+            uint16_t ifindex, uint32_t sequence) noexcept;
 
     void prepare_request();
 
