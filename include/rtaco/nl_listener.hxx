@@ -24,7 +24,7 @@
 #include "rtaco/nl_socket_guard.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 class Listener {
     static constexpr auto BUFFER_SIZE = 32U * 1024U;
@@ -102,5 +102,5 @@ private:
     void handle_neighbor_message(const nlmsghdr& header);
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

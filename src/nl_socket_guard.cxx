@@ -14,7 +14,7 @@
 #include "rtaco/nl_protocol.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 constexpr unsigned NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
         RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
@@ -67,5 +67,5 @@ void SocketGuard::stop() {
     }
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

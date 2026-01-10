@@ -32,7 +32,7 @@
 #include "rtaco/nl_route_event.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 namespace asio = boost::asio;
 
@@ -125,7 +125,7 @@ void Control::stop() {
     socket_guard_.stop();
 }
 
-auto Control::async_dump_routes_impl() -> asio::awaitable<route_result> {
+auto Control::async_dump_routes_impl() -> asio::awaitable<route_list_result_t> {
     co_await acquire_socket_token();
     SocketGuard guard{io_, "nl-control-route"};
 
@@ -139,7 +139,7 @@ auto Control::async_dump_routes_impl() -> asio::awaitable<route_result> {
     co_return co_await task.async_run();
 }
 
-auto Control::async_dump_addresses_impl() -> asio::awaitable<address_result> {
+auto Control::async_dump_addresses_impl() -> asio::awaitable<address_list_result_t> {
     co_await acquire_socket_token();
 
     SocketGuard guard{io_, "nl-control-address"};
@@ -170,7 +170,7 @@ auto Control::async_dump_neighbors_impl() -> asio::awaitable<neighbor_list_resul
 }
 
 auto Control::async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> asio::awaitable<void_result> {
+        -> asio::awaitable<void_result_t> {
     co_await acquire_socket_token();
 
     if (auto result = socket_guard_.ensure_open(); !result) {
@@ -184,7 +184,7 @@ auto Control::async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16>
 }
 
 auto Control::async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> asio::awaitable<void_result> {
+        -> asio::awaitable<void_result_t> {
     co_await acquire_socket_token();
 
     if (auto result = socket_guard_.ensure_open(); !result) {
@@ -198,7 +198,7 @@ auto Control::async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16>
 }
 
 auto Control::async_get_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
-        -> asio::awaitable<neighbor_result> {
+        -> asio::awaitable<neighbor_result_t> {
     co_await acquire_socket_token();
 
     if (auto result = socket_guard_.ensure_open(); !result) {
@@ -229,5 +229,5 @@ auto Control::acquire_socket_token() -> asio::awaitable<void> {
     }
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

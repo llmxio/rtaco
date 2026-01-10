@@ -18,7 +18,7 @@
 #include <linux/rtnetlink.h>
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 // Remove trailing NUL characters from a string view and return an owning string.
 inline constexpr auto trim_string(std::string_view sv) -> std::string {
@@ -286,5 +286,5 @@ inline auto route_type_to_string(uint8_t route_type) noexcept -> std::string_vie
     return "UNKNOWN";
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

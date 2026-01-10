@@ -13,7 +13,7 @@
 #include "rtaco/nl_route_event.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 RouteDumpTask::RouteDumpTask(SocketGuard& socket_guard, std::pmr::memory_resource* pmr,
         uint16_t ifindex, uint32_t sequence) noexcept
@@ -79,5 +79,5 @@ auto RouteDumpTask::dispatch_route(const nlmsghdr& header)
     return std::nullopt;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

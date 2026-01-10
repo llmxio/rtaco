@@ -7,24 +7,24 @@
 
 #include "rtaco/nl_listener.hxx"
 
-// Simple example showing how to use llmx::nl::Listener to subscribe to
+// Simple example showing how to use llmx::rtaco::Listener to subscribe to
 // link/address/neighbor/route events and print them.
 int main() {
     boost::asio::io_context io;
-    llmx::nl::Listener listener{io};
+    llmx::rtaco::Listener listener{io};
 
     auto work = boost::asio::make_work_guard(io);
     std::jthread io_thread([&io]() { io.run(); });
 
     // Connect handlers for events we care about
-    listener.connect_to_event([](const llmx::nl::LinkEvent& ev)
+    listener.connect_to_event([](const llmx::rtaco::LinkEvent& ev)
     {
         std::cout << "LinkEvent: type=" << static_cast<int>(ev.type)
                   << " ifindex=" << ev.index << " name=" << ev.name
                   << " flags=" << ev.flags << " change=" << ev.change << "\n";
     });
 
-    listener.connect_to_event([](const llmx::nl::AddressEvent& ev)
+    listener.connect_to_event([](const llmx::rtaco::AddressEvent& ev)
     {
         std::cout << "AddressEvent: type=" << static_cast<int>(ev.type)
                   << " ifindex=" << ev.index << " family=" << static_cast<int>(ev.family)
@@ -33,14 +33,14 @@ int main() {
                   << " label=" << ev.label << "\n";
     });
 
-    listener.connect_to_event([](const llmx::nl::NeighborEvent& ev)
+    listener.connect_to_event([](const llmx::rtaco::NeighborEvent& ev)
     {
         std::cout << "NeighborEvent: type=" << static_cast<int>(ev.type)
                   << " ifindex=" << ev.index << " addr=" << ev.address
                   << " lladdr=" << ev.lladdr << " state=" << ev.state_to_string() << "\n";
     });
 
-    listener.connect_to_event([](const llmx::nl::RouteEvent& ev)
+    listener.connect_to_event([](const llmx::rtaco::RouteEvent& ev)
     {
         std::cout << "RouteEvent: type=" << static_cast<int>(ev.type) << " dst=" << ev.dst
                   << " gateway=" << ev.gateway << " oif=" << ev.oif

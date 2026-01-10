@@ -7,7 +7,7 @@
 #include "rtaco/nl_common.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
     using enum RouteEvent::Type;
@@ -59,5 +59,5 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
     return event;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

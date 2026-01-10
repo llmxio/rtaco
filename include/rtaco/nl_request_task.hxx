@@ -21,7 +21,7 @@
 #include "rtaco/nl_socket_guard.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 template<typename Derived, typename Result>
 concept request_behavior =
@@ -135,5 +135,5 @@ private:
     }
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

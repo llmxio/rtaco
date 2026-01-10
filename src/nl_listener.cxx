@@ -24,7 +24,7 @@
 #include "rtaco/nl_neighbor_event.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 namespace asio = boost::asio;
 
@@ -217,5 +217,5 @@ void Listener::handle_neighbor_message(const nlmsghdr& header) {
     // (void)event;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

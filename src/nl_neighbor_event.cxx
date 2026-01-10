@@ -7,7 +7,7 @@
 #include "rtaco/nl_common.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 auto NeighborEvent::from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent {
     using enum NeighborEvent::Type;
@@ -47,5 +47,5 @@ auto NeighborEvent::from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent {
     return event;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

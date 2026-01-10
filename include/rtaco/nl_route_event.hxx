@@ -9,7 +9,7 @@
 struct nlmsghdr;
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 struct RouteEvent {
     enum class Type : uint16_t {
@@ -40,5 +40,5 @@ struct RouteEvent {
 
 using RouteEventList = std::pmr::vector<RouteEvent>;
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

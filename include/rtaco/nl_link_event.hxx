@@ -9,7 +9,7 @@
 struct nlmsghdr;
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 struct LinkEvent {
     enum class Type : uint16_t {
@@ -29,5 +29,5 @@ struct LinkEvent {
 
 using LinkEventList = std::pmr::vector<LinkEvent>;
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

@@ -6,7 +6,7 @@
 #include "rtaco/nl_common.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
     using enum LinkEvent::Type;
@@ -36,5 +36,5 @@ auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
     return event;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

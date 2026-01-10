@@ -18,7 +18,7 @@
 #include "rtaco/nl_neighbor_event.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 NeighborDumpTask::NeighborDumpTask(SocketGuard& socket_guard,
         std::pmr::memory_resource* pmr, uint16_t ifindex, uint32_t sequence) noexcept
@@ -84,5 +84,5 @@ auto NeighborDumpTask::dispatch_neighbor(const nlmsghdr& header)
     return std::nullopt;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

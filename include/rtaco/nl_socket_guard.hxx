@@ -14,7 +14,7 @@ class io_context;
 } // namespace boost
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 class SocketGuard {
 public:
@@ -32,13 +32,12 @@ public:
     auto ensure_open() -> std::expected<void, std::error_code>;
     void stop();
 
-protected:
+private:
     Socket socket_;
     std::mutex mutex_;
 
-private:
     auto ensure_open_locked() -> std::expected<void, std::error_code>;
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

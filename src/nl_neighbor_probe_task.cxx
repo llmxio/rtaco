@@ -12,7 +12,7 @@
 #include <system_error>
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 NeighborProbeTask::NeighborProbeTask(SocketGuard& socket_guard, uint16_t uint16_t,
         uint32_t sequence, std::span<uint8_t, 16> address)
@@ -53,5 +53,5 @@ auto NeighborProbeTask::handle_error(const nlmsghdr& header)
     return std::unexpected{error_code};
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx
