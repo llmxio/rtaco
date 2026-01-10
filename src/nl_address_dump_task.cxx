@@ -16,8 +16,8 @@ AddressDumpTask::AddressDumpTask(SocketGuard& socket_guard,
     , request_{}
     , learned_{pmr} {}
 
-auto AddressDumpTask::request_payload() const -> std::span<const std::byte> {
-    return {reinterpret_cast<const std::byte*>(&request_), request_.header.nlmsg_len};
+auto AddressDumpTask::request_payload() const -> std::span<const uint8_t> {
+    return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
 }
 
 void AddressDumpTask::prepare_request() {

@@ -87,12 +87,10 @@ private:
             -> boost::asio::awaitable<neighbor_result>;
 
     boost::asio::io_context& io_;
-    SocketGuard socket_guard_;
     boost::asio::strand<boost::asio::io_context::executor_type> strand_;
     boost::asio::steady_timer gate_;
+    SocketGuard socket_guard_;
     std::atomic_uint32_t sequence_{1U};
-    std::stop_source stop_source_;
-    std::mutex mutex_;
 };
 
 } // namespace nl

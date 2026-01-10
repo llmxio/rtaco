@@ -27,8 +27,8 @@ protected:
 public:
     using RequestTask<Derived, Result>::RequestTask;
 
-    auto request_payload() const -> std::span<const std::byte> {
-        return {reinterpret_cast<const std::byte*>(&request_), request_.header.nlmsg_len};
+    auto request_payload() const -> std::span<const uint8_t> {
+        return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
     }
 
 protected:
@@ -41,7 +41,7 @@ protected:
         request_.header.nlmsg_pid = 0;
 
         request_.message.ndm_family = RTN_UNSPEC;
-        request_.message.ndm_ifindex = static_cast<int>(this->ifindex());
+        request_.message.ndm_ifindex = this->ifindex();
         request_.message.ndm_state = ndm_state;
         request_.message.ndm_flags = ndm_flags;
         request_.message.ndm_type = RTN_UNSPEC;
@@ -51,14 +51,12 @@ protected:
         }
 
         request_.dst_attr.rta_type = NDA_DST;
-        request_.dst_attr
-                .rta_len = static_cast<uint16_t>(RTA_LENGTH(request_.dst.size()));
+        request_.dst_attr.rta_len = RTA_LENGTH(request_.dst.size());
 
         std::memcpy(request_.dst.data(), address.data(), address.size());
 
-        const auto aligned_payload = NLMSG_ALIGN(request_.header.nlmsg_len);
-        request_.header
-                .nlmsg_len = aligned_payload + RTA_ALIGN(request_.dst_attr.rta_len);
+        const auto payload = NLMSG_ALIGN(request_.header.nlmsg_len);
+        request_.header.nlmsg_len = payload + RTA_ALIGN(request_.dst_attr.rta_len);
     }
 };
 

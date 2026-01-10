@@ -1,5 +1,8 @@
 #include "rtaco/nl_socket.hxx"
 
+#include <stdexcept>
+#include <iostream>
+
 #include <boost/asio/detail/handler_invoke_helpers.hpp>
 #include <boost/asio/detail/impl/scheduler.ipp>
 #include <boost/asio/detail/impl/service_registry.hpp>
@@ -9,7 +12,6 @@
 #include <boost/asio/impl/io_context.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/system/detail/error_code.hpp>
-#include <stdexcept>
 
 namespace llmx {
 namespace nl {
@@ -54,21 +56,29 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
                 " socket: " + ec.message());
     }
 
-    const auto enable_option = [&](const auto& option, const char* description)
+    const auto enable_option =
+            [this](const auto& option) -> std::expected<void, std::error_code>
     {
-        boost::system::error_code option_ec;
+        boost::system::error_code ec;
 
-        if (socket_.set_option(option, option_ec); option_ec) {
-            (void)option_ec;
+        if (socket_.set_option(option, ec); ec) {
+            return std::unexpected{ec};
         }
+
+        return {};
     };
 
-    // Neighbor dumps can easily exceed the default 212 KiB netlink buffer; use a
-    // larger receive window to avoid losing multipart replies (which would leave
-    // dump tasks waiting forever for NLMSG_DONE).
-    enable_option(recv_buf_option{1 << 20}, "SO_RCVBUF not available");
-    enable_option(no_enobufs_option{1}, "NETLINK_NO_ENOBUFS not available");
-    enable_option(ext_ack_option{1}, "NETLINK_EXT_ACK not available");
+    if (auto ec = enable_option(recv_buf_option{1 << 20}); ec) {
+        return ec;
+    }
+
+    if (auto ec = enable_option(no_enobufs_option{1}); ec) {
+        return ec;
+    }
+
+    if (auto ec = enable_option(ext_ack_option{1}); ec) {
+        return ec;
+    }
 
     if (socket_.bind(endpoint_t{groups, 0U}, ec); ec) {
         close();

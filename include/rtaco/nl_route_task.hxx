@@ -25,8 +25,8 @@ protected:
 public:
     using RequestTask<Derived, Result>::RequestTask;
 
-    auto request_payload() const -> std::span<const std::byte> {
-        return {reinterpret_cast<const std::byte*>(&request_), request_.header.nlmsg_len};
+    auto request_payload() const -> std::span<const uint8_t> {
+        return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
     }
 
 protected:

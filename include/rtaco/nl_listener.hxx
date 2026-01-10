@@ -86,13 +86,13 @@ private:
     RouteSignal on_route_event_;
     NeighborSignal on_neighbor_event_;
 
-    std::array<std::byte, BUFFER_SIZE> buffer_{};
+    std::array<uint8_t, BUFFER_SIZE> buffer_{};
     std::atomic_bool running_{false};
 
     void open_socket();
     void request_read();
     void handle_read(const boost::system::error_code& ec, size_t bytes);
-    void process_messages(std::span<const std::byte> data);
+    void process_messages(std::span<const uint8_t> data);
 
     void handle_message(const nlmsghdr& header);
     void handle_error_message(const nlmsghdr& header);
