@@ -1,10 +1,9 @@
 #include "rtaco/nl_listener.hxx"
-#include "rtaco/nl_address_event.hxx"
-#include "rtaco/nl_common.hxx"
 
 #include <expected>
 #include <string>
 #include <utility>
+#include <iostream>
 
 #include <linux/neighbour.h>
 #include <linux/netlink.h>
@@ -22,15 +21,18 @@
 #include <boost/asio/impl/io_context.hpp>
 #include <boost/asio/io_context.hpp>
 
+#include "rtaco/nl_address_event.hxx"
+#include "rtaco/nl_common.hxx"
+
 namespace llmx {
 namespace nl {
 
 namespace asio = boost::asio;
 
-constexpr auto NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
+constexpr uint32_t NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
         RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
 
-constexpr auto NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(16);
+constexpr uint32_t NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(16);
 
 Listener::Listener(asio::io_context& io) noexcept
     : io_{io}
@@ -50,7 +52,7 @@ auto Listener::running() const noexcept -> bool {
 }
 
 void Listener::start() {
-    if (!running()) {
+    if (running()) {
         return;
     }
 
@@ -69,6 +71,8 @@ void Listener::stop() {
 
 auto Listener::open_socket() -> std::expected<void, std::error_code> {
     if (auto result = socket_guard_.ensure_open(); !result) {
+        std::cerr << "Failed to open netlink socket: " << result.error().message()
+                  << "\n";
         return result;
     }
 

@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <unistd.h>
 
 #include <boost/asio/detail/handler_invoke_helpers.hpp>
 #include <boost/asio/detail/impl/scheduler.ipp>
@@ -68,28 +69,45 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
         return {};
     };
 
-    if (auto ec = enable_option(recv_buf_option{1 << 20}); ec) {
-        return ec;
+    if (auto rc = enable_option(recv_buf_option{1 << 12}); !rc) {
+        return rc;
     }
 
-    if (auto ec = enable_option(no_enobufs_option{1}); ec) {
-        return ec;
+    if (auto rc = enable_option(no_enobufs_option{1}); !rc) {
+        return rc;
     }
 
-    if (auto ec = enable_option(ext_ack_option{1}); ec) {
-        return ec;
+    if (auto rc = enable_option(ext_ack_option{1}); !rc) {
+        return rc;
     }
 
-    if (socket_.bind(endpoint_t{groups, 0U}, ec); ec) {
+    if (auto rc = enable_option(strict_chk_option{1}); !rc) {
+        return rc;
+    }
+
+    if (socket_.bind(endpoint_type{groups, 0U}, ec); ec) {
         close();
         throw std::runtime_error("failed to bind netlink " + std::string{label_} +
                 " socket: " + ec.message());
     }
 
+    // TODO: remove in production code
+    {
+        sockaddr_nl sa{};
+        socklen_t salen = sizeof(sa);
+        if (getsockname(socket_.native_handle(), reinterpret_cast<sockaddr*>(&sa),
+                    &salen) == 0) {
+            std::cout << label_ << ": bound nl_pid=" << sa.nl_pid << " nl_groups=0x"
+                      << std::hex << sa.nl_groups << std::dec << "\n";
+        } else {
+            std::cout << label_ << ": getsockname failed: " << strerror(errno) << "\n";
+        }
+    }
+
     return {};
 }
 
-auto Socket::native_handle() -> native_t {
+auto Socket::native_handle() -> native_type {
     return socket_.native_handle();
 }
 

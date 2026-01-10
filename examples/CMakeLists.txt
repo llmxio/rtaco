@@ -15,3 +15,4 @@ function(rtaco_add_example target)
 endfunction()
 
 rtaco_add_example(nl_control_example nl_control_example.cxx)
+rtaco_add_example(nl_listener_example nl_listener_example.cxx)
