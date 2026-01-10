@@ -27,7 +27,7 @@ class error_code;
 } // namespace boost
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 class Socket {
 public:
@@ -96,10 +96,13 @@ public:
 private:
     using ext_ack_option =
             boost::asio::detail::socket_option::integer<SOL_NETLINK, NETLINK_EXT_ACK>;
+
     using strict_chk_option = boost::asio::detail::socket_option::integer<SOL_NETLINK,
             NETLINK_GET_STRICT_CHK>;
+
     using recv_buf_option =
             boost::asio::detail::socket_option::integer<SOL_SOCKET, SO_RCVBUF>;
+
     using no_enobufs_option =
             boost::asio::detail::socket_option::integer<SOL_NETLINK, NETLINK_NO_ENOBUFS>;
 
@@ -107,5 +110,5 @@ private:
     std::string label_{};
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

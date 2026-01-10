@@ -12,7 +12,7 @@
 struct nlmsghdr;
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 class SocketGuard;
 
@@ -38,5 +38,5 @@ private:
             -> std::optional<std::expected<RouteEventList, std::error_code>>;
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

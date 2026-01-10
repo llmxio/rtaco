@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 template<typename Protocol>
 class Endpoint {
@@ -111,5 +111,5 @@ private:
     int proto_{0};
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

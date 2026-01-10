@@ -14,7 +14,7 @@
 #include "rtaco/nl_request_task.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 class SocketGuard;
 
@@ -50,5 +50,5 @@ private:
             -> std::optional<std::expected<AddressEventList, std::error_code>>;
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

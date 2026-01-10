@@ -9,7 +9,7 @@
 struct nlmsghdr;
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 struct AddressEvent {
     enum class Type : uint16_t {
@@ -32,5 +32,5 @@ struct AddressEvent {
 
 using AddressEventList = std::pmr::vector<AddressEvent>;
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

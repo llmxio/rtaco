@@ -10,7 +10,7 @@
 
 int main() {
     boost::asio::io_context io;
-    llmx::nl::Control control{io};
+    llmx::rtaco::Control control{io};
 
     auto work = boost::asio::make_work_guard(io);
     std::jthread io_thread([&io]() { io.run(); });

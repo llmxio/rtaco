@@ -19,6 +19,7 @@
 #include <boost/signals2/signal.hpp>
 
 namespace llmx {
+namespace rtaco {
 
 enum class ExecPolicy {
     Sync,
@@ -67,11 +68,11 @@ struct WaitAllCombiner<void> {
 };
 
 template<typename Signature>
-struct signal_traits;
+struct SignalTraits;
 
 template<typename R, typename... Args>
-struct signal_traits<R(Args...)> {
-    using result_type = R;
+struct SignalTraits<R(Args...)> {
+    using result_t = R;
     using args_tuple = std::tuple<Args...>;
     using default_combiner = WaitAllCombiner<R>;
 };
@@ -79,7 +80,7 @@ struct signal_traits<R(Args...)> {
 } // namespace detail
 
 template<typename Signature,
-        typename Combiner = typename detail::signal_traits<Signature>::default_combiner>
+        typename Combiner = typename detail::SignalTraits<Signature>::default_combiner>
 class Signal;
 
 template<typename R, typename... Args, typename Combiner>
@@ -155,4 +156,5 @@ private:
     signal_t signal_{};
 };
 
+} // namespace rtaco
 } // namespace llmx

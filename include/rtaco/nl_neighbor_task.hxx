@@ -10,7 +10,7 @@
 #include "rtaco/nl_request_task.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 struct NeighborRequest {
     nlmsghdr header;
@@ -60,5 +60,5 @@ protected:
     }
 };
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

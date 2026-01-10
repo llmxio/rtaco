@@ -15,7 +15,7 @@
 #include <linux/rtnetlink.h>
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 NeighborGetTask::NeighborGetTask(SocketGuard& socket_guard, uint16_t ifindex,
         uint32_t sequence, std::span<uint8_t, 16> address)
@@ -75,5 +75,5 @@ auto NeighborGetTask::handle_neighbor(const nlmsghdr& header)
     return std::nullopt;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

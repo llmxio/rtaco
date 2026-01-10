@@ -13,7 +13,7 @@
 struct nlmsghdr;
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 struct NeighborEvent {
     enum class Type : uint16_t {
@@ -82,5 +82,5 @@ struct NeighborEvent {
 
 using NeighborEventList = std::pmr::vector<NeighborEvent>;
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

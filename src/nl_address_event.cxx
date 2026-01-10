@@ -9,7 +9,7 @@
 #include "rtaco/nl_common.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
     using enum AddressEvent::Type;
@@ -58,5 +58,5 @@ auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
     return event;
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

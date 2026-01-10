@@ -15,14 +15,16 @@
 #include <boost/system/error_code.hpp>
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 Socket::Socket(boost::asio::io_context& io, std::string_view label) noexcept
     : socket_{io}
     , label_{label} {}
 
 Socket::~Socket() noexcept {
-    close();
+    if (is_open()) {
+        close();
+    }
 }
 
 auto Socket::is_open() const noexcept -> bool {
@@ -69,7 +71,7 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
         return {};
     };
 
-    if (auto rc = enable_option(recv_buf_option{1 << 12}); !rc) {
+    if (auto rc = enable_option(recv_buf_option{1 << 16}); !rc) {
         return rc;
     }
 
@@ -111,5 +113,5 @@ auto Socket::native_handle() -> native_t {
     return socket_.native_handle();
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx

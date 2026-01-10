@@ -13,7 +13,7 @@
 #include "rtaco/nl_neighbor_task.hxx"
 
 namespace llmx {
-namespace nl {
+namespace rtaco {
 
 NeighborFlushTask::NeighborFlushTask(SocketGuard& socket_guard, uint16_t ifindex,
         uint32_t sequence, std::span<uint8_t, 16> address)
@@ -53,5 +53,5 @@ auto NeighborFlushTask::handle_error(const nlmsghdr& header)
     return std::unexpected{error_code};
 }
 
-} // namespace nl
+} // namespace rtaco
 } // namespace llmx
