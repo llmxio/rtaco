@@ -22,11 +22,11 @@ public:
 
     Endpoint() noexcept {
         sockaddr_.nl_family = AF_NETLINK;
-        sockaddr_.nl_groups = 0U;
-        sockaddr_.nl_pid = 0U;
+        sockaddr_.nl_groups = AF_UNSPEC;
+        sockaddr_.nl_pid = AF_UNSPEC;
     }
 
-    Endpoint(uint32_t groups, uint32_t pid = 0U) noexcept {
+    Endpoint(uint32_t groups, uint32_t pid = AF_UNSPEC) noexcept {
         sockaddr_.nl_family = AF_NETLINK;
         sockaddr_.nl_groups = groups;
         sockaddr_.nl_pid = pid;
@@ -91,6 +91,7 @@ public:
     using socket = boost::asio::basic_raw_socket<Protocol>;
 
     Protocol() = default;
+
     explicit Protocol(int proto) noexcept
         : proto_{proto} {}
 

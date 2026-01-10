@@ -1,16 +1,17 @@
 #pragma once
 
-#include <linux/netlink.h>
-#include <stdint.h>
-#include <sys/socket.h>
-#include <boost/asio/detail/impl/reactive_socket_service_base.ipp>
-#include <boost/asio/detail/socket_option.hpp>
 #include <cstddef>
 #include <expected>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <utility>
+
+#include <linux/netlink.h>
+#include <stdint.h>
+#include <sys/socket.h>
+
+#include <boost/asio/detail/socket_option.hpp>
 
 #include "rtaco/nl_protocol.hxx"
 
@@ -32,7 +33,7 @@ class Socket {
 public:
     using socket_t = Protocol::socket;
     using endpoint_t = Protocol::endpoint;
-    using native_t = typename Protocol::socket::native_handle_type;
+    using native_t = typename socket_t::native_handle_type;
 
     explicit Socket(boost::asio::io_context& io, std::string_view label) noexcept;
     ~Socket() noexcept;
