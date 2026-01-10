@@ -87,4 +87,10 @@ install(FILES
 export(EXPORT llmx-rtacoTargets NAMESPACE llmx:: FILE ${CMAKE_CURRENT_BINARY_DIR}/llmx-rtacoTargets.cmake)
 export(PACKAGE llmx-rtaco)
 
+option(RTACO_BUILD_EXAMPLES "Build examples" OFF)
+
+if (RTACO_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()
+
 message(STATUS "Config: llmx-rtaco project configured")
