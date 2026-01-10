@@ -34,22 +34,23 @@ constexpr auto NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(1
 
 Listener::Listener(asio::io_context& io) noexcept
     : io_{io}
-    , socket_{io_, "nl-listener"}
+    , socket_guard_{io_, "nl-listener"}
     , on_link_event_{io_.get_executor()}
     , on_address_event_{io_.get_executor()}
     , on_route_event_{io_.get_executor()}
-    , on_neighbor_event_{io_.get_executor()} {}
+    , on_neighbor_event_{io_.get_executor()}
+    , on_nlmsgerr_event_{io_.get_executor()} {}
 
 Listener::~Listener() {
     stop();
 }
 
 auto Listener::running() const noexcept -> bool {
-    return running_.load(std::memory_order_relaxed);
+    return running_.load(std::memory_order_acquire);
 }
 
 void Listener::start() {
-    if (running_.load(std::memory_order_acquire)) {
+    if (!running()) {
         return;
     }
 
@@ -58,45 +59,41 @@ void Listener::start() {
 }
 
 void Listener::stop() {
-    if (!running_.load(std::memory_order_acquire)) {
+    if (!running()) {
         return;
     }
 
-    if (auto result = socket_.cancel(); !result) {
-        (void)result;
-    }
-
-    if (auto result = socket_.close(); !result) {
-        (void)result;
-    }
-
     running_.store(false, std::memory_order_release);
+    socket_guard_.stop();
 }
 
-void Listener::open_socket() {
-    socket_.open(NETLINK_ROUTE, NETLINK_GROUPS);
+auto Listener::open_socket() -> std::expected<void, std::error_code> {
+    if (auto result = socket_guard_.ensure_open(); !result) {
+        return result;
+    }
+
+    return {};
 }
 
 void Listener::request_read() {
-    if (!running_.load(std::memory_order_acquire)) {
+    if (!running()) {
         running_.store(true, std::memory_order_release);
     }
 
-    socket_.async_receive(asio::buffer(buffer_),
-            [this](const boost::system::error_code& ec, size_t bytes)
-    { handle_read(ec, bytes); });
+    socket_guard_.socket().async_receive(asio::buffer(buffer_),
+            [this](const auto& ec, size_t bytes) { handle_read(ec, bytes); });
 }
 
 void Listener::handle_read(const boost::system::error_code& ec, size_t bytes) {
-    if (!running_.load(std::memory_order_acquire)) {
+    if (!running()) {
+        return;
+    }
+
+    if (ec == asio::error::operation_aborted) {
         return;
     }
 
     if (ec) {
-        if (ec == asio::error::operation_aborted) {
-            return;
-        }
-
         request_read();
         return;
     }
@@ -141,9 +138,7 @@ void Listener::handle_message(const nlmsghdr& header) {
 void Listener::handle_error_message(const nlmsghdr& header) {
     if (const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
             err != nullptr) {
-        if (err->error == 0) {
-        } else {
-        }
+        on_nlmsgerr_event_(*err, header);
     }
 }
 
@@ -168,19 +163,17 @@ void Listener::handle_link_message(const nlmsghdr& header) {
 }
 
 void Listener::handle_address_message(const nlmsghdr& header) {
-    const auto event = AddressEvent::from_nlmsghdr(header);
+    auto event = AddressEvent::from_nlmsghdr(header);
+
     if (event.type == AddressEvent::Type::UNKNOWN) {
         return;
     }
 
     on_address_event_(event);
 
-    const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    const auto address = event.address.empty() ? std::string{"unknown"} : event.address;
-
-    (void)type_name;
-    (void)address;
-    (void)event;
+    // const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
+    // const auto address = event.address.empty() ? std::string{"unknown"} :
+    // event.address;
 }
 
 void Listener::handle_route_message(const nlmsghdr& header) {
@@ -192,24 +185,18 @@ void Listener::handle_route_message(const nlmsghdr& header) {
 
     on_route_event_(event);
 
-    const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    const auto dst = event.dst.empty() ? std::string{"default"} : event.dst;
-    const auto gateway = event.gateway.empty() ? std::string{"direct"} : event.gateway;
+    // const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
+    // const auto dst = event.dst.empty() ? std::string{"default"} : event.dst;
+    // const auto gateway = event.gateway.empty() ? std::string{"direct"} : event.gateway;
 
-    std::string oif = event.oif;
-    if (oif.empty()) {
-        if (event.oif_index != 0U) {
-            oif = std::to_string(event.oif_index);
-        } else {
-            oif = "unknown";
-        }
-    }
-
-    (void)type_name;
-    (void)dst;
-    (void)gateway;
-    (void)oif;
-    (void)event;
+    // std::string oif = event.oif;
+    // if (oif.empty()) {
+    //     if (event.oif_index != 0U) {
+    //         oif = std::to_string(event.oif_index);
+    //     } else {
+    //         oif = "unknown";
+    //     }
+    // }
 }
 
 void Listener::handle_neighbor_message(const nlmsghdr& header) {
@@ -221,14 +208,15 @@ void Listener::handle_neighbor_message(const nlmsghdr& header) {
 
     on_neighbor_event_(event);
 
-    const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    const auto address = event.address.empty() ? std::string{"unknown"} : event.address;
-    const auto lladdr = event.lladdr.empty() ? std::string{"unknown"} : event.lladdr;
+    // const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
+    // const auto address = event.address.empty() ? std::string{"unknown"} :
+    // event.address; const auto lladdr = event.lladdr.empty() ? std::string{"unknown"} :
+    // event.lladdr;
 
-    (void)type_name;
-    (void)address;
-    (void)lladdr;
-    (void)event;
+    // (void)type_name;
+    // (void)address;
+    // (void)lladdr;
+    // (void)event;
 }
 
 } // namespace nl

@@ -2,7 +2,7 @@
 
 #include <array>
 #include <atomic>
-#include <boost/asio/impl/any_io_executor.ipp>
+#include <boost/asio/io_context.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/move/utility_core.hpp>
 #include <boost/signals2/connection.hpp>
@@ -17,35 +17,22 @@
 #include "rtaco/nl_neighbor_event.hxx"
 #include "rtaco/nl_route_event.hxx"
 #include "rtaco/nl_signal.hxx"
-#include "rtaco/nl_socket.hxx"
-
-namespace boost {
-namespace asio {
-class io_context;
-}
-} // namespace boost
+#include "rtaco/nl_socket_guard.hxx"
 
 struct nlmsghdr;
 
 namespace llmx {
 namespace nl {
 
-template<typename... Lambdas>
-struct Visitor : Lambdas... {
-    using Lambdas::operator()...;
-};
-
-template<typename... Lambdas>
-Visitor(Lambdas...) -> Visitor<Lambdas...>;
-
 class Listener {
     static constexpr auto BUFFER_SIZE = 32U * 1024U;
 
 public:
-    using LinkSignal = Signal<void(const LinkEvent&)>;
-    using AddressSignal = Signal<void(const AddressEvent&)>;
-    using RouteSignal = Signal<void(const RouteEvent&)>;
-    using NeighborSignal = Signal<void(const NeighborEvent&)>;
+    using link_signal_t = Signal<void(const LinkEvent&)>;
+    using address_signal_t = Signal<void(const AddressEvent&)>;
+    using route_signal_t = Signal<void(const RouteEvent&)>;
+    using neighbor_signal_t = Signal<void(const NeighborEvent&)>;
+    using nlmsgerr_signal_t = Signal<void(const nlmsgerr&, const nlmsghdr&)>;
 
     Listener(boost::asio::io_context& io) noexcept;
     ~Listener();
@@ -60,36 +47,46 @@ public:
 
     bool running() const noexcept;
 
-    auto connect_to_event(auto&& slot, ExecPolicy policy = ExecPolicy::Sync)
-            -> boost::signals2::connection {
-        Visitor action{
-                [&](LinkSignal::slot_type&& s)
-        { return on_link_event_.connect(std::move(s), policy); },
-                [&](AddressSignal::slot_type&& s)
-        { return on_address_event_.connect(std::move(s), policy); },
-                [&](RouteSignal::slot_type&& s)
-        { return on_route_event_.connect(std::move(s), policy); },
-                [&](NeighborSignal::slot_type&& s)
-        { return on_neighbor_event_.connect(std::move(s), policy); },
-        };
+    auto connect_to_event(link_signal_t::slot_t&& slot,
+            ExecPolicy policy = ExecPolicy::Sync) -> boost::signals2::connection {
+        return on_link_event_.connect(std::move(slot), policy);
+    }
 
-        return action(std::forward<decltype(slot)>(slot));
+    auto connect_to_event(address_signal_t::slot_t&& slot,
+            ExecPolicy policy = ExecPolicy::Sync) -> boost::signals2::connection {
+        return on_address_event_.connect(std::move(slot), policy);
+    }
+
+    auto connect_to_event(route_signal_t::slot_t&& slot,
+            ExecPolicy policy = ExecPolicy::Sync) -> boost::signals2::connection {
+        return on_route_event_.connect(std::move(slot), policy);
+    }
+
+    auto connect_to_event(neighbor_signal_t::slot_t&& slot,
+            ExecPolicy policy = ExecPolicy::Sync) -> boost::signals2::connection {
+        return on_neighbor_event_.connect(std::move(slot), policy);
+    }
+
+    auto connect_to_error(nlmsgerr_signal_t::slot_t&& slot,
+            ExecPolicy policy = ExecPolicy::Sync) -> boost::signals2::connection {
+        return on_nlmsgerr_event_.connect(std::move(slot), policy);
     }
 
 private:
     boost::asio::io_context& io_;
-    nl::Socket socket_;
+    SocketGuard socket_guard_;
     std::atomic_uint32_t sequence_{1U};
 
-    LinkSignal on_link_event_;
-    AddressSignal on_address_event_;
-    RouteSignal on_route_event_;
-    NeighborSignal on_neighbor_event_;
+    link_signal_t on_link_event_;
+    address_signal_t on_address_event_;
+    route_signal_t on_route_event_;
+    neighbor_signal_t on_neighbor_event_;
+    nlmsgerr_signal_t on_nlmsgerr_event_;
 
     std::array<uint8_t, BUFFER_SIZE> buffer_{};
     std::atomic_bool running_{false};
 
-    void open_socket();
+    auto open_socket() -> std::expected<void, std::error_code>;
     void request_read();
     void handle_read(const boost::system::error_code& ec, size_t bytes);
     void process_messages(std::span<const uint8_t> data);
