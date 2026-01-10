@@ -28,9 +28,9 @@ namespace asio = boost::asio;
 
 Control::Control(asio::io_context& io) noexcept
     : io_{io}
-    , socket_guard_{io_, "nl-control"}
     , strand_{asio::make_strand(io_)}
-    , gate_{io_} {
+    , gate_{io_}
+    , socket_guard_{io_, "nl-control"} {
     gate_.expires_at(asio::steady_timer::time_point::min());
 }
 

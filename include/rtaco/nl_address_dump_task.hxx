@@ -32,7 +32,7 @@ public:
     AddressDumpTask(SocketGuard& socket_guard, std::pmr::memory_resource* pmr,
             uint16_t ifindex, uint32_t sequence) noexcept;
 
-    auto request_payload() const -> std::span<const std::byte>;
+    auto request_payload() const -> std::span<const uint8_t>;
 
     void prepare_request();
 

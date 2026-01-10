@@ -25,12 +25,14 @@
 namespace llmx {
 namespace nl {
 
-constexpr unsigned NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
+namespace asio = boost::asio;
+
+constexpr auto NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
         RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
 
-constexpr size_t NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(16);
+constexpr auto NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(16);
 
-Listener::Listener(boost::asio::io_context& io) noexcept
+Listener::Listener(asio::io_context& io) noexcept
     : io_{io}
     , socket_{io_, "nl-listener"}
     , on_link_event_{io_.get_executor()}
@@ -80,7 +82,7 @@ void Listener::request_read() {
         running_.store(true, std::memory_order_release);
     }
 
-    socket_.async_receive(boost::asio::buffer(buffer_),
+    socket_.async_receive(asio::buffer(buffer_),
             [this](const boost::system::error_code& ec, size_t bytes)
     { handle_read(ec, bytes); });
 }
@@ -91,7 +93,7 @@ void Listener::handle_read(const boost::system::error_code& ec, size_t bytes) {
     }
 
     if (ec) {
-        if (ec == boost::asio::error::operation_aborted) {
+        if (ec == asio::error::operation_aborted) {
             return;
         }
 
@@ -99,11 +101,11 @@ void Listener::handle_read(const boost::system::error_code& ec, size_t bytes) {
         return;
     }
 
-    process_messages(std::span<const std::byte>(buffer_.data(), bytes));
+    process_messages(std::span<const uint8_t>(buffer_.data(), bytes));
     request_read();
 }
 
-void Listener::process_messages(std::span<const std::byte> data) {
+void Listener::process_messages(std::span<const uint8_t> data) {
     int remaining = static_cast<int>(data.size());
     const auto* header = reinterpret_cast<const nlmsghdr*>(data.data());
 

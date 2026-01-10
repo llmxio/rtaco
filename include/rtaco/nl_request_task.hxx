@@ -27,9 +27,7 @@ template<typename Derived, typename Result>
 concept request_behavior =
         requires(Derived& derived, const Derived& const_derived, const nlmsghdr& header) {
             { derived.prepare_request() } -> std::same_as<void>;
-            {
-                const_derived.request_payload()
-            } -> std::same_as<std::span<const std::byte>>;
+            { const_derived.request_payload() } -> std::same_as<std::span<const uint8_t>>;
             {
                 derived.process_message(header)
             } -> std::same_as<std::optional<std::expected<Result, std::error_code>>>;
@@ -38,7 +36,7 @@ concept request_behavior =
 template<typename Derived, typename Result>
 class RequestTask {
     static constexpr size_t MAX_RESPONSE_BYTES = 64U * 1024U;
-    std::array<std::byte, MAX_RESPONSE_BYTES> receive_buffer_{};
+    std::array<uint8_t, MAX_RESPONSE_BYTES> receive_buffer_{};
 
     SocketGuard& socket_guard_;
     uint16_t ifindex_;
@@ -53,9 +51,6 @@ public:
     virtual ~RequestTask() {}
 
     auto async_run() -> boost::asio::awaitable<std::expected<Result, std::error_code>> {
-        // static_assert(request_behavior<Derived, Result>,
-        //         "Derived must implement the netlink request behavior interface");
-
         impl().prepare_request();
 
         if (auto send_result = co_await send_request(); !send_result) {
@@ -70,10 +65,6 @@ protected:
     auto socket() noexcept -> Socket& {
         return socket_guard_.socket();
     }
-
-    // auto socket() const noexcept -> const Socket& {
-    //     return socket_;
-    // }
 
     auto sequence() const noexcept -> uint32_t {
         return sequence_;

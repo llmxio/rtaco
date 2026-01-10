@@ -5,8 +5,11 @@ project(llmx-rtaco VERSION 0.0.0 LANGUAGES C CXX)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+include(cmake/build-options.cmake)
+include(cmake/colored-output.cmake)
+
 find_package(Threads REQUIRED)
-find_package(Boost 1.83.0 COMPONENTS system REQUIRED)
+find_package(Boost 1.83.0 REQUIRED CONFIG COMPONENTS system REQUIRED)
 
 set(RTACO_SOURCES
   src/nl_control.cxx
