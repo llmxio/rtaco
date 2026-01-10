@@ -23,16 +23,12 @@
 #include <utility>
 
 namespace llmx {
-namespace {
+namespace nl {
 
 constexpr unsigned NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
         RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
 
 constexpr size_t NEIGHBOR_MESSAGE_SPACE = NLMSG_SPACE(sizeof(ndmsg)) + RTA_SPACE(16);
-
-} // namespace
-
-namespace nl {
 
 Listener::Listener(boost::asio::io_context& io) noexcept
     : io_{io}

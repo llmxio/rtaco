@@ -19,14 +19,11 @@ namespace asio {
 class io_context;
 }
 } // namespace boost
-namespace llmx {
-namespace nl {
-class SocketGuard;
-}
-} // namespace llmx
 
 namespace llmx {
 namespace nl {
+
+class SocketGuard;
 
 class Control {
 public:

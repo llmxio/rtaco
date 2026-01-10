@@ -9,15 +9,12 @@
 #include "rtaco/nl_route_task.hxx"
 #include "rtaco/nl_route_event.hxx"
 
-namespace llmx {
-namespace nl {
-class Socket;
-}
-} // namespace llmx
 struct nlmsghdr;
 
 namespace llmx {
 namespace nl {
+
+class Socket;
 
 class RouteDumpTask : public RouteTask<RouteDumpTask, RouteEventList> {
     RouteEventList learned_;

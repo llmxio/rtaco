@@ -9,12 +9,6 @@
 
 namespace llmx {
 namespace nl {
-class Socket;
-}
-} // namespace llmx
-
-namespace llmx {
-namespace nl {
 
 NeighborProbeTask::NeighborProbeTask(Socket& socket, uint16_t uint16_t, uint32_t sequence,
         std::span<uint8_t, 16> address)

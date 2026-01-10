@@ -24,6 +24,7 @@ namespace asio {
 class io_context;
 }
 } // namespace boost
+
 struct nlmsghdr;
 
 namespace llmx {
