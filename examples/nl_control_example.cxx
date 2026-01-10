@@ -12,7 +12,6 @@ int main() {
     boost::asio::io_context io;
     llmx::nl::Control control{io};
 
-    // Keep the io_context alive while we synchronously call dump helpers below.
     auto work = boost::asio::make_work_guard(io);
     std::jthread io_thread([&io]() { io.run(); });
 
@@ -73,13 +72,10 @@ int main() {
         co_return;
     };
 
-    // Spawn in parallel; Control’s strand + gate serialize socket access so requests
-    // remain safe.
     boost::asio::co_spawn(io, dump_addresses(), boost::asio::detached);
     boost::asio::co_spawn(io, dump_routes(), boost::asio::detached);
     boost::asio::co_spawn(io, dump_neighbors(), boost::asio::detached);
 
-    // Allow the io_context to exit now that we're done.
     work.reset();
     io_thread.join();
 
