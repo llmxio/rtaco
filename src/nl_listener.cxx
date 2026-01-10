@@ -2,10 +2,13 @@
 #include "rtaco/nl_address_event.hxx"
 #include "rtaco/nl_common.hxx"
 
+#include <expected>
+#include <string>
+#include <utility>
+
 #include <linux/neighbour.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
-#include <stdint.h>
 
 #include <boost/asio/any_io_executor.hpp>
 #include <boost/asio/async_result.hpp>
@@ -18,9 +21,6 @@
 #include <boost/asio/impl/handler_alloc_hook.ipp>
 #include <boost/asio/impl/io_context.hpp>
 #include <boost/asio/io_context.hpp>
-#include <expected>
-#include <string>
-#include <utility>
 
 namespace llmx {
 namespace nl {

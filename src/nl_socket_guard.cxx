@@ -1,13 +1,18 @@
 #include "rtaco/nl_socket_guard.hxx"
 
-#include <linux/netlink.h>
-#include <boost/system/detail/error_code.hpp>
 #include <stdexcept>
 #include <string>
 #include <utility>
 
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <boost/system/detail/error_code.hpp>
+
 namespace llmx {
 namespace nl {
+
+constexpr unsigned NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
+        RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
 
 SocketGuard::SocketGuard(boost::asio::io_context& io, std::string_view label) noexcept
     : socket_{io, label} {}
@@ -41,7 +46,7 @@ auto SocketGuard::ensure_open_locked() -> std::expected<void, std::error_code> {
         return {};
     }
 
-    if (auto result = socket_.open(NETLINK_ROUTE, 0U); !result) {
+    if (auto result = socket_.open(NETLINK_ROUTE, NETLINK_GROUPS); !result) {
         return std::unexpected{result.error()};
     }
 
@@ -49,8 +54,7 @@ auto SocketGuard::ensure_open_locked() -> std::expected<void, std::error_code> {
     socket_.connect(nl::Protocol::endpoint{0U, 0U}, ec);
     if (ec) {
         socket_.close();
-        throw std::runtime_error(
-                "nl-control connect(AF_NETLINK) failed: " + ec.message());
+        throw std::runtime_error("nl-control connect failed: " + ec.message());
     }
 
     return {};

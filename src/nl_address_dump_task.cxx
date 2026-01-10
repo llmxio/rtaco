@@ -10,9 +10,9 @@
 namespace llmx {
 namespace nl {
 
-AddressDumpTask::AddressDumpTask(Socket& socket, std::pmr::memory_resource* pmr,
-        uint16_t ifindex, uint32_t sequence) noexcept
-    : RequestTask{socket, ifindex, sequence}
+AddressDumpTask::AddressDumpTask(SocketGuard& socket_guard,
+        std::pmr::memory_resource* pmr, uint16_t ifindex, uint32_t sequence) noexcept
+    : RequestTask{socket_guard, ifindex, sequence}
     , request_{}
     , learned_{pmr} {}
 

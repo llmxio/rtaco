@@ -13,9 +13,9 @@
 namespace llmx {
 namespace nl {
 
-NeighborDumpTask::NeighborDumpTask(Socket& socket, std::pmr::memory_resource* pmr,
-        uint16_t ifindex, uint32_t sequence) noexcept
-    : NeighborTask{socket, ifindex, sequence}
+NeighborDumpTask::NeighborDumpTask(SocketGuard& socket_guard,
+        std::pmr::memory_resource* pmr, uint16_t ifindex, uint32_t sequence) noexcept
+    : NeighborTask{socket_guard, ifindex, sequence}
     , learned_{pmr} {}
 
 void NeighborDumpTask::prepare_request() {
