@@ -85,22 +85,22 @@ class Signal;
 template<typename R, typename... Args, typename Combiner>
 class Signal<R(Args...), Combiner> {
 public:
-    using slot_type = std::function<R(Args...)>;
-    using future_type = std::shared_future<R>;
-    using signal_type = boost::signals2::signal<future_type(Args...), Combiner>;
-    using connection = boost::signals2::connection;
-    using result_type = typename signal_type::result_type;
+    using slot_t = std::function<R(Args...)>;
+    using future_t = std::shared_future<R>;
+    using signal_t = boost::signals2::signal<future_t(Args...), Combiner>;
+    using connection_t = boost::signals2::connection;
+    using result_t = typename signal_t::result_type;
 
     explicit Signal(boost::asio::any_io_executor executor)
         : executor_{executor} {}
 
     template<typename Slot>
-    auto connect(Slot&& slot, ExecPolicy policy = ExecPolicy::Sync) -> connection {
-        auto slot_fn = slot_type{std::forward<Slot>(slot)};
+    auto connect(Slot&& slot, ExecPolicy policy = ExecPolicy::Sync) -> connection_t {
+        auto slot_fn = slot_t{std::forward<Slot>(slot)};
 
         return signal_
                 .connect([slot_fn = std::move(slot_fn), policy, executor = executor_](
-                                 Args... args) mutable -> future_type
+                                 Args... args) mutable -> future_t
         {
             auto args_pack = std::make_shared<std::tuple<std::decay_t<Args>...>>(
                     std::forward<Args>(args)...);
@@ -142,17 +142,17 @@ public:
         });
     }
 
-    auto emit(Args... args) -> result_type {
+    auto emit(Args... args) -> result_t {
         return signal_(std::forward<Args>(args)...);
     }
 
-    auto operator()(Args... args) -> result_type {
+    auto operator()(Args... args) -> result_t {
         return emit(std::forward<Args>(args)...);
     }
 
 private:
     boost::asio::any_io_executor executor_;
-    signal_type signal_{};
+    signal_t signal_{};
 };
 
 } // namespace llmx
