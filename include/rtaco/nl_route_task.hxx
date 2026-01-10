@@ -37,7 +37,7 @@ protected:
         request_.header.nlmsg_seq = this->sequence();
         request_.header.nlmsg_pid = 0;
 
-        request_.message.rtm_family = AF_INET6;
+        request_.message.rtm_family = RTN_UNSPEC;
         request_.message.rtm_table = RT_TABLE_MAIN;
         request_.message.rtm_scope = RT_SCOPE_UNIVERSE;
         request_.message.rtm_protocol = RTPROT_UNSPEC;

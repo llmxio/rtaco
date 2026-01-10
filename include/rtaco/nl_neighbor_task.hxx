@@ -40,7 +40,7 @@ protected:
         request_.header.nlmsg_seq = this->sequence();
         request_.header.nlmsg_pid = 0;
 
-        request_.message.ndm_family = AF_INET6;
+        request_.message.ndm_family = RTN_UNSPEC;
         request_.message.ndm_ifindex = static_cast<int>(this->ifindex());
         request_.message.ndm_state = ndm_state;
         request_.message.ndm_flags = ndm_flags;
