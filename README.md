@@ -13,4 +13,5 @@ It provides `co_await`-friendly APIs for **NETLINK_ROUTE** transactions and **ke
 
 - Docs: `docs/`
 - Examples: `examples/`
+  - To build examples: set CMake option `RTACO_BUILD_EXAMPLES=ON` (e.g. `cmake -B build -S . -DRTACO_BUILD_EXAMPLES=ON`).
 - API: `include/rtaco/`
