@@ -75,7 +75,6 @@ public:
 private:
     boost::asio::io_context& io_;
     SocketGuard socket_guard_;
-    std::atomic_uint32_t sequence_{1U};
 
     link_signal_t on_link_event_;
     address_signal_t on_address_event_;
@@ -84,6 +83,7 @@ private:
     nlmsgerr_signal_t on_nlmsgerr_event_;
 
     std::array<uint8_t, BUFFER_SIZE> buffer_{};
+    std::atomic_uint32_t sequence_{1U};
     std::atomic_bool running_{false};
 
     auto open_socket() -> std::expected<void, std::error_code>;
