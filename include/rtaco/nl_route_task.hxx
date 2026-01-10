@@ -30,17 +30,18 @@ public:
     }
 
 protected:
-    void build_request() {
+    void build_request(uint16_t msg_flags, uint8_t address_family, uint8_t route_table,
+            uint8_t scope, uint8_t protocol) {
         request_.header.nlmsg_len = NLMSG_LENGTH(sizeof(rtmsg));
         request_.header.nlmsg_type = RTM_GETROUTE;
-        request_.header.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
+        request_.header.nlmsg_flags = msg_flags;
         request_.header.nlmsg_seq = this->sequence();
         request_.header.nlmsg_pid = 0;
 
-        request_.message.rtm_family = RTN_UNSPEC;
-        request_.message.rtm_table = RT_TABLE_MAIN;
-        request_.message.rtm_scope = RT_SCOPE_UNIVERSE;
-        request_.message.rtm_protocol = RTPROT_UNSPEC;
+        request_.message.rtm_family = address_family;
+        request_.message.rtm_table = route_table;
+        request_.message.rtm_scope = scope;
+        request_.message.rtm_protocol = protocol;
         request_.message.rtm_type = RTN_UNSPEC;
     }
 };
