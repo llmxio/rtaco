@@ -57,7 +57,6 @@ public:
             co_return std::unexpected(send_result.error());
         }
 
-        // TODO: timeout value configurable?
         co_return co_await read_loop();
     }
 

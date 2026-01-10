@@ -75,7 +75,7 @@ auto main() -> int {
 
     llmx::rtaco::Listener listener{io};
     listener.connect_to_event([](const llmx::rtaco::RouteEvent& ev) {
-        (void)ev;
+        // do something with ev
     });
     listener.start();
 

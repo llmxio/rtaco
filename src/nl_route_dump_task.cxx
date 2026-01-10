@@ -21,7 +21,8 @@ RouteDumpTask::RouteDumpTask(SocketGuard& socket_guard, std::pmr::memory_resourc
     , learned_{pmr} {}
 
 void RouteDumpTask::prepare_request() {
-    build_request();
+    build_request(NLM_F_REQUEST | NLM_F_DUMP, RTN_UNSPEC, RT_TABLE_MAIN,
+            RT_SCOPE_UNIVERSE, RTN_UNSPEC);
 }
 
 auto RouteDumpTask::process_message(const nlmsghdr& header)
