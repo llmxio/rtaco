@@ -20,13 +20,8 @@ namespace rtaco {
 
 AddressDumpTask::AddressDumpTask(SocketGuard& socket_guard,
         std::pmr::memory_resource* pmr, uint16_t ifindex, uint32_t sequence) noexcept
-    : RequestTask{socket_guard, ifindex, sequence}
-    , request_{}
+    : AddressTask{socket_guard, ifindex, sequence}
     , learned_{pmr} {}
-
-auto AddressDumpTask::request_payload() const -> std::span<const uint8_t> {
-    return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
-}
 
 void AddressDumpTask::prepare_request() {
     build_request();
@@ -44,20 +39,6 @@ auto AddressDumpTask::process_message(const nlmsghdr& header)
     case RTM_NEWADDR: return dispatch_address(header);
     default: return std::nullopt;
     }
-}
-
-void AddressDumpTask::build_request() {
-    request_.header.nlmsg_len = NLMSG_LENGTH(sizeof(ifaddrmsg));
-    request_.header.nlmsg_type = RTM_GETADDR;
-    request_.header.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
-    request_.header.nlmsg_seq = sequence();
-    request_.header.nlmsg_pid = 0;
-
-    request_.message.ifa_family = RTN_UNSPEC;
-    request_.message.ifa_prefixlen = 0;
-    request_.message.ifa_flags = 0;
-    request_.message.ifa_scope = RT_SCOPE_UNIVERSE;
-    request_.message.ifa_index = ifindex();
 }
 
 auto AddressDumpTask::handle_done() -> std::expected<AddressEventList, std::error_code> {
