@@ -29,7 +29,7 @@ auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
     }
 
     event.index = info->ifi_index;
-    event.flags = info->ifi_flags;
+    event.flags = static_cast<Flags>(info->ifi_flags);
     event.change = info->ifi_change;
     event.name = extract_ifname(header);
 

@@ -21,7 +21,8 @@ int main() {
     {
         std::cout << "LinkEvent: type=" << static_cast<int>(ev.type)
                   << " ifindex=" << ev.index << " name=" << ev.name
-                  << " flags=" << ev.flags << " change=" << ev.change << "\n";
+                  << " flags=" << std::to_underlying(ev.flags) << " change=" << ev.change
+                  << "\n";
     });
 
     listener.connect_to_event([](const llmx::rtaco::AddressEvent& ev)
