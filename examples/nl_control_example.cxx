@@ -85,7 +85,8 @@ int main() {
 
         for (const auto& l : rc.value()) {
             std::cout << "ifindex=" << l.index << " name=" << l.name
-                      << " flags=" << l.flags << " change=" << l.change << "\n";
+                      << " flags=" << std::to_underlying(l.flags)
+                      << " change=" << l.change << "\n";
         }
 
         co_return;
