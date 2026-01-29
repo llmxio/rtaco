@@ -30,6 +30,8 @@
 #include "rtaco/nl_neighbor_probe_task.hxx"
 #include "rtaco/nl_route_dump_task.hxx"
 #include "rtaco/nl_route_event.hxx"
+#include "rtaco/nl_link_dump_task.hxx"
+#include "rtaco/nl_link_event.hxx"
 
 namespace llmx {
 namespace rtaco {
@@ -61,6 +63,11 @@ auto Control::dump_neighbors() -> std::expected<NeighborEventList, std::error_co
     return future.get();
 }
 
+auto Control::dump_links() -> std::expected<LinkEventList, std::error_code> {
+    auto future = asio::co_spawn(strand_, async_dump_links_impl(), asio::use_future);
+    return future.get();
+}
+
 auto Control::async_dump_routes()
         -> asio::awaitable<std::expected<RouteEventList, std::error_code>> {
     co_return co_await asio::co_spawn(strand_, async_dump_routes_impl(),
@@ -70,6 +77,12 @@ auto Control::async_dump_routes()
 auto Control::async_dump_addresses()
         -> asio::awaitable<std::expected<AddressEventList, std::error_code>> {
     co_return co_await asio::co_spawn(strand_, async_dump_addresses_impl(),
+            asio::use_awaitable);
+}
+
+auto Control::async_dump_links()
+        -> asio::awaitable<std::expected<LinkEventList, std::error_code>> {
+    co_return co_await asio::co_spawn(strand_, async_dump_links_impl(),
             asio::use_awaitable);
 }
 
@@ -165,6 +178,21 @@ auto Control::async_dump_neighbors_impl() -> asio::awaitable<neighbor_list_resul
 
     auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
     NeighborDumpTask task{guard, std::pmr::get_default_resource(), 0, sequence};
+
+    co_return co_await task.async_run();
+}
+
+auto Control::async_dump_links_impl() -> asio::awaitable<link_list_result_t> {
+    co_await acquire_socket_token();
+
+    SocketGuard guard{io_, "nl-control-link"};
+
+    if (auto result = guard.ensure_open(); !result) {
+        co_return std::unexpected(result.error());
+    }
+
+    auto sequence = sequence_.fetch_add(1, std::memory_order_relaxed);
+    LinkDumpTask task{guard, std::pmr::get_default_resource(), 0, sequence};
 
     co_return co_await task.async_run();
 }

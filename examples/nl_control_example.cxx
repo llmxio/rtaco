@@ -72,9 +72,29 @@ int main() {
         co_return;
     };
 
+    auto dump_links = [&control]() -> boost::asio::awaitable<void>
+    {
+        auto rc = co_await control.async_dump_links();
+
+        if (!rc) {
+            std::cerr << "async_dump_links failed: " << rc.error().message() << "\n";
+            co_return;
+        }
+
+        std::cout << "Links: " << rc.value().size() << "\n";
+
+        for (const auto& l : rc.value()) {
+            std::cout << "ifindex=" << l.index << " name=" << l.name
+                      << " flags=" << l.flags << " change=" << l.change << "\n";
+        }
+
+        co_return;
+    };
+
     boost::asio::co_spawn(io, dump_addresses(), boost::asio::detached);
     boost::asio::co_spawn(io, dump_routes(), boost::asio::detached);
     boost::asio::co_spawn(io, dump_neighbors(), boost::asio::detached);
+    boost::asio::co_spawn(io, dump_links(), boost::asio::detached);
 
     work.reset();
     io_thread.join();
