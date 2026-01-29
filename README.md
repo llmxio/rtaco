@@ -17,8 +17,8 @@ It provides Boost.Asio awaitable APIs for NETLINK_ROUTE transactions and for sub
 ## API at a glance
 
 - `llmx::rtaco::Control` ([include/rtaco/nl_control.hxx](include/rtaco/nl_control.hxx))
-  - Dumps: `dump_routes()`, `dump_addresses()`, `dump_neighbors()`.
-  - Awaitables: `async_dump_routes()`, `async_dump_addresses()`, `async_dump_neighbors()`.
+  - Dumps: `dump_routes()`, `dump_addresses()`, `dump_links()`, `dump_neighbors()`.
+  - Awaitables: `async_dump_routes()`, `async_dump_addresses()`, `async_dump_links()`, `async_dump_neighbors()`.
   - Neighbor ops: `probe_neighbor()`, `flush_neighbor()`, `get_neighbor()` and async variants.
 
 - `llmx::rtaco::Listener` ([include/rtaco/nl_listener.hxx](include/rtaco/nl_listener.hxx))
