@@ -12,6 +12,7 @@
 #include <boost/asio/steady_timer.hpp>
 
 #include "rtaco/nl_address_event.hxx"
+#include "rtaco/nl_link_event.hxx"
 #include "rtaco/nl_neighbor_event.hxx"
 #include "rtaco/nl_route_event.hxx"
 #include "rtaco/nl_socket_guard.hxx"
@@ -22,6 +23,7 @@ namespace rtaco {
 class Control {
     using route_list_result_t = std::expected<RouteEventList, std::error_code>;
     using address_list_result_t = std::expected<AddressEventList, std::error_code>;
+    using link_list_result_t = std::expected<LinkEventList, std::error_code>;
     using neighbor_result_t = std::expected<NeighborEvent, std::error_code>;
     using neighbor_list_result = std::expected<NeighborEventList, std::error_code>;
     using void_result_t = std::expected<void, std::error_code>;
@@ -37,10 +39,12 @@ public:
 
     auto dump_routes() -> route_list_result_t;
     auto dump_addresses() -> address_list_result_t;
+    auto dump_links() -> link_list_result_t;
     auto dump_neighbors() -> neighbor_list_result;
 
     auto async_dump_routes() -> boost::asio::awaitable<route_list_result_t>;
     auto async_dump_addresses() -> boost::asio::awaitable<address_list_result_t>;
+    auto async_dump_links() -> boost::asio::awaitable<link_list_result_t>;
     auto async_dump_neighbors() -> boost::asio::awaitable<neighbor_list_result>;
 
     auto probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
@@ -68,6 +72,7 @@ private:
 
     auto async_dump_routes_impl() -> boost::asio::awaitable<route_list_result_t>;
     auto async_dump_addresses_impl() -> boost::asio::awaitable<address_list_result_t>;
+    auto async_dump_links_impl() -> boost::asio::awaitable<link_list_result_t>;
     auto async_dump_neighbors_impl() -> boost::asio::awaitable<neighbor_list_result>;
 
     auto async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
