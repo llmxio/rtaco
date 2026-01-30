@@ -34,7 +34,7 @@ auto AddressEvent::from_nlmsghdr(const nlmsghdr& header) -> AddressEvent {
     event.family = info->ifa_family;
     event.prefix_len = info->ifa_prefixlen;
     event.scope = info->ifa_scope;
-    event.flags = info->ifa_flags;
+    event.flags = static_cast<Flags>(info->ifa_flags);
     event.index = static_cast<int>(info->ifa_index);
 
     std::string local_address;
