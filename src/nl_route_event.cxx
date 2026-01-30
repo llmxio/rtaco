@@ -10,22 +10,20 @@ namespace llmx {
 namespace rtaco {
 
 auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
-    using enum RouteEvent::Type;
-
     RouteEvent event{};
     switch (header.nlmsg_type) {
-    case RTM_NEWROUTE: event.type = NEW_ROUTE; break;
-    case RTM_DELROUTE: event.type = DELETE_ROUTE; break;
-    default: event.type = UNKNOWN; break;
+    case RTM_NEWROUTE: event.type = Type::NEW_ROUTE; break;
+    case RTM_DELROUTE: event.type = Type::DELETE_ROUTE; break;
+    default: event.type = Type::UNKNOWN; break;
     }
 
-    if (event.type == UNKNOWN) {
+    if (event.type == Type::UNKNOWN) {
         return event;
     }
 
     const auto* info = get_msg_payload<rtmsg>(header);
     if (info == nullptr) {
-        event.type = UNKNOWN;
+        event.type = Type::UNKNOWN;
         return event;
     }
 
@@ -35,7 +33,7 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
     event.scope = info->rtm_scope;
     event.protocol = info->rtm_protocol;
     event.route_type = info->rtm_type;
-    event.flags = info->rtm_flags;
+    event.flags = static_cast<Flags>(info->rtm_flags);
     event.table = info->rtm_table;
 
     for_each_attr(header, info, [&](const rtattr* attr)
