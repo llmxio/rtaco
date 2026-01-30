@@ -55,6 +55,8 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 
 - Don't change public API shape without a clear migration plan (both `async_*` and sync wrappers are part of the public API surface).
 - Don't replace `expected<>`-based error flows with exceptions—preserve the project's error handling style.
+- NEVER use the unsigned literal `U` for the value `0`; write `0` instead of `0U`.
+- ALWAYS use parentheses around bitshift operators (e.g., prefer `(1 << 3)` and `(flags & (1 << n))`).
 
 ---
 
