@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz cmake ninja-build
+          sudo apt-get install -y graphviz cmake ninja-build libboost-all-dev
 
       - name: Cache Doxygen
         id: cache-doxygen
