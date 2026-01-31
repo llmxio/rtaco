@@ -18,9 +18,9 @@ namespace rtaco {
 /** @brief Thread-safe guard owning a labeled `Socket`.
  *
  * `SocketGuard` provides synchronized access to an underlying `Socket` and
- * ensures the socket is opened on demand. It serializes operations with an
- * internal mutex and offers convenience methods to ensure the socket is open
- * or to stop/close it.
+ * ensures the socket is opened on demand. It offers convenience methods to ensure
+ * the socket is open or to stop/close it. Thread safety should be achieved via
+ * external mutex.
  */
 class SocketGuard {
 public:
