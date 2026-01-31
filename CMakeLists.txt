@@ -97,4 +97,10 @@ if (RTACO_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
+# Option to build API documentation using Doxygen
+option(RTACO_BUILD_DOCS "Enable generating API documentation (Doxygen)" OFF)
+if(RTACO_BUILD_DOCS)
+  add_subdirectory(docs)
+endif()
+
 message(STATUS "Config: llmx-rtaco project configured")

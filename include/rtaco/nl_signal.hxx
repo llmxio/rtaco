@@ -79,6 +79,13 @@ struct SignalTraits<R(Args...)> {
 
 } // namespace detail
 
+/** @brief Signal/slot wrapper supporting synchronous and asynchronous execution.
+ *
+ * `Signal` wraps `boost::signals2::signal` and provides `connect` with an
+ * `ExecPolicy` that controls whether slots run synchronously on the caller
+ * thread or asynchronously on an executor. Results are combined using the
+ * configured Combiner template parameter.
+ */
 template<typename Signature,
         typename Combiner = typename detail::SignalTraits<Signature>::default_combiner>
 class Signal;
@@ -92,9 +99,16 @@ public:
     using connection_t = boost::signals2::connection;
     using result_t = typename signal_t::result_type;
 
+    /** @brief Construct a Signal that will execute slots on the given executor. */
     explicit Signal(boost::asio::any_io_executor executor)
         : executor_{executor} {}
 
+    /** @brief Connect a slot to the signal.
+     *
+     * @param slot The callable to be invoked when the signal is emitted.
+     * @param policy Execution policy (Sync or Async).
+     * @return A boost::signals2::connection that can be used to disconnect.
+     */
     template<typename Slot>
     auto connect(Slot&& slot, ExecPolicy policy = ExecPolicy::Sync) -> connection_t {
         auto slot_fn = slot_t{std::forward<Slot>(slot)};
@@ -143,10 +157,12 @@ public:
         });
     }
 
+    /** @brief Emit the signal and run all connected slots. */
     auto emit(Args... args) -> result_t {
         return signal_(std::forward<Args>(args)...);
     }
 
+    /** @brief Shortcut to emit the signal. */
     auto operator()(Args... args) -> result_t {
         return emit(std::forward<Args>(args)...);
     }

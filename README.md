@@ -1,6 +1,6 @@
 # RTACO
 
-[![License](https://img.shields.io/github/license/llmxio/rtaco)](LICENSE)
+![License](https://img.shields.io/github/license/llmxio/rtaco)
 ![C++23](https://img.shields.io/badge/C%2B%2B-23-blue)
 ![Platform: Linux](https://img.shields.io/badge/platform-Linux-informational)
 [![Boost.Asio](https://img.shields.io/badge/Boost.Asio-awaitables-informational)](https://www.boost.org/doc/libs/latest/doc/html/boost_asio.html)

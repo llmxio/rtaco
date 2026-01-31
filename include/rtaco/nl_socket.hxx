@@ -1,5 +1,13 @@
 #pragma once
 
+/**
+ * @file nl_socket.hxx
+ * @brief Netlink socket helper declarations.
+ *
+ * Provides a RAII wrapper around a Boost.Asio netlink socket and
+ * utility functions for setup and error handling used by rtaco.
+ */
+
 #include <cstddef>
 #include <expected>
 #include <string>
@@ -29,13 +37,21 @@ class error_code;
 namespace llmx {
 namespace rtaco {
 
+/**
+ * @brief RAII wrapper for a Boost.Asio netlink socket.
+ *
+ * Encapsulates socket creation, option configuration, bind, and teardown
+ * for Netlink protocol sockets used by rtaco.
+ */
 class Socket {
 public:
     using socket_t = Protocol::socket;
     using endpoint_t = Protocol::endpoint;
     using native_t = typename socket_t::native_handle_type;
 
+    /** @brief Construct a netlink Socket with an io_context and label. */
     explicit Socket(boost::asio::io_context& io, std::string_view label) noexcept;
+    /** @brief Destroy the Socket object and ensure underlying socket is closed. */
     ~Socket() noexcept;
 
     Socket(const Socket&) = delete;
@@ -44,10 +60,35 @@ public:
     Socket(Socket&&) noexcept = default;
     Socket& operator=(Socket&&) noexcept = default;
 
+    /** @brief Check whether the socket is currently open. @return true if the underlying
+     * Boost.Asio socket is open. */
     auto is_open() const noexcept -> bool;
+    /**
+     * @brief Close the underlying socket.
+     *
+     * @return std::expected<void, std::error_code> Empty on success or contains
+     *         the encountered error on failure.
+     */
     auto close() -> std::expected<void, std::error_code>;
+    /**
+     * @brief Cancel any asynchronous operations on the socket.
+     *
+     * @return std::expected<void, std::error_code> Empty on success or contains
+     *         the encountered error on failure.
+     */
     auto cancel() -> std::expected<void, std::error_code>;
 
+    /**
+     * @brief Open and configure the netlink socket.
+     *
+     * Opens the socket for the given netlink protocol and subscribes to the
+     * provided multicast groups. Configures recommended socket options and binds
+     * the socket.
+     *
+     * @throws std::runtime_error on fatal failures when opening or binding fails.
+     * @return std::expected<void, std::error_code> Empty on success or contains
+     *         the encountered error from socket option configuration.
+     */
     auto open(int proto, uint32_t groups) -> std::expected<void, std::error_code>;
 
     template<typename Option>
@@ -91,6 +132,11 @@ public:
         return socket_.send(buffers, 0, ec);
     }
 
+    /**
+     * @brief Get the native socket handle.
+     *
+     * @return native_t The underlying native socket handle (file descriptor).
+     */
     auto native_handle() -> native_t;
 
 private:

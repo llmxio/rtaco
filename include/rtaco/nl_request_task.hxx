@@ -33,23 +33,44 @@ concept request_behavior =
             } -> std::same_as<std::optional<std::expected<Result, std::error_code>>>;
         };
 
+/** @brief Base template for single-request netlink tasks.
+ *
+ * Implements the common flow: ask the Derived to prepare a request, send
+ * the request via the guarded socket, and read replies until the Derived
+ * signals completion via `process_message`.
+ *
+ * Derived classes must implement `prepare_request()`, `request_payload()`
+ * and `process_message(const nlmsghdr&)`.
+ */
 template<typename Derived, typename Result>
 class RequestTask {
     static constexpr size_t MAX_RESPONSE_BYTES = 64U * 1024U;
-    std::array<uint8_t, MAX_RESPONSE_BYTES> receive_buffer_{};
+    std::array<uint8_t, MAX_RESPONSE_BYTES> receive_buffer_;
 
     SocketGuard& socket_guard_;
     uint16_t ifindex_;
     uint32_t sequence_;
 
 public:
+    /** @brief Construct a RequestTask.
+     *
+     * @param socket_guard SocketGuard used for I/O.
+     * @param ifindex Interface index associated with the request.
+     * @param sequence Netlink sequence number for messages.
+     */
     RequestTask(SocketGuard& socket_guard, uint16_t ifindex, uint32_t sequence) noexcept
         : socket_guard_{socket_guard}
         , ifindex_{ifindex}
         , sequence_{sequence} {}
 
+    /** @brief Virtual destructor. */
     virtual ~RequestTask() {}
 
+    /** @brief Run the request asynchronously and return the result.
+     *
+     * This co-routine will send the prepared request, read replies and return
+     * the resulting expected<Result, std::error_code> when complete.
+     */
     auto async_run() -> boost::asio::awaitable<std::expected<Result, std::error_code>> {
         impl().prepare_request();
 

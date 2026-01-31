@@ -43,6 +43,10 @@ struct NeighborEvent {
     std::string address{};
     std::string lladdr{};
 
+    /** @brief Convert the Neighbor state enum to a readable string.
+     *
+     * Returns a '|' separated list of state flags or "NUD_NONE"/"UNKNOWN".
+     */
     auto state_to_string() const -> std::string {
         if (std::to_underlying(state) == NUD_NONE) {
             return "NUD_NONE";
@@ -77,6 +81,7 @@ struct NeighborEvent {
         return result.empty() ? "UNKNOWN" : result;
     }
 
+    /** @brief Parse a NeighborEvent from a netlink message header. */
     static auto from_nlmsghdr(const nlmsghdr& header) -> NeighborEvent;
 };
 

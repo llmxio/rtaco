@@ -19,6 +19,12 @@ struct NeighborRequest {
     std::array<uint8_t, 16> dst;
 };
 
+/** @brief Base task type for neighbor-related netlink operations.
+ *
+ * `NeighborTask` prepares neighbor-specific requests (ndmsg and NDA_DST)
+ * and provides `request_payload()` for transmission. Derived tasks implement
+ * request preparation and response parsing for neighbor probe/get/flush/etc.
+ */
 template<typename Derived, typename Result>
 class NeighborTask : public RequestTask<Derived, Result> {
 protected:
@@ -27,6 +33,7 @@ protected:
 public:
     using RequestTask<Derived, Result>::RequestTask;
 
+    /** @brief Get the serialized request payload for the neighbor request. */
     auto request_payload() const -> std::span<const uint8_t> {
         return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
     }

@@ -20,7 +20,14 @@
 namespace llmx {
 namespace rtaco {
 
-// Remove trailing NUL characters from a string view and return an owning string.
+/** @brief Remove trailing NUL characters and return an owning string.
+ *
+ * Trims any trailing '\0' characters from the provided string_view and
+ * returns a newly allocated std::string containing the result.
+ *
+ * @param sv Input string view possibly containing trailing NULs.
+ * @return A std::string with trailing NULs removed.
+ */
 inline constexpr auto trim_string(std::string_view sv) -> std::string {
     while (!sv.empty() && sv.back() == '\0') {
         sv.remove_suffix(1);
@@ -28,11 +35,23 @@ inline constexpr auto trim_string(std::string_view sv) -> std::string {
     return std::string(sv);
 }
 
+/** @brief Remove trailing NULs from a fixed-size char array and return a string.
+ *
+ * Convenience overload for fixed-size char arrays.
+ */
 template<size_t N>
 inline constexpr auto trim_string(const std::array<char, N>& arr) -> std::string {
     return trim_string(std::string_view{arr.data(), arr.size()});
 }
 
+/** @brief Extract the interface name from a netlink header.
+ *
+ * Parses netlink attributes for an ifinfomsg within the provided header and
+ * returns the interface name if present.
+ *
+ * @param header Netlink message header containing an ifinfomsg.
+ * @return Interface name or empty string if not found.
+ */
 inline auto extract_ifname(const nlmsghdr& header) -> std::string {
     if (header.nlmsg_len < NLMSG_LENGTH(sizeof(ifinfomsg))) {
         return {};
@@ -68,6 +87,11 @@ inline auto extract_ifname(const nlmsghdr& header) -> std::string {
     return {};
 }
 
+/** @brief Convert an rtattr payload to a trimmed std::string.
+ *
+ * @param attr Attribute whose payload is interpreted as a NUL-terminated string.
+ * @return Trimmed string value or empty string if payload is empty or invalid.
+ */
 inline auto attribute_string(const rtattr& attr) -> std::string {
     const auto payload = static_cast<size_t>(RTA_PAYLOAD(&attr));
     if (payload == 0U) {
@@ -82,6 +106,14 @@ inline auto attribute_string(const rtattr& attr) -> std::string {
     return trim_string(buffer);
 }
 
+/** @brief Convert an rtattr payload to a text representation of an IP address.
+ *
+ * Supports IPv4 and IPv6 families.
+ *
+ * @param attr Attribute containing the address bytes.
+ * @param family Address family (AF_INET or AF_INET6).
+ * @return Printable address string or empty string if conversion fails.
+ */
 inline auto attribute_address(const rtattr& attr, uint8_t family) -> std::string {
     int address_family = 0;
 
@@ -104,6 +136,10 @@ inline auto attribute_address(const rtattr& attr, uint8_t family) -> std::string
     return trim_string(buffer);
 }
 
+/** @brief Read a uint32_t value from an rtattr payload.
+ *
+ * Returns 0 on insufficient payload length.
+ */
 inline auto attribute_uint32(const rtattr& attr) -> uint32_t {
     if (RTA_PAYLOAD(&attr) < sizeof(uint32_t)) {
         return 0U;
@@ -114,6 +150,10 @@ inline auto attribute_uint32(const rtattr& attr) -> uint32_t {
     return value;
 }
 
+/** @brief Format a hardware address (MAC) from an rtattr payload as a string.
+ *
+ * Produces a colon-separated lowercase hex representation.
+ */
 inline auto attribute_hwaddr(const rtattr& attr) -> std::string {
     const auto payload = static_cast<size_t>(RTA_PAYLOAD(&attr));
     if (payload == 0U) {
@@ -141,6 +181,12 @@ inline auto attribute_hwaddr(const rtattr& attr) -> std::string {
     return value;
 }
 
+/** @brief Get a typed pointer to the message payload in a netlink header.
+ *
+ * @tparam MsgT Message type expected in the payload (e.g., ifinfomsg).
+ * @param header Netlink message header.
+ * @return Pointer to the typed payload or nullptr if header is too short.
+ */
 template<typename MsgT>
 inline const MsgT* get_msg_payload(const nlmsghdr& header) {
     if (header.nlmsg_len < NLMSG_LENGTH(sizeof(MsgT))) {
@@ -149,6 +195,10 @@ inline const MsgT* get_msg_payload(const nlmsghdr& header) {
     return reinterpret_cast<const MsgT*>(NLMSG_DATA(&header));
 }
 
+/** @brief Iterate over rtattr attributes for a given message payload.
+ *
+ * Calls the provided function for each attribute discovered.
+ */
 template<typename MsgT, typename Fn>
 inline void for_each_attr(const nlmsghdr& header, const MsgT* info, Fn&& fn) {
     if (info == nullptr) {
@@ -175,6 +225,13 @@ concept IsEnumeration = std::is_enum_v<std::remove_cvref_t<T>> ||
 template<typename T>
 concept IsNetlinkEvent = IsEnumeration<T> || std::integral<std::remove_cvref_t<T>>;
 
+/** @brief Convert a netlink message or event type to a readable name.
+ *
+ * @tparam IsNetlinkEvent An enumeration or integral type representing the
+ *         message/event type.
+ * @param type The event/type value.
+ * @return Human-readable name for the type or "UNKNOWN" if not mapped.
+ */
 inline auto type_to_string(IsNetlinkEvent auto&& type) noexcept -> std::string_view {
     uint16_t type_value{};
 
@@ -210,6 +267,7 @@ inline auto type_to_string(IsNetlinkEvent auto&& type) noexcept -> std::string_v
     return "UNKNOWN";
 }
 
+/** @brief Convert an address family constant to a human-readable name. */
 inline auto family_to_string(uint8_t family) noexcept -> std::string_view {
     static const std::unordered_map<uint8_t, std::string_view> family_names{
             {AF_UNSPEC, "AF_UNSPEC"},
@@ -234,6 +292,7 @@ inline auto family_to_string(uint8_t family) noexcept -> std::string_view {
     return "UNKNOWN";
 }
 
+/** @brief Convert a protocol identifier to a readable name. */
 inline auto protocol_to_string(uint8_t protocol) noexcept -> std::string_view {
     static const std::unordered_map<uint8_t, std::string_view> protocol_names{
             {RTPROT_UNSPEC, "RTPROT_UNSPEC"},
@@ -263,6 +322,7 @@ inline auto protocol_to_string(uint8_t protocol) noexcept -> std::string_view {
     return "UNKNOWN";
 }
 
+/** @brief Convert a route type constant to a string. */
 inline auto route_type_to_string(uint8_t route_type) noexcept -> std::string_view {
     static const std::unordered_map<uint8_t, std::string_view> route_type_names{
             {RTN_UNSPEC, "RTN_UNSPEC"},

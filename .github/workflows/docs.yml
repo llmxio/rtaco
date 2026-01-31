@@ -1,0 +1,86 @@
+name: Build Docs
+
+on:
+  push:
+    branches: [main]
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    env:
+      DOXYGEN_VER: "1.16.0"
+      DOXYGEN_SHA256: "247cea6e8ac1fba19c36c3ad7cee3fee6fbb746defdf790543fdfd65eb81d2a9"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz cmake ninja-build
+
+      - name: Cache Doxygen
+        id: cache-doxygen
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/doxygen-${{ env.DOXYGEN_VER }}
+          key: doxygen-${{ runner.os }}-${{ env.DOXYGEN_VER }}
+
+      - name: Install Doxygen (official binary)
+        if: steps.cache-doxygen.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          url="https://www.doxygen.nl/files/doxygen-${DOXYGEN_VER}.linux.bin.tar.gz"
+          curl -fsSL "$url" -o doxygen.tgz
+          echo "${DOXYGEN_SHA256}  doxygen.tgz" | sha256sum -c -
+          mkdir -p ~/.local
+          tar -xzf doxygen.tgz -C ~/.local
+          ls -l $HOME/.local/
+
+      - name: Put Doxygen on PATH
+        run: |
+          echo "$HOME/.local/doxygen-${DOXYGEN_VER}/bin" >> "$GITHUB_PATH"
+
+      - name: Check Doxygen on PATH
+        run: |
+          doxygen --version
+
+      - name: Configure (CMake)
+        run: cmake -G Ninja -S . -B build -DRTACO_BUILD_DOCS=ON
+
+      - name: Build docs
+        run: cmake --build build --target docs
+
+      - name: Upload HTML docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-html
+          path: build/docs/html
+
+      - name: Setup Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/configure-pages@v4
+
+      - name: Upload to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/docs/html/
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        id: deployment
+        uses: actions/deploy-pages@v4

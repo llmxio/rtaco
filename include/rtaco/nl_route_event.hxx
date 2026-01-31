@@ -50,6 +50,10 @@ struct RouteEvent {
     std::string prefsrc{};
     std::string oif{};
 
+    /** @brief Parse a RouteEvent from a netlink message header.
+     *
+     * Extracts route attributes and fills a RouteEvent structure.
+     */
     static auto from_nlmsghdr(const nlmsghdr& header) -> RouteEvent;
 };
 
