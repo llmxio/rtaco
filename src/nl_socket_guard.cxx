@@ -27,12 +27,6 @@ auto SocketGuard::socket() -> Socket& {
 }
 
 auto SocketGuard::ensure_open() -> std::expected<void, std::error_code> {
-    auto lock = lock_type{mutex_};
-
-    return ensure_open_locked();
-}
-
-auto SocketGuard::ensure_open_locked() -> std::expected<void, std::error_code> {
     if (socket_.is_open()) {
         return {};
     }
@@ -52,8 +46,6 @@ auto SocketGuard::ensure_open_locked() -> std::expected<void, std::error_code> {
 }
 
 void SocketGuard::stop() {
-    auto lock = lock_type{mutex_};
-
     if (!socket_.is_open()) {
         return;
     }

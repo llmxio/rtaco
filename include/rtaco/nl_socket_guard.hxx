@@ -1,7 +1,6 @@
 #pragma once
 
 #include <expected>
-#include <mutex>
 #include <string_view>
 #include <system_error>
 
@@ -50,9 +49,6 @@ public:
 
 private:
     Socket socket_;
-    std::mutex mutex_;
-
-    auto ensure_open_locked() -> std::expected<void, std::error_code>;
 };
 
 } // namespace rtaco
