@@ -16,6 +16,12 @@ struct AddressRequest {
     ifaddrmsg message;
 };
 
+/** @brief Base task type for address-related netlink operations.
+ *
+ * `AddressTask` stores an address request (ifaddrmsg) and exposes
+ * `request_payload()` for sending the serialized request. Derived classes
+ * implement the concrete request preparation and response processing.
+ */
 template<typename Derived, typename Result>
 class AddressTask : public RequestTask<Derived, Result> {
 protected:
@@ -24,6 +30,10 @@ protected:
 public:
     using RequestTask<Derived, Result>::RequestTask;
 
+    /** @brief Get the serialized request payload for sending.
+     *
+     * @return A span referencing the request payload bytes suitable for send.
+     */
     auto request_payload() const -> std::span<const uint8_t> {
         return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
     }

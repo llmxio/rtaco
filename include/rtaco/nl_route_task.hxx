@@ -17,6 +17,12 @@ struct RouteRequest {
     rtmsg message;
 };
 
+/** @brief Base task type for route-related netlink operations.
+ *
+ * `RouteTask` holds the route-specific request (rtmsg) and supplies
+ * `request_payload()` for sending. Derived classes supply message preparation
+ * and message processing for dumps, gets, and related operations.
+ */
 template<typename Derived, typename Result>
 class RouteTask : public RequestTask<Derived, Result> {
 protected:
@@ -25,6 +31,7 @@ protected:
 public:
     using RequestTask<Derived, Result>::RequestTask;
 
+    /** @brief Get the serialized request payload for the route request. */
     auto request_payload() const -> std::span<const uint8_t> {
         return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
     }

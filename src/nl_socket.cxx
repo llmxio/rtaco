@@ -5,11 +5,12 @@
 #include <cstring>
 #include <expected>
 #include <iostream>
-#include <linux/netlink.h>
 #include <stdexcept>
 #include <string_view>
-#include <sys/socket.h>
 #include <system_error>
+
+#include <linux/netlink.h>
+#include <sys/socket.h>
 
 #include <boost/asio/io_context.hpp>
 #include <boost/system/error_code.hpp>

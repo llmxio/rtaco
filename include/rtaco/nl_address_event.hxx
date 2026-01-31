@@ -46,6 +46,14 @@ struct AddressEvent {
     std::string address{};
     std::string label{};
 
+    /** @brief Construct an AddressEvent from a netlink message header.
+     *
+     * Parses the provided netlink message header and extracts address
+     * attributes into an AddressEvent structure.
+     *
+     * @param header The netlink message header to parse.
+     * @return Parsed AddressEvent.
+     */
     static auto from_nlmsghdr(const nlmsghdr& header) -> AddressEvent;
 };
 

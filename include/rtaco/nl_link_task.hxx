@@ -16,6 +16,13 @@ struct LinkRequest {
     ifinfomsg message;
 };
 
+/** @brief Base task type for link-related netlink operations.
+ *
+ * `LinkTask` provides storage for a link-specific request (ifinfomsg) and
+ * a helper `request_payload()` for sending. Derived types implement
+ * `prepare_request()` and `process_message()` to handle the specific
+ * operation semantics (dump/get/etc.).
+ */
 template<typename Derived, typename Result>
 class LinkTask : public RequestTask<Derived, Result> {
 protected:
@@ -24,6 +31,7 @@ protected:
 public:
     using RequestTask<Derived, Result>::RequestTask;
 
+    /** @brief Get the serialized payload for the link request. */
     auto request_payload() const -> std::span<const uint8_t> {
         return {reinterpret_cast<const uint8_t*>(&request_), request_.header.nlmsg_len};
     }

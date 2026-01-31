@@ -78,6 +78,25 @@
       ]
     },
     {
+      "label": "CMake: Docs",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build",
+        "--target",
+        "docs"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "dependsOn": "CMake: Configure",
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
       "label": "CMake: Install",
       "type": "shell",
       "command": "cmake",

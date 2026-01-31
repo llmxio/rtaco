@@ -49,6 +49,13 @@ struct LinkEvent {
     uint32_t change{0};
     std::string name{};
 
+    /** @brief Parse a LinkEvent from a netlink message header.
+     *
+     * Extracts link attributes and fills a LinkEvent structure.
+     *
+     * @param header Netlink message header to parse.
+     * @return Parsed LinkEvent object.
+     */
     static auto from_nlmsghdr(const nlmsghdr& header) -> LinkEvent;
 };
 
