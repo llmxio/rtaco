@@ -21,7 +21,7 @@
 
 #include <boost/asio/detail/socket_option.hpp>
 
-#include "rtaco/nl_protocol.hxx"
+#include "rtaco/socket/nl_protocol.hxx"
 
 namespace boost {
 namespace asio {

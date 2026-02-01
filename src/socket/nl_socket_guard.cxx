@@ -1,4 +1,4 @@
-#include "rtaco/nl_socket_guard.hxx"
+#include "rtaco/socket/nl_socket_guard.hxx"
 
 #include <expected>
 #include <iostream>
@@ -11,7 +11,7 @@
 #include <linux/netlink.h>
 
 #include <linux/rtnetlink.h>
-#include "rtaco/nl_protocol.hxx"
+#include "rtaco/socket/nl_protocol.hxx"
 
 namespace llmx {
 namespace rtaco {
