@@ -4,7 +4,7 @@
 #include <string_view>
 #include <system_error>
 
-#include "rtaco/nl_socket.hxx"
+#include "rtaco/socket/nl_socket.hxx"
 
 namespace boost {
 namespace asio {

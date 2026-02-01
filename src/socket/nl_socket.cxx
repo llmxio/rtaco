@@ -1,4 +1,4 @@
-#include "rtaco/nl_socket.hxx"
+#include "rtaco/socket/nl_socket.hxx"
 
 #include <cerrno>
 #include <cstdint>

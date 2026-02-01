@@ -6,7 +6,7 @@
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/detached.hpp>
 
-#include "rtaco/nl_control.hxx"
+#include "rtaco/core/nl_control.hxx"
 
 int main() {
     boost::asio::io_context io;

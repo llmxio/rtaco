@@ -5,7 +5,7 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/signal_set.hpp>
 
-#include "rtaco/nl_listener.hxx"
+#include "rtaco/core/nl_listener.hxx"
 
 // Simple example showing how to use llmx::rtaco::Listener to subscribe to
 // link/address/neighbor/route events and print them.

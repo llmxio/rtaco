@@ -6,7 +6,7 @@
 
 #include <linux/rtnetlink.h>
 
-#include "rtaco/nl_utils.hxx"
+#include "rtaco/core/nl_utils.hxx"
 
 struct nlmsghdr;
 

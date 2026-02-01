@@ -12,21 +12,21 @@ find_package(Threads REQUIRED)
 find_package(Boost 1.83.0 REQUIRED CONFIG COMPONENTS system REQUIRED)
 
 set(RTACO_SOURCES
-  src/nl_control.cxx
-  src/nl_address_dump_task.cxx
-  src/nl_link_dump_task.cxx
-  src/nl_link_event.cxx
-  src/nl_route_event.cxx
-  src/nl_address_event.cxx
-  src/nl_neighbor_event.cxx
-  src/nl_listener.cxx
-  src/nl_neighbor_dump_task.cxx
-  src/nl_neighbor_flush_task.cxx
-  src/nl_neighbor_get_task.cxx
-  src/nl_neighbor_probe_task.cxx
-  src/nl_route_dump_task.cxx
-  src/nl_socket_guard.cxx
-  src/nl_socket.cxx
+  src/core/nl_control.cxx
+  src/core/nl_listener.cxx
+  src/events/nl_link_event.cxx
+  src/events/nl_route_event.cxx
+  src/events/nl_address_event.cxx
+  src/events/nl_neighbor_event.cxx
+  src/socket/nl_socket_guard.cxx
+  src/socket/nl_socket.cxx
+  src/tasks/nl_address_dump_task.cxx
+  src/tasks/nl_link_dump_task.cxx
+  src/tasks/nl_neighbor_dump_task.cxx
+  src/tasks/nl_neighbor_flush_task.cxx
+  src/tasks/nl_neighbor_get_task.cxx
+  src/tasks/nl_neighbor_probe_task.cxx
+  src/tasks/nl_route_dump_task.cxx
 )
 
 add_library(llmx_rtaco ${RTACO_SOURCES})

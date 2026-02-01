@@ -61,8 +61,8 @@ target_link_libraries(your_target PRIVATE llmx::rtaco)
 ```cpp
 #include <boost/asio/io_context.hpp>
 
-#include <rtaco/nl_control.hxx>
-#include <rtaco/nl_listener.hxx>
+#include <rtaco/core/nl_control.hxx>
+#include <rtaco/core/nl_listener.hxx>
 
 auto main() -> int {
     boost::asio::io_context io;
