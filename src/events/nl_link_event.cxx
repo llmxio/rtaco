@@ -9,22 +9,20 @@ namespace llmx {
 namespace rtaco {
 
 auto LinkEvent::from_nlmsghdr(const nlmsghdr& header) -> LinkEvent {
-    using enum LinkEvent::Type;
-
     LinkEvent event{};
     switch (header.nlmsg_type) {
-    case RTM_NEWLINK: event.type = NEW_LINK; break;
-    case RTM_DELLINK: event.type = DELETE_LINK; break;
-    default: event.type = UNKNOWN; break;
+    case RTM_NEWLINK: event.type = Type::NEW_LINK; break;
+    case RTM_DELLINK: event.type = Type::DELETE_LINK; break;
+    default: event.type = Type::UNKNOWN; break;
     }
 
-    if (event.type == UNKNOWN) {
+    if (event.type == Type::UNKNOWN) {
         return event;
     }
 
     const auto* info = get_msg_payload<ifinfomsg>(header);
     if (info == nullptr) {
-        event.type = UNKNOWN;
+        event.type = Type::UNKNOWN;
         return event;
     }
 

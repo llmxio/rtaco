@@ -16,11 +16,16 @@
 namespace llmx {
 namespace rtaco {
 
-constexpr unsigned NETLINK_GROUPS = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
+constexpr uint32_t DEFAULT_GROUP_MASK = RTMGRP_LINK | RTMGRP_NEIGH | RTMGRP_IPV4_IFADDR |
         RTMGRP_IPV6_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE;
 
 SocketGuard::SocketGuard(boost::asio::io_context& io, std::string_view label) noexcept
-    : socket_{io, label} {}
+    : SocketGuard{io, label, DEFAULT_GROUP_MASK} {}
+
+SocketGuard::SocketGuard(boost::asio::io_context& io, std::string_view label,
+        uint32_t group_mask) noexcept
+    : socket_{io, label}
+    , group_mask_{group_mask} {}
 
 auto SocketGuard::socket() -> Socket& {
     return socket_;
@@ -31,15 +36,16 @@ auto SocketGuard::ensure_open() -> std::expected<void, std::error_code> {
         return {};
     }
 
-    if (auto result = socket_.open(NETLINK_ROUTE, NETLINK_GROUPS); !result) {
+    if (auto result = socket_.open(NETLINK_ROUTE, group_mask_); !result) {
         return std::unexpected{result.error()};
     }
 
     boost::system::error_code ec;
-    socket_.connect(Protocol::endpoint{NETLINK_GROUPS, 0}, ec);
+    socket_.connect(Protocol::endpoint{group_mask_, 0}, ec);
+
     if (ec) {
         socket_.close();
-        throw std::runtime_error(" connect failed: " + ec.message());
+        return std::unexpected{ec};
     }
 
     return {};

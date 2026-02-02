@@ -24,11 +24,12 @@ namespace rtaco {
  */
 class SocketGuard {
 public:
-    using lock_type = std::unique_lock<std::mutex>;
-
     /** @brief Construct a SocketGuard holding a labeled Socket. */
     SocketGuard(boost::asio::io_context& io, std::string_view label) noexcept;
-    ~SocketGuard() = default;
+
+    /** @brief Construct a SocketGuard with a custom netlink group mask. */
+    SocketGuard(boost::asio::io_context& io, std::string_view label,
+            uint32_t group_mask) noexcept;
 
     SocketGuard(const SocketGuard&) = delete;
     SocketGuard& operator=(const SocketGuard&) = delete;
@@ -49,6 +50,7 @@ public:
 
 private:
     Socket socket_;
+    uint32_t group_mask_;
 };
 
 } // namespace rtaco

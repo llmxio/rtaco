@@ -153,7 +153,7 @@ private:
             boost::asio::detail::socket_option::integer<SOL_NETLINK, NETLINK_NO_ENOBUFS>;
 
     socket_t socket_;
-    std::string label_{};
+    std::string label_;
 };
 
 } // namespace rtaco

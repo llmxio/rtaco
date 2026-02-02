@@ -64,7 +64,7 @@ public:
         , sequence_{sequence} {}
 
     /** @brief Virtual destructor. */
-    virtual ~RequestTask() {}
+    virtual ~RequestTask() = default;
 
     /** @brief Run the request asynchronously and return the result.
      *

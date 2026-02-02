@@ -1,5 +1,6 @@
 #include "rtaco/core/nl_listener.hxx"
 
+#include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
@@ -28,6 +29,16 @@ namespace rtaco {
 
 namespace asio = boost::asio;
 
+namespace {
+auto has_payload(const nlmsghdr& header, size_t min_len) noexcept -> bool {
+    if (header.nlmsg_len < NLMSG_LENGTH(min_len)) {
+        return false;
+    }
+
+    return NLMSG_PAYLOAD(&header, 0) >= min_len;
+}
+} // namespace
+
 Listener::Listener(asio::io_context& io) noexcept
     : io_{io}
     , socket_guard_{io_, "nl-listener"}
@@ -50,7 +61,12 @@ void Listener::start() {
         return;
     }
 
-    open_socket();
+    if (auto rc = open_socket(); !rc) {
+        return;
+    }
+
+    running_.store(true, std::memory_order_release);
+
     request_read();
 }
 
@@ -64,10 +80,9 @@ void Listener::stop() {
 }
 
 auto Listener::open_socket() -> std::expected<void, std::error_code> {
-    if (auto result = socket_guard_.ensure_open(); !result) {
-        std::cerr << "Failed to open netlink socket: " << result.error().message()
-                  << "\n";
-        return result;
+    if (auto rc = socket_guard_.ensure_open(); !rc) {
+        std::cerr << "Failed to open netlink socket: " << rc.error().message() << "\n";
+        return rc;
     }
 
     return {};
@@ -75,7 +90,7 @@ auto Listener::open_socket() -> std::expected<void, std::error_code> {
 
 void Listener::request_read() {
     if (!running()) {
-        running_.store(true, std::memory_order_release);
+        return;
     }
 
     socket_guard_.socket().async_receive(asio::buffer(buffer_),
@@ -97,7 +112,6 @@ void Listener::handle_read(const boost::system::error_code& ec, size_t bytes) {
     }
 
     process_messages(std::span<const uint8_t>(buffer_.data(), bytes));
-    request_read();
 }
 
 void Listener::process_messages(std::span<const uint8_t> data) {
@@ -111,26 +125,39 @@ void Listener::process_messages(std::span<const uint8_t> data) {
     }
 
     if (remaining > 0) {
+        std::cerr << "Warning: " << remaining
+                  << " bytes of unread data remaining in netlink message buffer\n";
     }
+
+    request_read();
 }
 
 void Listener::handle_message(const nlmsghdr& header) {
-    switch (header.nlmsg_type) {
-    case RTM_NEWLINK:
-    case RTM_DELLINK: handle_link_message(header); break;
-    case RTM_NEWADDR:
-    case RTM_DELADDR: handle_address_message(header); break;
-    case RTM_NEWROUTE:
-    case RTM_DELROUTE: handle_route_message(header); break;
-    case RTM_NEWNEIGH:
-    case RTM_DELNEIGH: handle_neighbor_message(header); break;
-    case NLMSG_DONE: break;
-    case NLMSG_ERROR: {
-        handle_error_message(header);
-        break;
+    using HandlerEntry12 = std::pair<size_t, void (Listener::*)(const nlmsghdr&)>;
+
+    static std::unordered_map<int, HandlerEntry12> handlers;
+
+    handlers[RTM_NEWLINK] = {sizeof(ifinfomsg), &Listener::handle_link_message};
+    handlers[RTM_DELLINK] = {sizeof(ifinfomsg), &Listener::handle_link_message};
+    handlers[RTM_NEWADDR] = {sizeof(ifaddrmsg), &Listener::handle_address_message};
+    handlers[RTM_DELADDR] = {sizeof(ifaddrmsg), &Listener::handle_address_message};
+    handlers[RTM_NEWROUTE] = {sizeof(rtmsg), &Listener::handle_route_message};
+    handlers[RTM_DELROUTE] = {sizeof(rtmsg), &Listener::handle_route_message};
+    handlers[RTM_NEWNEIGH] = {sizeof(ndmsg), &Listener::handle_neighbor_message};
+    handlers[RTM_DELNEIGH] = {sizeof(ndmsg), &Listener::handle_neighbor_message};
+    handlers[NLMSG_ERROR] = {sizeof(nlmsgerr), &Listener::handle_error_message};
+
+    if (!handlers.contains(header.nlmsg_type)) {
+        return;
     }
-    default: break;
+
+    auto handler = handlers.at(header.nlmsg_type);
+
+    if (handler.first > 0 && !has_payload(header, handler.first)) {
+        return;
     }
+
+    (this->*handler.second)(header);
 }
 
 void Listener::handle_error_message(const nlmsghdr& header) {
@@ -142,22 +169,12 @@ void Listener::handle_error_message(const nlmsghdr& header) {
 
 void Listener::handle_link_message(const nlmsghdr& header) {
     const auto event = LinkEvent::from_nlmsghdr(header);
+
     if (event.type == LinkEvent::Type::UNKNOWN) {
         return;
     }
 
     on_link_event_(event);
-
-    // auto link_state_string = [](uint32_t flags) -> std::string {
-    //     return (flags & IFF_RUNNING) != 0U ? "running" : "down";
-    // };
-
-    // const auto type_name =
-    // type_to_string(static_cast<uint16_t>(header.nlmsg_type)); LOG(DEBUG) <<  "Link
-    // event type=" << type_name << " index=" << event.index
-    //            << " state=" << link_state_string(event.flags)
-    //            << " name=" << (event.name.empty() ? std::string{"unknown"} :
-    //            event.name);
 }
 
 void Listener::handle_address_message(const nlmsghdr& header) {
@@ -168,10 +185,6 @@ void Listener::handle_address_message(const nlmsghdr& header) {
     }
 
     on_address_event_(event);
-
-    // const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    // const auto address = event.address.empty() ? std::string{"unknown"} :
-    // event.address;
 }
 
 void Listener::handle_route_message(const nlmsghdr& header) {
@@ -182,19 +195,6 @@ void Listener::handle_route_message(const nlmsghdr& header) {
     }
 
     on_route_event_(event);
-
-    // const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    // const auto dst = event.dst.empty() ? std::string{"default"} : event.dst;
-    // const auto gateway = event.gateway.empty() ? std::string{"direct"} : event.gateway;
-
-    // std::string oif = event.oif;
-    // if (oif.empty()) {
-    //     if (event.oif_index != 0U) {
-    //         oif = std::to_string(event.oif_index);
-    //     } else {
-    //         oif = "unknown";
-    //     }
-    // }
 }
 
 void Listener::handle_neighbor_message(const nlmsghdr& header) {
@@ -205,16 +205,6 @@ void Listener::handle_neighbor_message(const nlmsghdr& header) {
     }
 
     on_neighbor_event_(event);
-
-    // const auto type_name = type_to_string(static_cast<uint16_t>(header.nlmsg_type));
-    // const auto address = event.address.empty() ? std::string{"unknown"} :
-    // event.address; const auto lladdr = event.lladdr.empty() ? std::string{"unknown"} :
-    // event.lladdr;
-
-    // (void)type_name;
-    // (void)address;
-    // (void)lladdr;
-    // (void)event;
 }
 
 } // namespace rtaco
