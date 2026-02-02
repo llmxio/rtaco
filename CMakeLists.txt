@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(llmx-rtaco VERSION 0.0.0 LANGUAGES C CXX)
+project(llmx-rtaco VERSION 0.0.1 LANGUAGES C CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
