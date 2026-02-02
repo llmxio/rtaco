@@ -22,7 +22,7 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 
 - Naming: `async_*` for awaitable asynchronous APIs; synchronous wrappers exist and should mirror async names without the prefix (e.g., `async_get_neighbor` / `get_neighbor`).
 - Tasks: derive from `RequestTask/RouteTask/...`, accept `(SocketGuard&, uint16_t ifindex, uint32_t sequence)` in constructors, and implement `process_message()` / `handle_*` helpers (see `src/nl_route_dump_task.cxx`).
-- Logging: use `LOG(LEVEL) << ...` from `llmx/core/logger` for instrumentation and debugging messages.
+- Logging: use the project's logging facility (for example, `llmx/core/logger`) for instrumentation and debugging messages.
 - Resource semantics: prefer deleted copy constructors, defaulted/move where appropriate, and `noexcept` for basic operations (existing code follows this idiom).
 - Error conversion: convert kernel errors via helpers like `from_errno()` and return `std::unexpected{error}` where appropriate (see `handle_error()` in dump tasks).
 
@@ -34,7 +34,7 @@ Short, actionable guidance for AI contributors working on rtaco (C++23, Linux).
 - Debugging tips:
   - Use `ip` and `ip -6 neigh` / `ip -6 route` to generate events and validate behavior.
   - For unit-like tests, run small binaries under root or in a network namespace to avoid affecting host state.
-  - Inspect logged messages produced by `LOG(...)` macros for sequence mismatches or netlink errors.
+- Inspect logged messages produced by the project's logging facility for sequence mismatches or netlink errors.
 
 ## What to change and how to add features
 
