@@ -103,4 +103,10 @@ if(RTACO_BUILD_DOCS)
   add_subdirectory(docs)
 endif()
 
+option(RTACO_BUILD_TESTS "Build tests" OFF)
+if(RTACO_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
+
 message(STATUS "Config: llmx-rtaco project configured")
