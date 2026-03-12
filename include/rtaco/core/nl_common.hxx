@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -44,6 +45,20 @@ inline constexpr auto trim_string(const std::array<char, N>& arr) -> std::string
     return trim_string(std::string_view{arr.data(), arr.size()});
 }
 
+template<typename MsgT>
+inline auto checked_attr_begin(const nlmsghdr& header, const MsgT* info, int& attr_length)
+        -> const rtattr*;
+
+inline auto checked_attr_ok(const rtattr* attr, int attr_length) -> bool;
+
+inline auto checked_attr_next(const rtattr* attr, int& attr_length) -> const rtattr*;
+
+template<typename T>
+inline auto checked_payload(const rtattr& attr) -> const T*;
+
+template<typename T>
+inline auto checked_payload_copy(const rtattr& attr) -> std::optional<T>;
+
 /** @brief Extract the interface name from a netlink header.
  *
  * Parses netlink attributes for an ifinfomsg within the provided header and
@@ -58,15 +73,10 @@ inline auto extract_ifname(const nlmsghdr& header) -> std::string {
     }
 
     const auto* info = reinterpret_cast<const ifinfomsg*>(NLMSG_DATA(&header));
-    int attr_length = static_cast<int>(header.nlmsg_len) -
-            static_cast<int>(NLMSG_LENGTH(sizeof(ifinfomsg)));
-
-    if (attr_length <= 0) {
-        return {};
-    }
-
-    for (auto* attr = IFLA_RTA(info); RTA_OK(attr, attr_length);
-            attr = RTA_NEXT(attr, attr_length)) {
+    int attr_length = 0;
+    for (auto* attr = checked_attr_begin(header, info, attr_length);
+            checked_attr_ok(attr, attr_length);
+            attr = checked_attr_next(attr, attr_length)) {
         if (attr->rta_type != IFLA_IFNAME) {
             continue;
         }
@@ -141,13 +151,12 @@ inline auto attribute_address(const rtattr& attr, uint8_t family) -> std::string
  * Returns 0 on insufficient payload length.
  */
 inline auto attribute_uint32(const rtattr& attr) -> uint32_t {
-    if (RTA_PAYLOAD(&attr) < sizeof(uint32_t)) {
+    const auto value = checked_payload_copy<uint32_t>(attr);
+    if (!value.has_value()) {
         return 0;
     }
 
-    uint32_t value{};
-    std::memcpy(&value, RTA_DATA(&attr), sizeof(value));
-    return value;
+    return *value;
 }
 
 /** @brief Format a hardware address (MAC) from an rtattr payload as a string.
@@ -195,25 +204,87 @@ inline const MsgT* get_msg_payload(const nlmsghdr& header) {
     return reinterpret_cast<const MsgT*>(NLMSG_DATA(&header));
 }
 
+/** @brief Extract a checked nlmsgerr payload from an NLMSG_ERROR message. */
+inline auto checked_nlmsgerr(const nlmsghdr& header) -> const nlmsgerr* {
+    if (header.nlmsg_type != NLMSG_ERROR) {
+        return nullptr;
+    }
+    return get_msg_payload<nlmsgerr>(header);
+}
+
+/** @brief Return the aligned first attribute pointer and payload length. */
+template<typename MsgT>
+inline auto checked_attr_begin(const nlmsghdr& header, const MsgT* info, int& attr_length)
+        -> const rtattr* {
+    attr_length = 0;
+    if (info == nullptr || header.nlmsg_len < NLMSG_LENGTH(sizeof(MsgT))) {
+        return nullptr;
+    }
+
+    attr_length = static_cast<int>(header.nlmsg_len) -
+            static_cast<int>(NLMSG_LENGTH(sizeof(MsgT)));
+    if (attr_length <= 0) {
+        attr_length = 0;
+        return nullptr;
+    }
+
+    return reinterpret_cast<const rtattr*>(
+            reinterpret_cast<const std::uintptr_t>(info) + NLMSG_ALIGN(sizeof(MsgT)));
+}
+
+/** @brief Validate the current attribute against remaining message length. */
+inline auto checked_attr_ok(const rtattr* attr, int attr_length) -> bool {
+    if (attr == nullptr) {
+        return false;
+    }
+    return RTA_OK(attr, attr_length);
+}
+
+/** @brief Advance to the next attribute and update remaining length. */
+inline auto checked_attr_next(const rtattr* attr, int& attr_length) -> const rtattr* {
+    if (attr == nullptr) {
+        return nullptr;
+    }
+    return RTA_NEXT(attr, attr_length);
+}
+
+/** @brief Read a typed rtattr payload only when the payload is large enough. */
+template<typename T>
+inline auto checked_payload(const rtattr& attr) -> const T* {
+    if (RTA_PAYLOAD(&attr) < sizeof(T)) {
+        return nullptr;
+    }
+
+    return reinterpret_cast<const T*>(RTA_DATA(&attr));
+}
+
+/** @brief Read a typed rtattr payload by value when the payload is large enough.
+ *
+ * Copies the payload by value to avoid alignment-related undefined behavior from
+ * typed pointer dereference.
+ */
+template<typename T>
+inline auto checked_payload_copy(const rtattr& attr) -> std::optional<T> {
+    const auto* payload = checked_payload<T>(attr);
+    if (payload == nullptr) {
+        return std::nullopt;
+    }
+
+    T value{};
+    std::memcpy(&value, payload, sizeof(value));
+    return value;
+}
+
 /** @brief Iterate over rtattr attributes for a given message payload.
  *
  * Calls the provided function for each attribute discovered.
  */
 template<typename MsgT, typename Fn>
 inline void for_each_attr(const nlmsghdr& header, const MsgT* info, Fn&& fn) {
-    if (info == nullptr) {
-        return;
-    }
-
-    int attr_length = static_cast<int>(header.nlmsg_len) -
-            static_cast<int>(NLMSG_LENGTH(sizeof(MsgT)));
-    if (attr_length <= 0) {
-        return;
-    }
-
-    const rtattr* attr = reinterpret_cast<const rtattr*>(
-            reinterpret_cast<std::uintptr_t>(info) + NLMSG_ALIGN(sizeof(MsgT)));
-    for (; RTA_OK(attr, attr_length); attr = RTA_NEXT(attr, attr_length)) {
+    int attr_length = 0;
+    for (const rtattr* attr = checked_attr_begin(header, info, attr_length);
+            checked_attr_ok(attr, attr_length);
+            attr = checked_attr_next(attr, attr_length)) {
         fn(attr);
     }
 }
