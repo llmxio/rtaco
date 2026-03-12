@@ -127,3 +127,4 @@ __pycache__/
 *.pyc
 *_pb2_grpc.py
 *_pb2.py
+.worktrees/
