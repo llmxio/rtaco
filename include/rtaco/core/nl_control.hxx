@@ -114,7 +114,7 @@ public:
     void stop();
 
 private:
-    auto acquire_socket_token() -> boost::asio::awaitable<void>;
+    auto acquire_socket_token() -> boost::asio::awaitable<std::error_code>;
 
     auto async_dump_routes_impl() -> boost::asio::awaitable<route_list_result_t>;
     auto async_dump_addresses_impl() -> boost::asio::awaitable<address_list_result_t>;

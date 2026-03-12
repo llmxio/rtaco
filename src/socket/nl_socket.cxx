@@ -2,10 +2,7 @@
 
 #include <cerrno>
 #include <cstdint>
-#include <cstring>
 #include <expected>
-#include <iostream>
-#include <stdexcept>
 #include <string_view>
 #include <system_error>
 
@@ -14,6 +11,10 @@
 
 #include <boost/asio/io_context.hpp>
 #include <boost/system/error_code.hpp>
+
+#if defined(RTACO_ENABLE_TEST_HOOKS)
+#include "tests/support/nl_test_hooks.hxx"
+#endif
 
 namespace llmx {
 namespace rtaco {
@@ -55,9 +56,14 @@ auto Socket::cancel() -> std::expected<void, std::error_code> {
 auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_code> {
     boost::system::error_code ec;
 
+#if defined(RTACO_ENABLE_TEST_HOOKS)
+    if (auto injected = test_hooks::consume_socket_open_error(); injected) {
+        return std::unexpected{injected};
+    }
+#endif
+
     if (socket_.open(Protocol{proto}, ec); ec) {
-        throw std::runtime_error("failed to open netlink " + std::string{label_} +
-                " socket: " + ec.message());
+        return std::unexpected{ec};
     }
 
     const auto enable_option =
@@ -88,23 +94,19 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
         return rc;
     }
 
-    if (socket_.bind(endpoint_t{groups, 0U}, ec); ec) {
-        close();
-        throw std::runtime_error("failed to bind netlink " + std::string{label_} +
-                " socket: " + ec.message());
+#if defined(RTACO_ENABLE_TEST_HOOKS)
+    if (auto injected = test_hooks::consume_socket_bind_error(); injected) {
+        ec = injected;
+    } else {
+        socket_.bind(endpoint_t{groups, 0}, ec);
     }
+#else
+    socket_.bind(endpoint_t{groups, 0}, ec);
+#endif
 
-    // TODO: remove in production code
-    {
-        sockaddr_nl sa{};
-        socklen_t salen = sizeof(sa);
-        if (getsockname(socket_.native_handle(), reinterpret_cast<sockaddr*>(&sa),
-                    &salen) == 0) {
-            std::cout << label_ << ": bound nl_pid=" << sa.nl_pid << " nl_groups=0x"
-                      << std::hex << sa.nl_groups << std::dec << "\n";
-        } else {
-            std::cout << label_ << ": getsockname failed: " << strerror(errno) << "\n";
-        }
+    if (ec) {
+        (void)close();
+        return std::unexpected{ec};
     }
 
     return {};
