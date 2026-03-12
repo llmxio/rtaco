@@ -7,7 +7,6 @@
 #include <future>
 #include <memory_resource>
 #include <span>
-#include <stdexcept>
 #include <system_error>
 
 #include <boost/asio/awaitable.hpp>
@@ -32,6 +31,10 @@
 #include "rtaco/tasks/nl_neighbor_probe_task.hxx"
 #include "rtaco/tasks/nl_route_dump_task.hxx"
 #include "rtaco/tasks/nl_link_dump_task.hxx"
+
+#if defined(RTACO_ENABLE_TEST_HOOKS)
+#include "tests/support/nl_test_hooks.hxx"
+#endif
 
 namespace llmx {
 namespace rtaco {
@@ -139,7 +142,10 @@ void Control::stop() {
 }
 
 auto Control::async_dump_routes_impl() -> asio::awaitable<route_list_result_t> {
-    co_await acquire_socket_token();
+    if (auto gate_error = co_await acquire_socket_token(); gate_error) {
+        co_return std::unexpected{gate_error};
+    }
+
     SocketGuard guard{io_, "nl-control-route"};
 
     if (auto result = guard.ensure_open(); !result) {
@@ -153,7 +159,9 @@ auto Control::async_dump_routes_impl() -> asio::awaitable<route_list_result_t> {
 }
 
 auto Control::async_dump_addresses_impl() -> asio::awaitable<address_list_result_t> {
-    co_await acquire_socket_token();
+    if (auto gate_error = co_await acquire_socket_token(); gate_error) {
+        co_return std::unexpected{gate_error};
+    }
 
     SocketGuard guard{io_, "nl-control-address"};
 
@@ -168,7 +176,9 @@ auto Control::async_dump_addresses_impl() -> asio::awaitable<address_list_result
 }
 
 auto Control::async_dump_neighbors_impl() -> asio::awaitable<neighbor_list_result> {
-    co_await acquire_socket_token();
+    if (auto gate_error = co_await acquire_socket_token(); gate_error) {
+        co_return std::unexpected{gate_error};
+    }
 
     SocketGuard guard{io_, "nl-control-neighbor"};
 
@@ -183,7 +193,9 @@ auto Control::async_dump_neighbors_impl() -> asio::awaitable<neighbor_list_resul
 }
 
 auto Control::async_dump_links_impl() -> asio::awaitable<link_list_result_t> {
-    co_await acquire_socket_token();
+    if (auto gate_error = co_await acquire_socket_token(); gate_error) {
+        co_return std::unexpected{gate_error};
+    }
 
     SocketGuard guard{io_, "nl-control-link"};
 
@@ -199,7 +211,9 @@ auto Control::async_dump_links_impl() -> asio::awaitable<link_list_result_t> {
 
 auto Control::async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<void_result_t> {
-    co_await acquire_socket_token();
+    if (auto gate_error = co_await acquire_socket_token(); gate_error) {
+        co_return std::unexpected{gate_error};
+    }
 
     if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
@@ -213,7 +227,9 @@ auto Control::async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16>
 
 auto Control::async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<void_result_t> {
-    co_await acquire_socket_token();
+    if (auto gate_error = co_await acquire_socket_token(); gate_error) {
+        co_return std::unexpected{gate_error};
+    }
 
     if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
@@ -227,7 +243,9 @@ auto Control::async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16>
 
 auto Control::async_get_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<neighbor_result_t> {
-    co_await acquire_socket_token();
+    if (auto gate_error = co_await acquire_socket_token(); gate_error) {
+        co_return std::unexpected{gate_error};
+    }
 
     if (auto result = socket_guard_.ensure_open(); !result) {
         co_return std::unexpected(result.error());
@@ -239,7 +257,7 @@ auto Control::async_get_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> a
     co_return co_await task.async_run();
 }
 
-auto Control::acquire_socket_token() -> asio::awaitable<void> {
+auto Control::acquire_socket_token() -> asio::awaitable<std::error_code> {
     auto next = gate_.expiry() + std::chrono::nanoseconds{1};
     auto now = asio::steady_timer::clock_type::now();
 
@@ -250,11 +268,22 @@ auto Control::acquire_socket_token() -> asio::awaitable<void> {
     gate_.expires_at(next);
 
     boost::system::error_code ec;
+
+#if defined(RTACO_ENABLE_TEST_HOOKS)
+    if (auto injected = test_hooks::consume_gate_wait_error(); injected) {
+        ec = injected;
+    } else {
+        co_await gate_.async_wait(asio::redirect_error(asio::use_awaitable, ec));
+    }
+#else
     co_await gate_.async_wait(asio::redirect_error(asio::use_awaitable, ec));
+#endif
 
     if (ec && ec != asio::error::operation_aborted) {
-        throw std::runtime_error("gate wait failed: " + ec.message());
+        co_return ec;
     }
+
+    co_return std::error_code{};
 }
 
 } // namespace rtaco
