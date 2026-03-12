@@ -50,7 +50,7 @@ auto RouteEvent::from_nlmsghdr(const nlmsghdr& header) -> RouteEvent {
         }
     });
 
-    if (event.oif_index != 0U) {
+    if (event.oif_index != 0) {
         event.oif = std::to_string(event.oif_index);
     }
 

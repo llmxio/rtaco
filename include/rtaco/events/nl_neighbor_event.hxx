@@ -36,10 +36,10 @@ struct NeighborEvent {
 
     Type type{Type::UNKNOWN};
     int index{0};
-    uint8_t family{0U};
+    uint8_t family{0};
     State state{State::NONE};
-    uint8_t flags{0U};
-    uint8_t neighbor_type{0U};
+    uint8_t flags{0};
+    uint8_t neighbor_type{0};
     std::string address{};
     std::string lladdr{};
 
@@ -70,7 +70,7 @@ struct NeighborEvent {
 
         std::string result{};
         for (const auto& entry : state_names) {
-            if ((std::to_underlying(state) & entry.mask) != 0U) {
+            if ((std::to_underlying(state) & entry.mask) != 0) {
                 if (!result.empty()) {
                     result += '|';
                 }

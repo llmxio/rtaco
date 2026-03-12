@@ -78,7 +78,7 @@ auto Socket::open(int proto, uint32_t groups) -> std::expected<void, std::error_
         return {};
     };
 
-    if (auto rc = enable_option(recv_buf_option{1 << 16}); !rc) {
+    if (auto rc = enable_option(recv_buf_option{(1 << 16)}); !rc) {
         return rc;
     }
 
