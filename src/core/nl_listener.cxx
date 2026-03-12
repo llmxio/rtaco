@@ -19,6 +19,7 @@
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 
+#include "rtaco/core/nl_common.hxx"
 #include "rtaco/events/nl_address_event.hxx"
 #include "rtaco/events/nl_link_event.hxx"
 #include "rtaco/events/nl_route_event.hxx"
@@ -161,8 +162,7 @@ void Listener::handle_message(const nlmsghdr& header) {
 }
 
 void Listener::handle_error_message(const nlmsghdr& header) {
-    if (const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
-            err != nullptr) {
+    if (const auto* err = checked_nlmsgerr(header); err != nullptr) {
         on_nlmsgerr_event_(*err, header);
     }
 }

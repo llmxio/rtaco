@@ -11,6 +11,7 @@
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 
+#include "rtaco/core/nl_common.hxx"
 #include "rtaco/events/nl_route_event.hxx"
 #include "rtaco/tasks/nl_route_task.hxx"
 
@@ -47,7 +48,7 @@ auto RouteDumpTask::handle_done() -> std::expected<RouteEventList, std::error_co
 
 auto RouteDumpTask::handle_error(const nlmsghdr& header)
         -> std::expected<RouteEventList, std::error_code> {
-    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto* err = checked_nlmsgerr(header);
     const auto code = err != nullptr ? -err->error : EPROTO;
     const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 
