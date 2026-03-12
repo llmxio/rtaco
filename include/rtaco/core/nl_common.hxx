@@ -72,7 +72,7 @@ inline auto extract_ifname(const nlmsghdr& header) -> std::string {
         }
 
         const auto payload = static_cast<size_t>(RTA_PAYLOAD(attr));
-        if (payload == 0U) {
+        if (payload == 0) {
             continue;
         }
 
@@ -94,7 +94,7 @@ inline auto extract_ifname(const nlmsghdr& header) -> std::string {
  */
 inline auto attribute_string(const rtattr& attr) -> std::string {
     const auto payload = static_cast<size_t>(RTA_PAYLOAD(&attr));
-    if (payload == 0U) {
+    if (payload == 0) {
         return {};
     }
 
@@ -142,7 +142,7 @@ inline auto attribute_address(const rtattr& attr, uint8_t family) -> std::string
  */
 inline auto attribute_uint32(const rtattr& attr) -> uint32_t {
     if (RTA_PAYLOAD(&attr) < sizeof(uint32_t)) {
-        return 0U;
+        return 0;
     }
 
     uint32_t value{};
@@ -156,7 +156,7 @@ inline auto attribute_uint32(const rtattr& attr) -> uint32_t {
  */
 inline auto attribute_hwaddr(const rtattr& attr) -> std::string {
     const auto payload = static_cast<size_t>(RTA_PAYLOAD(&attr));
-    if (payload == 0U) {
+    if (payload == 0) {
         return {};
     }
 
@@ -170,7 +170,7 @@ inline auto attribute_hwaddr(const rtattr& attr) -> std::string {
 
     constexpr char kHex[] = "0123456789abcdef";
     for (size_t i = 0; i < payload; ++i) {
-        if (i != 0U) {
+        if (i != 0) {
             value.push_back(':');
         }
         const auto byte = data[i];
