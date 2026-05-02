@@ -23,6 +23,19 @@
 namespace llmx {
 namespace rtaco {
 
+namespace detail {
+
+inline auto validate_received_size(size_t bytes, size_t capacity)
+        -> std::expected<void, std::error_code> {
+    if (bytes >= capacity) {
+        return std::unexpected(std::make_error_code(std::errc::message_size));
+    }
+
+    return {};
+}
+
+} // namespace detail
+
 template<typename Derived, typename Result>
 concept request_behavior =
         requires(Derived& derived, const Derived& const_derived, const nlmsghdr& header) {
@@ -48,7 +61,7 @@ class RequestTask {
     std::array<uint8_t, MAX_RESPONSE_BYTES> receive_buffer_;
 
     SocketGuard& socket_guard_;
-    uint16_t ifindex_;
+    uint32_t ifindex_;
     uint32_t sequence_;
 
 public:
@@ -58,7 +71,7 @@ public:
      * @param ifindex Interface index associated with the request.
      * @param sequence Netlink sequence number for messages.
      */
-    RequestTask(SocketGuard& socket_guard, uint16_t ifindex, uint32_t sequence) noexcept
+    RequestTask(SocketGuard& socket_guard, uint32_t ifindex, uint32_t sequence) noexcept
         : socket_guard_{socket_guard}
         , ifindex_{ifindex}
         , sequence_{sequence} {}
@@ -90,7 +103,7 @@ protected:
         return sequence_;
     }
 
-    auto ifindex() const noexcept -> uint16_t {
+    auto ifindex() const noexcept -> uint32_t {
         return ifindex_;
     }
 
@@ -136,7 +149,10 @@ private:
                         std::error_code{ec.value(), std::generic_category()});
             }
 
-            if (bytes >= receive_buffer_.size()) {
+            if (auto size_ok = detail::validate_received_size(
+                        bytes, receive_buffer_.size());
+                    !size_ok) {
+                co_return std::unexpected(size_ok.error());
             }
 
             auto remaining = static_cast<unsigned int>(bytes);

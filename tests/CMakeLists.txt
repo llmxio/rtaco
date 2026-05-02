@@ -41,9 +41,11 @@ FetchContent_MakeAvailable(googletest)
 add_executable(test_rtaco
   test_signal.cpp
   test_requesttask_compile.cpp
+  test_requesttask.cpp
   test_socket.cpp
   test_control.cpp
   test_nl_common.cpp
+  test_neighbor_tasks.cpp
 )
 
 set(rtaco_test_sources)

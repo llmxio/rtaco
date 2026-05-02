@@ -12,13 +12,14 @@
 #include <linux/rtnetlink.h>
 
 #include "rtaco/tasks/nl_neighbor_task.hxx"
+#include "rtaco/core/nl_common.hxx"
 
 namespace llmx {
 namespace rtaco {
 
-NeighborProbeTask::NeighborProbeTask(SocketGuard& socket_guard, uint16_t uint16_t,
+NeighborProbeTask::NeighborProbeTask(SocketGuard& socket_guard, uint32_t ifindex,
         uint32_t sequence, std::span<uint8_t, 16> address)
-    : NeighborTask{socket_guard, uint16_t, sequence} {
+    : NeighborTask{socket_guard, ifindex, sequence} {
     for (std::size_t i = 0; i < 16; ++i) {
         address_[i] = address[i];
     }
@@ -44,7 +45,7 @@ auto NeighborProbeTask::process_message(const nlmsghdr& header)
 
 auto NeighborProbeTask::handle_error(const nlmsghdr& header)
         -> std::expected<void, std::error_code> {
-    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto* err = checked_nlmsgerr(header);
     const auto code = err != nullptr ? -err->error : EPROTO;
     const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 

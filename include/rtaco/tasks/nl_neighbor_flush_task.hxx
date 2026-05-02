@@ -32,7 +32,7 @@ public:
      * @param sequence Netlink message sequence number.
      * @param address Address bytes to identify the neighbor.
      */
-    NeighborFlushTask(SocketGuard& socket_guard, uint16_t ifindex, uint32_t sequence,
+    NeighborFlushTask(SocketGuard& socket_guard, uint32_t ifindex, uint32_t sequence,
             std::span<uint8_t, 16> address);
 
     /** @brief Prepare the netlink request to flush the neighbor entry. */

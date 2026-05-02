@@ -87,27 +87,27 @@ public:
      * @param address IPv6/IPv4 address bytes (16-byte span).
      * @return Expected void or error on failure.
      */
-    auto probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto probe_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> void_result_t;
 
     /** @brief Flush a neighbour entry (synchronous). */
-    auto flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto flush_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> void_result_t;
 
     /** @brief Get a neighbor entry synchronously. */
-    auto get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto get_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> neighbor_result_t;
 
     /** @brief Asynchronously probe a neighbor. */
-    auto async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto async_probe_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<void_result_t>;
 
     /** @brief Asynchronously flush a neighbor. */
-    auto async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto async_flush_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<void_result_t>;
 
     /** @brief Asynchronously get a neighbor. */
-    auto async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto async_get_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<neighbor_result_t>;
 
     /** @brief Stop ongoing operations and release control resources. */
@@ -121,13 +121,13 @@ private:
     auto async_dump_links_impl() -> boost::asio::awaitable<link_list_result_t>;
     auto async_dump_neighbors_impl() -> boost::asio::awaitable<neighbor_list_result>;
 
-    auto async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto async_probe_neighbor_impl(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<void_result_t>;
 
-    auto async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto async_flush_neighbor_impl(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<void_result_t>;
 
-    auto async_get_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+    auto async_get_neighbor_impl(uint32_t ifindex, std::span<uint8_t, 16> address)
             -> boost::asio::awaitable<neighbor_result_t>;
 
     boost::asio::io_context& io_;
