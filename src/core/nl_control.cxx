@@ -95,7 +95,7 @@ auto Control::async_dump_neighbors()
             asio::use_awaitable);
 }
 
-auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::flush_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> std::expected<void, std::error_code> {
     auto future = asio::co_spawn(strand_, async_flush_neighbor_impl(ifindex, address),
             asio::use_future);
@@ -103,13 +103,13 @@ auto Control::flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
     return future.get();
 }
 
-auto Control::async_flush_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::async_flush_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<std::expected<void, std::error_code>> {
     co_return co_await asio::co_spawn(strand_,
             async_flush_neighbor_impl(ifindex, address), asio::use_awaitable);
 }
 
-auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::probe_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> std::expected<void, std::error_code> {
     auto future = asio::co_spawn(strand_, async_probe_neighbor_impl(ifindex, address),
             asio::use_future);
@@ -117,13 +117,13 @@ auto Control::probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
     return future.get();
 }
 
-auto Control::async_probe_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::async_probe_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<std::expected<void, std::error_code>> {
     co_return co_await asio::co_spawn(strand_,
             async_probe_neighbor_impl(ifindex, address), asio::use_awaitable);
 }
 
-auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::get_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> std::expected<NeighborEvent, std::error_code> {
     auto future = asio::co_spawn(strand_, async_get_neighbor_impl(ifindex, address),
             asio::use_future);
@@ -131,7 +131,7 @@ auto Control::get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
     return future.get();
 }
 
-auto Control::async_get_neighbor(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::async_get_neighbor(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<std::expected<NeighborEvent, std::error_code>> {
     co_return co_await asio::co_spawn(strand_, async_get_neighbor_impl(ifindex, address),
             asio::use_awaitable);
@@ -209,7 +209,7 @@ auto Control::async_dump_links_impl() -> asio::awaitable<link_list_result_t> {
     co_return co_await task.async_run();
 }
 
-auto Control::async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::async_probe_neighbor_impl(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<void_result_t> {
     if (auto gate_error = co_await acquire_socket_token(); gate_error) {
         co_return std::unexpected{gate_error};
@@ -225,7 +225,7 @@ auto Control::async_probe_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16>
     co_return co_await task.async_run();
 }
 
-auto Control::async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::async_flush_neighbor_impl(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<void_result_t> {
     if (auto gate_error = co_await acquire_socket_token(); gate_error) {
         co_return std::unexpected{gate_error};
@@ -241,7 +241,7 @@ auto Control::async_flush_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16>
     co_return co_await task.async_run();
 }
 
-auto Control::async_get_neighbor_impl(uint16_t ifindex, std::span<uint8_t, 16> address)
+auto Control::async_get_neighbor_impl(uint32_t ifindex, std::span<uint8_t, 16> address)
         -> asio::awaitable<neighbor_result_t> {
     if (auto gate_error = co_await acquire_socket_token(); gate_error) {
         co_return std::unexpected{gate_error};

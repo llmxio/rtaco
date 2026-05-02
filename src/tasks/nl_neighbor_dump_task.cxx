@@ -15,6 +15,7 @@
 #include <linux/rtnetlink.h>
 
 #include "rtaco/events/nl_neighbor_event.hxx"
+#include "rtaco/core/nl_common.hxx"
 #include "rtaco/tasks/nl_neighbor_task.hxx"
 
 namespace llmx {
@@ -53,7 +54,7 @@ auto NeighborDumpTask::handle_done()
 
 auto NeighborDumpTask::handle_error(const nlmsghdr& header)
         -> std::expected<NeighborEventList, std::error_code> {
-    const auto* err = reinterpret_cast<const nlmsgerr*>(NLMSG_DATA(&header));
+    const auto* err = checked_nlmsgerr(header);
     const auto code = err != nullptr ? -err->error : EPROTO;
     const auto error_code = std::make_error_code(static_cast<std::errc>(code));
 

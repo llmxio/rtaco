@@ -11,7 +11,6 @@
 #include <boost/asio/any_io_executor.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
-#include <boost/asio/detached.hpp>
 #include <boost/asio/post.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/use_future.hpp>
@@ -139,9 +138,9 @@ public:
                     std::apply(slot_fn, *args_pack);
                 };
 
-                boost::asio::co_spawn(executor, std::move(coroutine),
-                        boost::asio::detached);
-                return detail::make_ready_shared_future();
+                auto future = boost::asio::co_spawn(executor, std::move(coroutine),
+                        boost::asio::use_future);
+                return future.share();
             }
 
             auto coroutine = [slot_fn, args_pack,

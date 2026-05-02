@@ -8,6 +8,7 @@
 #include <iostream>
 #include <span>
 #include <system_error>
+#include <unordered_map>
 
 #include <boost/asio/error.hpp>
 #include <boost/system/error_code.hpp>
@@ -136,17 +137,17 @@ void Listener::process_messages(std::span<const uint8_t> data) {
 void Listener::handle_message(const nlmsghdr& header) {
     using HandlerEntry12 = std::pair<size_t, void (Listener::*)(const nlmsghdr&)>;
 
-    static std::unordered_map<int, HandlerEntry12> handlers;
-
-    handlers[RTM_NEWLINK] = {sizeof(ifinfomsg), &Listener::handle_link_message};
-    handlers[RTM_DELLINK] = {sizeof(ifinfomsg), &Listener::handle_link_message};
-    handlers[RTM_NEWADDR] = {sizeof(ifaddrmsg), &Listener::handle_address_message};
-    handlers[RTM_DELADDR] = {sizeof(ifaddrmsg), &Listener::handle_address_message};
-    handlers[RTM_NEWROUTE] = {sizeof(rtmsg), &Listener::handle_route_message};
-    handlers[RTM_DELROUTE] = {sizeof(rtmsg), &Listener::handle_route_message};
-    handlers[RTM_NEWNEIGH] = {sizeof(ndmsg), &Listener::handle_neighbor_message};
-    handlers[RTM_DELNEIGH] = {sizeof(ndmsg), &Listener::handle_neighbor_message};
-    handlers[NLMSG_ERROR] = {sizeof(nlmsgerr), &Listener::handle_error_message};
+    static const std::unordered_map<int, HandlerEntry12> handlers = {
+            {RTM_NEWLINK, {sizeof(ifinfomsg), &Listener::handle_link_message}},
+            {RTM_DELLINK, {sizeof(ifinfomsg), &Listener::handle_link_message}},
+            {RTM_NEWADDR, {sizeof(ifaddrmsg), &Listener::handle_address_message}},
+            {RTM_DELADDR, {sizeof(ifaddrmsg), &Listener::handle_address_message}},
+            {RTM_NEWROUTE, {sizeof(rtmsg), &Listener::handle_route_message}},
+            {RTM_DELROUTE, {sizeof(rtmsg), &Listener::handle_route_message}},
+            {RTM_NEWNEIGH, {sizeof(ndmsg), &Listener::handle_neighbor_message}},
+            {RTM_DELNEIGH, {sizeof(ndmsg), &Listener::handle_neighbor_message}},
+            {NLMSG_ERROR, {sizeof(nlmsgerr), &Listener::handle_error_message}},
+    };
 
     if (!handlers.contains(header.nlmsg_type)) {
         return;
